@@ -106,6 +106,16 @@ Vector2 CalcTextPos(Vector2 pos, size_t index)
     return pos;
 }
 
+void DrawCursor(Cell cell, unsigned int cellIndex, Font font)
+{
+    Vector2 pos = {0};
+    pos = CalcTextPos(pos, cellIndex);
+    Vector2 size = MeasureTextEx(font, cell.text, FONT_SIZE, 1);
+    pos.x = pos.x + (DEFAULT_CELL_WIDTH / 2) + (size.x / 2);
+    
+    DrawLineEx(pos, (Vector2){pos.x, pos.y + DEFAULT_CELL_HEIGHT}, 1.0, GRAY);
+}
+
 void DrawTextCentered(Font font, Vector2 pos, float fontSize, float spacing, Cell cell)
 {
     Vector2 size = MeasureTextEx(font, cell.text, fontSize, spacing);
@@ -137,29 +147,6 @@ void DrawTextAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell
             assert("TODO: ALIGN_RIGHT");
             break;
         }
-}
-
-void InputHandler(Cell *cell)
-{
-    int key = GetCharPressed();
-
-    // Check if more characters have been pressed on the same frame
-    while (key > 0) {
-        // NOTE: Only allow keys in range [32..125]
-        if ((key >= 32) && (key <= 125) && (cell->cursor < CELL_TEXT_LENGTH - 1)) {
-            cell->text[cell->cursor] = (char)key;
-            cell->text[cell->cursor + 1] = '\0'; // Add null terminator at the end of the string.
-            cell->cursor++;
-        }
-
-        key = GetCharPressed(); // Check next character in the queue
-    }
-    if (IsKeyPressed(KEY_BACKSPACE)) {
-        cell->cursor--;
-        if (cell->cursor < 0)
-            cell->cursor = 0;
-        cell->text[cell->cursor] = '\0';
-    }
 }
 
 void SelectionHandler(bool *selectionState, unsigned int *cellIndex)
@@ -222,10 +209,9 @@ unsigned int countChars(char* text, char c, size_t len)
 // Filters string to be converted into time / Outputs "mm:ss"
 char* filterCellText(char* text)
 {
-    char* dummy = "00:00";
+    char* dummy = "00:00\0";
     size_t textLen = strlen(text);
-    // const char* tStart = text;
-    const char* tEnd = text + textLen - 1; // Don't want to refer to null
+    const char* tEnd = text + textLen - 1; // Don't want to refer to null terminator
     if (strpbrk(text, ":1234567890") != NULL) {
         unsigned int cCount = countChars(text, ':', textLen);
         if (cCount == 0) {
@@ -256,4 +242,31 @@ void CompareTimes(Cell *cellL, Cell *cellR)
         cellL->highlight = TRANSPARENT;
         cellR->highlight = TRANSPARENT;
     } // TODO: user gets WR as time and is highlighted GOLD (unlikely, but would like this feature)
+}
+
+void InputHandler(Cell *cell)
+{
+    int key = GetCharPressed();
+
+    // Check if more characters have been pressed on the same frame
+    while (key > 0) {
+        // NOTE: Only allow keys in range [32..125]
+        if ((key >= 32) && (key <= 125) && (cell->cursor < CELL_TEXT_LENGTH - 1)) {
+            cell->text[cell->cursor] = (char)key;
+            cell->text[cell->cursor + 1] = '\0'; // Add null terminator at the end of the string.
+            cell->cursor++;
+        }
+
+        key = GetCharPressed(); // Check next character in the queue
+    }
+    if (IsKeyPressed(KEY_BACKSPACE)) {
+        cell->cursor--;
+        if (cell->cursor < 0)
+            cell->cursor = 0;
+        cell->text[cell->cursor] = '\0';
+    }
+    if (IsKeyPressed(KEY_ENTER)) {
+        cell->text = filterCellText(cell->text);
+        cell->cursor = strlen(cell->text);
+    }
 }

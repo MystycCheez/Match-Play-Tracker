@@ -2,14 +2,6 @@
 
 int main()
 {
-    // printf("%s\n", secsToTime(69));
-    // filterCellText("0:00");
-    printf("01:11 -> %d\n", timeToSecs(filterCellText("01:11")));
-    printf("1:11  -> %d\n", timeToSecs(filterCellText("1:11")));
-    printf(":11   -> %d\n", timeToSecs(filterCellText(":11")));
-    printf("11    -> %d\n", timeToSecs(filterCellText("11")));
-    printf("1     -> %d\n", timeToSecs(filterCellText("1"))); // Only this should fail
-    exit(1);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Match Play Tracker");
 
     Font font = initFont();
@@ -46,7 +38,6 @@ int main()
     {
         SelectionHandler(&selectionState, &selectedCell);
         if (selectionState) InputHandler(&cell[selectedCell]);
-
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
 
@@ -69,6 +60,7 @@ int main()
             DrawTextAligned(font, TextPos, FONT_SIZE, 1, cell[i], i);
             EndShaderMode();
         }    
+        if (selectionState) DrawCursor(cell[selectedCell], selectedCell, font);
         DrawCellBorders(selectedCell);
 
         EndDrawing();
