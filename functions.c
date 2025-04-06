@@ -162,6 +162,11 @@ void SelectionHandler(bool *selectionState, unsigned int *cellIndex)
         }
         *cellIndex = xyToIndex(mousePos);
     }
+    if (*cellIndex == 0) return;
+    if (*cellIndex < (*cellIndex % 3)) {
+        *selectionState = false;
+        *cellIndex = 0;
+    }
 }
 
 // Expects format: "mm:ss"
@@ -209,7 +214,6 @@ unsigned int countChars(char* text, char c, size_t len)
 // Filters string to be converted into time / Outputs "mm:ss"
 char* filterCellText(Cell *cell)
 {
-
     char* dummy = malloc(sizeof(char) * 5);
     sprintf(dummy, "0:00");
     size_t textLen = strlen(cell->text);
@@ -260,29 +264,33 @@ void CompareTimes(Cell *cellL, Cell *cellR)
     } // TODO: user gets WR as time and is highlighted GOLD (unlikely, but would like this feature)
 }
 
-void InputHandler(Cell *cell)
+void InputHandler(Cell *cell, unsigned int *cellIndex, bool *selectionState)
 {
     int key = GetCharPressed();
 
     // Check if more characters have been pressed on the same frame
     while (key > 0) {
         // NOTE: Only allow keys in range [32..125]
-        if ((key >= 32) && (key <= 125) && (cell->cursor < CELL_TEXT_LENGTH - 1)) {
-            cell->text[cell->cursor] = (char)key;
-            cell->text[cell->cursor + 1] = '\0'; // Add null terminator at the end of the string.
-            cell->cursor++;
+        if ((key >= 32) && (key <= 125) && (cell[*cellIndex].cursor < CELL_TEXT_LENGTH - 1)) {
+            cell[*cellIndex].text[cell[*cellIndex].cursor] = (char)key;
+            cell[*cellIndex].text[cell[*cellIndex].cursor + 1] = '\0'; // Add null terminator at the end of the string.
+            cell[*cellIndex].cursor++;
         }
 
         key = GetCharPressed(); // Check next character in the queue
     }
     if (IsKeyPressed(KEY_BACKSPACE)) {
-        cell->cursor--;
-        if (cell->cursor < 0)
-            cell->cursor = 0;
-        cell->text[cell->cursor] = '\0';
+        cell[*cellIndex].cursor--;
+        if (cell[*cellIndex].cursor < 0)
+            cell[*cellIndex].cursor = 0;
+        cell[*cellIndex].text[cell[*cellIndex].cursor] = '\0';
     }
     if (IsKeyPressed(KEY_ENTER)) {
-        cell->text = filterCellText(cell);
-        cell->cursor = strlen(cell->text);
+        if (*cellIndex > 2) {
+            cell[*cellIndex].text = filterCellText(cell);
+        } 
+        cell[*cellIndex].cursor = strlen(cell[*cellIndex].text);
+        *cellIndex = *cellIndex + 3;
+        SelectionHandler(selectionState, cellIndex);
     }
 }

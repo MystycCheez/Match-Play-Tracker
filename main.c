@@ -37,7 +37,7 @@ int main()
     while (!WindowShouldClose())
     {
         SelectionHandler(&selectionState, &selectedCell);
-        if (selectionState) InputHandler(&cell[selectedCell]);
+        if (selectionState) InputHandler(cell, &selectedCell, &selectionState);
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
 
