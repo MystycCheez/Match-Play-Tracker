@@ -181,8 +181,10 @@ void SelectionHandler(bool *selectionState, unsigned int *cellIndex)
 unsigned int timeToSecs(char* time)
 {
     size_t timeLen = strlen(time);
-    assert(timeLen < 5 && "use filterCellText");
-    if (timeLen == 3) {
+    assert(timeLen < 6 && "use filterCellText");
+    if (timeLen < 3) {
+        return atoi(time);
+    } else {
         char *a = malloc(sizeof(char) * timeLen - 2);
         char *b = malloc(sizeof(char) * 2);
         strncpy(a, time, timeLen - 2);
@@ -190,11 +192,6 @@ unsigned int timeToSecs(char* time)
         unsigned int minutes = atoi(a);
         unsigned int seconds = atoi(b);
         return seconds + (minutes * 60);
-    }
-    if (timeLen < 3) {
-        return atoi(time);
-    } else {
-        
     }
 }
 
@@ -214,28 +211,33 @@ unsigned int countChars(char* text, char c, size_t len)
 {
     unsigned int count = 0;
     char* p;
-    if ((p = memchr(text, c, len))) count++;
+    p = memchr(text, c, len);
     while (p != NULL) {
-        p = memchr(text, c, len);
+        p = memchr(p+1, c, len);
         count++;
     }
     return count;
 }
 
-// Filters text for time format
+// Filters string to be converted into time / Outputs "mm:ss"
 char* filterCellText(char* text)
 {
-    char* dummy = "0000";
+    char* dummy = "00:00";
+    size_t textLen = strlen(text);
+    // const char* tStart = text;
+    const char* tEnd = text + textLen - 1; // Don't want to refer to null
     if (strpbrk(text, ":1234567890") != NULL) {
-        size_t textLen = strlen(text);
-        unsigned int c = countChars(text, ':', textLen);
-        if (textLen > 8)        return dummy;
-        if (textLen < 2)        return dummy;
-        if (c > 2)              return dummy;
-        if (textLen - c < 2)    return dummy;
-        if (c == 0) {
-            printf("%d\n", timeToSecs(text));
-        }
+        unsigned int cCount = countChars(text, ':', textLen);
+        if (cCount == 0) {
+            if (textLen > 4 || textLen < 2) return dummy;
+            return text;
+        } else if (cCount == 1 && tEnd[-2] == ':') {
+            if (textLen > 5 || textLen < 3) return dummy;
+            return text;
+        } else if (cCount == 2 && tEnd[-5] == ':') {
+            if (textLen != 8) return dummy;
+            return text;
+        } else return dummy;
     } else return dummy;
 }
 

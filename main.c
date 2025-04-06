@@ -3,8 +3,13 @@
 int main()
 {
     // printf("%s\n", secsToTime(69));
-    printf("%d\n", timeToSecs("00:00"));
-    // exit(1);
+    // filterCellText("0:00");
+    printf("01:11 -> %d\n", timeToSecs(filterCellText("01:11")));
+    printf("1:11  -> %d\n", timeToSecs(filterCellText("1:11")));
+    printf(":11   -> %d\n", timeToSecs(filterCellText(":11")));
+    printf("11    -> %d\n", timeToSecs(filterCellText("11")));
+    printf("1     -> %d\n", timeToSecs(filterCellText("1"))); // Only this should fail
+    exit(1);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Match Play Tracker");
 
     Font font = initFont();
