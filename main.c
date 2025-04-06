@@ -10,7 +10,7 @@ int main()
     Players players = {"Player 1", "Player 2", 0, 0};
 
     unsigned int selectedCell = 4;
-    bool selectionState = false;
+    bool selectionState = true;
 
     Line borders[COLUMNS + ROWS] = {0};
     initBorderPositions(borders);

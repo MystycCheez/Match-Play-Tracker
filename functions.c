@@ -207,30 +207,46 @@ unsigned int countChars(char* text, char c, size_t len)
 }
 
 // Filters string to be converted into time / Outputs "mm:ss"
-char* filterCellText(char* text)
+char* filterCellText(Cell *cell)
 {
-    char* dummy = "00:00\0";
-    size_t textLen = strlen(text);
-    const char* tEnd = text + textLen - 1; // Don't want to refer to null terminator
-    if (strpbrk(text, ":1234567890") != NULL) {
-        unsigned int cCount = countChars(text, ':', textLen);
+
+    char* dummy = malloc(sizeof(char) * 5);
+    sprintf(dummy, "0:00");
+    size_t textLen = strlen(cell->text);
+    const char* tEnd = cell->text + textLen - 1; // Don't want to refer to null terminator
+    if (strpbrk(cell->text, ":1234567890") != NULL) {
+        unsigned int cCount = countChars(cell->text, ':', textLen);
         if (cCount == 0) {
             if (textLen > 4 || textLen < 2) return dummy;
-            return text;
+            char* mod = malloc(sizeof(char) * 4);
+            sprintf(mod, "0:%s", cell->text);
+            return mod;
         } else if (cCount == 1 && tEnd[-2] == ':') {
             if (textLen > 5 || textLen < 3) return dummy;
-            return text;
+            if (textLen == 3) {
+                char* mod = malloc(sizeof(char) * 4);
+                sprintf(mod, "0%s", cell->text);
+                return mod;
+            } else if ((textLen == 5) && (cell->text[0] == '0')) {
+                char* mod = malloc(sizeof(char) * 4);
+                sprintf(mod, "%s", cell->text + 1);
+                return mod;
+            }
+            return cell->text;
         } else if (cCount == 2 && tEnd[-5] == ':') {
             if (textLen != 8) return dummy;
-            return text;
+            char* mod = malloc(sizeof(char) * 4);
+            sprintf(mod, "%s", cell->text + 3);
+            // if (tEnd[-2] != ':') return dummy;
+            return mod;
         } else return dummy;
     } else return dummy;
 }
 
 void CompareTimes(Cell *cellL, Cell *cellR)
 {
-    unsigned int timeL = timeToSecs(filterCellText(cellL->text));
-    unsigned int timeR = timeToSecs(filterCellText(cellR->text));
+    unsigned int timeL = timeToSecs(filterCellText(cellL));
+    unsigned int timeR = timeToSecs(filterCellText(cellR));
     if ((timeL == 0) || (timeR == 0)) return;
     if (timeL > timeR) {
         cellL->highlight = GREEN;
@@ -266,7 +282,7 @@ void InputHandler(Cell *cell)
         cell->text[cell->cursor] = '\0';
     }
     if (IsKeyPressed(KEY_ENTER)) {
-        cell->text = filterCellText(cell->text);
+        cell->text = filterCellText(cell);
         cell->cursor = strlen(cell->text);
     }
 }
