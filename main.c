@@ -2,13 +2,15 @@
 
 int main()
 {
+    // printf("%s\n", secsToTime(69));
+    printf("%d\n", timeToSecs("00:00"));
+    // exit(1);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Match Play Tracker");
 
-    char *player1 = "Player 1";
-    char *player2 = "Player 2";
-    int score1 = 0;
-    int score2 = 0;
-    Players players = {player1, player2, score1, score2};
+    Font font = initFont();
+    Shader shader = LoadShader(0, TextFormat("resources/shaders/glsl%i/sdf.fs", GLSL_VERSION));
+
+    Players players = {"Player 1", "Player 2", 0, 0};
 
     unsigned int selectedCell = 4;
     bool selectionState = false;
@@ -32,9 +34,6 @@ int main()
     initCellText(cell, players);
 
     Vector2 TextPos = {0};
-
-    const char *font_file = "C:/Windows/Fonts/trebucbd.ttf";
-    Font font = LoadFontEx(font_file, 100, NULL, 250);
 
     SetTargetFPS(144);
 
@@ -61,7 +60,9 @@ int main()
         }
         for (size_t i = 0; i < CELL_COUNT; i++)
         {
-            DrawTextAligned(font, TextPos, 30, 1, cell[i], i);
+            BeginShaderMode(shader);
+            DrawTextAligned(font, TextPos, FONT_SIZE, 1, cell[i], i);
+            EndShaderMode();
         }    
         DrawCellBorders(selectedCell);
 

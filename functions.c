@@ -1,5 +1,23 @@
 #include "includes.h"
 
+Font initFont()
+{
+    const char *font_file = "C:/Windows/Fonts/trebucbd.ttf";
+    // Font font = LoadFontEx(font_file, FONT_SIZE, NULL, 250);
+
+    int fileSize = 0;
+    unsigned char* fileData = LoadFileData(font_file, &fileSize);
+    Font font = {0};
+    font.baseSize = FONT_SIZE * 5;
+    font.glyphCount = 95;
+    font.glyphs = LoadFontData(fileData, fileSize, FONT_SIZE * 5, 0, 0, FONT_SDF);
+    Image atlas = GenImageFontAtlas(font.glyphs, &font.recs, font.glyphCount, FONT_SIZE * 5, 0, 1);
+    font.texture = LoadTextureFromImage(atlas);
+    UnloadImage(atlas);
+    // SetTextureFilter(font.texture, TEXTURE_FILTER_POINT);
+    return font;
+}
+
 char** loadLevelText()
 {
     FILE *file_ptr = fopen("levels.txt", "r");
@@ -84,7 +102,7 @@ void DrawCellBorders(unsigned int cellIndex)
 Vector2 CalcTextPos(Vector2 pos, size_t index)
 {
     pos.x = pos.x + (DEFAULT_CELL_WIDTH * (index % 3));
-    pos.y = pos.y + (DEFAULT_CELL_HEIGHT * (index / 3));
+    pos.y = 1 + pos.y + (DEFAULT_CELL_HEIGHT * (index / 3));
     return pos;
 }
 
@@ -110,46 +128,15 @@ void DrawTextAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell
 {
     switch (cell.alignment) {
         case ALIGN_LEFT:
-            DrawTextLeftAligned(font, CalcTextPos(pos, i), 30, 1, cell);
+            DrawTextLeftAligned(font, CalcTextPos(pos, i), fontSize, 1, cell);
             break;
         case ALIGN_CENTER:
-            DrawTextCentered(font, CalcTextPos(pos, i), 30, 1, cell);
+            DrawTextCentered(font, CalcTextPos(pos, i), fontSize, 1, cell);
             break;
         case ALIGN_RIGHT:
             assert("TODO: ALIGN_RIGHT");
             break;
         }
-}
-
-// Expects format: mmss
-unsigned int timeToSecs(char* time)
-{
-    size_t timeLen = strlen(time);
-    assert(timeLen > 4);
-    if (timeLen < 3) {
-        return atoi(time);
-    } else {
-        char *a = malloc(sizeof(char) * timeLen - 2);
-        char *b = malloc(sizeof(char) * 2);
-        strncpy(a, time, timeLen - 2);
-        strcpy(b, time + timeLen - 2);
-        unsigned int minutes = atoi(a);
-        unsigned int seconds = atoi(b);
-        return seconds + (minutes * 60);
-    }
-}
-
-// Formats to mm:ss or 0:ss
-char* secsToTime(unsigned int totalSecs)
-{
-    char* time = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-    memset(time, 0, CELL_TEXT_LENGTH);
-    unsigned int minutes = totalSecs / 60;
-    assert(minutes < 100);
-    unsigned int secs = totalSecs % 60;
-    sprintf(time, "%d:%d", minutes, secs);
-    printf("%s\n", time);
-    return time;
 }
 
 void InputHandler(Cell *cell)
@@ -187,26 +174,84 @@ void SelectionHandler(bool *selectionState, unsigned int *cellIndex)
             return;
         }
         *cellIndex = xyToIndex(mousePos);
-        printf("%d\n", *cellIndex);
     }
 }
 
-char* filterCellText(char* text, unsigned int mode)
+// Expects format: "mm:ss"
+unsigned int timeToSecs(char* time)
 {
-    if (mode == MODE_TIME) {
-        if (strchr(text, ':') != NULL) {
-            if (strlen(text) > 5) {
-                memset(text, 0, CELL_TEXT_LENGTH);
-                return text;
-            }
+    size_t timeLen = strlen(time);
+    assert(timeLen < 5 && "use filterCellText");
+    if (timeLen == 3) {
+        char *a = malloc(sizeof(char) * timeLen - 2);
+        char *b = malloc(sizeof(char) * 2);
+        strncpy(a, time, timeLen - 2);
+        strcpy(b, time + timeLen - 2);
+        unsigned int minutes = atoi(a);
+        unsigned int seconds = atoi(b);
+        return seconds + (minutes * 60);
+    }
+    if (timeLen < 3) {
+        return atoi(time);
+    } else {
+        
+    }
+}
+
+// Formats to mm:ss or 0:ss / Expects total number of seconds
+char* secsToTime(unsigned int totalSecs)
+{
+    char* time = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    memset(time, 0, CELL_TEXT_LENGTH);
+    unsigned int minutes = totalSecs / 60;
+    assert(minutes < 100);
+    unsigned int secs = totalSecs % 60;
+    sprintf(time, "%d:%02d", minutes, secs);
+    return time;
+}
+
+unsigned int countChars(char* text, char c, size_t len)
+{
+    unsigned int count = 0;
+    char* p;
+    if ((p = memchr(text, c, len))) count++;
+    while (p != NULL) {
+        p = memchr(text, c, len);
+        count++;
+    }
+    return count;
+}
+
+// Filters text for time format
+char* filterCellText(char* text)
+{
+    char* dummy = "0000";
+    if (strpbrk(text, ":1234567890") != NULL) {
+        size_t textLen = strlen(text);
+        unsigned int c = countChars(text, ':', textLen);
+        if (textLen > 8)        return dummy;
+        if (textLen < 2)        return dummy;
+        if (c > 2)              return dummy;
+        if (textLen - c < 2)    return dummy;
+        if (c == 0) {
+            printf("%d\n", timeToSecs(text));
         }
-    }
-    return text;
+    } else return dummy;
 }
 
-void CompareTimes(Cell cellL, Cell cellR)
+void CompareTimes(Cell *cellL, Cell *cellR)
 {
-    unsigned int timeL = timeToSecs(filterCellText(cellL.text, MODE_TIME));
-    unsigned int timeR = timeToSecs(filterCellText(cellR.text, MODE_TIME));
-    if (timeL > timeR) cellL.highlight = GREEN;
+    unsigned int timeL = timeToSecs(filterCellText(cellL->text));
+    unsigned int timeR = timeToSecs(filterCellText(cellR->text));
+    if ((timeL == 0) || (timeR == 0)) return;
+    if (timeL > timeR) {
+        cellL->highlight = GREEN;
+        cellR->highlight = RED;
+    } else if (timeL < timeR) {
+        cellL->highlight = RED;
+        cellR->highlight = GREEN;
+    } else if (timeL == timeR) {
+        cellL->highlight = TRANSPARENT;
+        cellR->highlight = TRANSPARENT;
+    } // TODO: user gets WR as time and is highlighted GOLD (unlikely, but would like this feature)
 }
