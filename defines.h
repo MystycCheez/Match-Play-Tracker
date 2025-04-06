@@ -29,6 +29,9 @@
 #define COLOR_LEVEL      (Color){0xFF, 0xCC, 0x00, 0xFF}
 #define TRANSPARENT      (Color){0x00, 0x00, 0x00, 0x00}
 
+#define COLOR_WIN        (Color){0x00, 0x4B, 0x00, 0xFF}
+#define COLOR_LOSE       (Color){0x4B, 0x03, 0x03, 0xFF}
+
 #define ALIGN_LEFT 0
 #define ALIGN_CENTER 1
 #define ALIGN_RIGHT 2

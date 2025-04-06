@@ -53,6 +53,14 @@ Vector2 indexToXY(unsigned int index)
     return xy;
 }
 
+Vector2 indexToCR(unsigned int index)
+{
+    Vector2 cr = {0};
+    cr.x = index % COLUMNS;
+    cr.y = index / COLUMNS;
+    return cr;
+}
+
 unsigned int xyToIndex(Vector2 xy)
 {
     unsigned int index = 0;
@@ -61,6 +69,11 @@ unsigned int xyToIndex(Vector2 xy)
     rounded.y = rounded.y / DEFAULT_CELL_HEIGHT;
     index = rounded.x + (rounded.y * COLUMNS);
     return index;
+}
+
+unsigned int crToIndex(Vector2 cr)
+{
+    return (unsigned int)(cr.x + (cr.y * COLUMNS));
 }
 
 void initCellText(Cell* cell, Players players)
@@ -212,36 +225,40 @@ unsigned int countChars(char* text, char c, size_t len)
 }
 
 // Filters string to be converted into time / Outputs "mm:ss"
-char* filterCellText(Cell *cell)
+char* filterCellText(Cell cell)
 {
     char* dummy = malloc(sizeof(char) * 5);
     sprintf(dummy, "0:00");
-    size_t textLen = strlen(cell->text);
-    const char* tEnd = cell->text + textLen - 1; // Don't want to refer to null terminator
-    if (strpbrk(cell->text, ":1234567890") != NULL) {
-        unsigned int cCount = countChars(cell->text, ':', textLen);
+    size_t textLen = strlen(cell.text);
+    const char* tEnd = cell.text + textLen - 1; // Don't want to refer to null terminator
+    if (strpbrk(cell.text, ":1234567890") != NULL) {
+        unsigned int cCount = countChars(cell.text, ':', textLen);
         if (cCount == 0) {
             if (textLen > 4 || textLen < 2) return dummy;
+            if (textLen == 3) {
+                char* mod = malloc(sizeof(char) * 4);
+                sprintf(mod, "%c:%s", cell.text[0], cell.text + 1);
+                return mod;
+            }
             char* mod = malloc(sizeof(char) * 4);
-            sprintf(mod, "0:%s", cell->text);
+            sprintf(mod, "0:%s", cell.text);
             return mod;
         } else if (cCount == 1 && tEnd[-2] == ':') {
             if (textLen > 5 || textLen < 3) return dummy;
             if (textLen == 3) {
                 char* mod = malloc(sizeof(char) * 4);
-                sprintf(mod, "0%s", cell->text);
+                sprintf(mod, "0%s", cell.text);
                 return mod;
-            } else if ((textLen == 5) && (cell->text[0] == '0')) {
+            } else if ((textLen == 5) && (cell.text[0] == '0')) {
                 char* mod = malloc(sizeof(char) * 4);
-                sprintf(mod, "%s", cell->text + 1);
+                sprintf(mod, "%s", cell.text + 1);
                 return mod;
             }
-            return cell->text;
+            return cell.text;
         } else if (cCount == 2 && tEnd[-5] == ':') {
             if (textLen != 8) return dummy;
             char* mod = malloc(sizeof(char) * 4);
-            sprintf(mod, "%s", cell->text + 3);
-            // if (tEnd[-2] != ':') return dummy;
+            sprintf(mod, "%s", cell.text + 3);
             return mod;
         } else return dummy;
     } else return dummy;
@@ -249,15 +266,17 @@ char* filterCellText(Cell *cell)
 
 void CompareTimes(Cell *cellL, Cell *cellR)
 {
-    unsigned int timeL = timeToSecs(filterCellText(cellL));
-    unsigned int timeR = timeToSecs(filterCellText(cellR));
+    if (cellL->text == NULL || cellR->text == NULL) return;
+    unsigned int timeL = timeToSecs(cellL->text);
+    unsigned int timeR = timeToSecs(cellR->text);
+    printf("%d - %d\n", timeL, timeR);
     if ((timeL == 0) || (timeR == 0)) return;
-    if (timeL > timeR) {
-        cellL->highlight = GREEN;
-        cellR->highlight = RED;
-    } else if (timeL < timeR) {
-        cellL->highlight = RED;
-        cellR->highlight = GREEN;
+    if (timeL < timeR) {
+        cellL->highlight = COLOR_WIN;
+        cellR->highlight = COLOR_LOSE;
+    } else if (timeL > timeR) {
+        cellL->highlight = COLOR_LOSE;
+        cellR->highlight = COLOR_WIN;
     } else if (timeL == timeR) {
         cellL->highlight = TRANSPARENT;
         cellR->highlight = TRANSPARENT;
@@ -287,9 +306,13 @@ void InputHandler(Cell *cell, unsigned int *cellIndex, bool *selectionState)
     }
     if (IsKeyPressed(KEY_ENTER)) {
         if (*cellIndex > 2) {
-            cell[*cellIndex].text = filterCellText(cell);
+            cell[*cellIndex].text = filterCellText(cell[*cellIndex]);
         } 
         cell[*cellIndex].cursor = strlen(cell[*cellIndex].text);
+
+        Vector2 cellPos = indexToCR(*cellIndex);
+        CompareTimes(&cell[crToIndex((Vector2){1, cellPos.y})], &cell[crToIndex((Vector2){2, cellPos.y})]);\
+
         *cellIndex = *cellIndex + 3;
         SelectionHandler(selectionState, cellIndex);
     }
