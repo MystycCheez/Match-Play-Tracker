@@ -32,7 +32,7 @@ int main()
 
     Vector2 TextPos = {0};
 
-    SetTargetFPS(144);
+    SetTargetFPS(60);
 
     while (!WindowShouldClose())
     {

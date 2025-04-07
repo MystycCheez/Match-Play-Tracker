@@ -124,9 +124,9 @@ void DrawCursor(Cell cell, unsigned int cellIndex, Font font)
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
     Vector2 size = MeasureTextEx(font, cell.text, FONT_SIZE, 1);
-    char* textChunk = malloc(sizeof(char) * cell.cursor + 1);
-    memset(textChunk, '0', cell.cursor + 1);
-    strncpy(textChunk, cell.text, cell.cursor + 1);
+    char* textChunk = malloc(sizeof(char) * cell.cursor);
+    memset(textChunk, '0', cell.cursor);
+    strncpy(textChunk, cell.text, cell.cursor);
     Vector2 span = MeasureTextEx(font, textChunk, FONT_SIZE, 1); 
     pos.x = pos.x + (DEFAULT_CELL_WIDTH / 2) - (size.x / 2) + (span.x);
 
@@ -274,6 +274,7 @@ char* filterCellText(Cell cell)
 void CompareTimes(Cell *cellL, Cell *cellR)
 {
     if (cellL->text == NULL || cellR->text == NULL) return;
+    printf("%s - %s\n", cellL->text, cellR->text);
     unsigned int timeL = timeToSecs(cellL->text);
     unsigned int timeR = timeToSecs(cellR->text);
     printf("%d - %d\n", timeL, timeR);
@@ -290,34 +291,38 @@ void CompareTimes(Cell *cellL, Cell *cellR)
     } // TODO: user gets WR as time and is highlighted GOLD (unlikely, but would like this feature)
 }
 
-void InputHandler(Cell *cell, unsigned int *cellIndex, bool *selectionState)
+void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState)
 {
+    Cell *cell = &cellList[*cellIndex];
     int key = GetCharPressed();
 
     // Check if more characters have been pressed on the same frame
     while (key > 0) {
         // NOTE: Only allow keys in range [32..125]
-        if ((key >= 32) && (key <= 125) && (cell[*cellIndex].cursor < CELL_TEXT_LENGTH - 1)) {
-            cell[*cellIndex].text[cell[*cellIndex].cursor] = (char)key;
-            cell[*cellIndex].text[cell[*cellIndex].cursor + 1] = '\0'; // Add null terminator at the end of the string.
-            cell[*cellIndex].cursor++;
+        if ((key >= 32) && (key <= 125) && (cell->cursor < CELL_TEXT_LENGTH - 1)) {
+            cell->text[cell->cursor] = (char)key;
+            cell->text[cell->cursor + 1] = '\0'; // Add null terminator at the end of the string.
+            cell->cursor++;
         }
 
         key = GetCharPressed(); // Check next character in the queue
     }
+    if (IsKeyPressed(KEY_LEFT) && cell->cursor > 0) cell->cursor--;
+    if (IsKeyPressed(KEY_RIGHT) && cell->cursor < (int)strlen(cell->text)) cell->cursor++;
+
     if (IsKeyPressed(KEY_BACKSPACE)) {
-        cell[*cellIndex].cursor--;
-        if (cell[*cellIndex].cursor < 0)
-            cell[*cellIndex].cursor = 0;
-        cell[*cellIndex].text[cell[*cellIndex].cursor] = '\0';
+        cell->cursor--;
+        if (cell->cursor < 0)
+            cell->cursor = 0;
+        cell->text[cell->cursor] = '\0';
     }
     if (IsKeyPressed(KEY_ENTER)) {
         if (*cellIndex > 2) {
-            cell[*cellIndex].text = filterCellText(cell[*cellIndex]);
+            cell->text = filterCellText(*cell);
             Vector2 cellPos = indexToCR(*cellIndex);
-            CompareTimes(&cell[crToIndex((Vector2){1, cellPos.y})], &cell[crToIndex((Vector2){2, cellPos.y})]);
+            CompareTimes(&cellList[crToIndex((Vector2){1, cellPos.y})], &cellList[crToIndex((Vector2){2, cellPos.y})]);
         } 
-        cell[*cellIndex].cursor = strlen(cell[*cellIndex].text);
+        cell->cursor = strlen(cell->text);
 
         *cellIndex = *cellIndex + 3;
         SelectionHandler(selectionState, cellIndex, cell);
