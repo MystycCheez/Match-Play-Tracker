@@ -124,8 +124,13 @@ void DrawCursor(Cell cell, unsigned int cellIndex, Font font)
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
     Vector2 size = MeasureTextEx(font, cell.text, FONT_SIZE, 1);
-    pos.x = pos.x + (DEFAULT_CELL_WIDTH / 2) + (size.x / 2);
-    
+    char* textChunk = malloc(sizeof(char) * cell.cursor + 1);
+    memset(textChunk, '0', cell.cursor + 1);
+    strncpy(textChunk, cell.text, cell.cursor + 1);
+    Vector2 span = MeasureTextEx(font, textChunk, FONT_SIZE, 1); 
+    pos.x = pos.x + (DEFAULT_CELL_WIDTH / 2) - (size.x / 2) + (span.x);
+
+    // TODO: Make cursor blink
     DrawLineEx(pos, (Vector2){pos.x, pos.y + DEFAULT_CELL_HEIGHT}, 1.0, GRAY);
 }
 
@@ -162,12 +167,14 @@ void DrawTextAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell
         }
 }
 
-void SelectionHandler(bool *selectionState, unsigned int *cellIndex)
+void SelectionHandler(bool *selectionState, unsigned int *cellIndex, Cell *cell)
 {
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         Vector2 mousePos = GetMousePosition();
         if (CheckCollisionPointRec(mousePos, SELECTION_AREA)) {
             *selectionState = true;
+            printf("%d\n", cell[*cellIndex].cursor);
+            cell[*cellIndex].cursor = 0;
         } else {
             *selectionState = false;
             *cellIndex = 0;
@@ -307,13 +314,12 @@ void InputHandler(Cell *cell, unsigned int *cellIndex, bool *selectionState)
     if (IsKeyPressed(KEY_ENTER)) {
         if (*cellIndex > 2) {
             cell[*cellIndex].text = filterCellText(cell[*cellIndex]);
+            Vector2 cellPos = indexToCR(*cellIndex);
+            CompareTimes(&cell[crToIndex((Vector2){1, cellPos.y})], &cell[crToIndex((Vector2){2, cellPos.y})]);
         } 
         cell[*cellIndex].cursor = strlen(cell[*cellIndex].text);
 
-        Vector2 cellPos = indexToCR(*cellIndex);
-        CompareTimes(&cell[crToIndex((Vector2){1, cellPos.y})], &cell[crToIndex((Vector2){2, cellPos.y})]);\
-
         *cellIndex = *cellIndex + 3;
-        SelectionHandler(selectionState, cellIndex);
+        SelectionHandler(selectionState, cellIndex, cell);
     }
 }
