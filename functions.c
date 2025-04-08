@@ -1,5 +1,12 @@
 #include "includes.h"
 
+void chrswap(char* ptr1, char* ptr2)
+{
+    char tmp = *ptr2;
+    *ptr2 = *ptr1;
+    *ptr1 = tmp;
+}
+
 Font initFont()
 {
     const char *font_file = "C:/Windows/Fonts/trebucbd.ttf";
@@ -119,16 +126,32 @@ Vector2 CalcTextPos(Vector2 pos, size_t index)
     return pos;
 }
 
+void updateGapBuffer(GapBuffer gapBuf, unsigned int cursor)
+{
+    // size_t lenL = strlen(gapBuf.L);
+    // size_t lenR = strlen(gapBuf.R);
+    // if (lenL > cursor) {
+    //     memmove(realloc(gapBuf.R, cursor), gapBuf.R, strlen(gapBuf.R) - 1);
+    // }
+    // realloc(gapBuf.L, sizeof(char) * cursor);
+    // realloc(gapBuf.R, sizeof(char) * 0);
+}
+
 void DrawCursor(Cell cell, unsigned int cellIndex, Font font)
 {
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
     Vector2 size = MeasureTextEx(font, cell.text, FONT_SIZE, 1);
+    Vector2 span = {0};
     char* textChunk = malloc(sizeof(char) * cell.cursor);
-    memset(textChunk, '0', cell.cursor);
-    strncpy(textChunk, cell.text, cell.cursor);
-    Vector2 span = MeasureTextEx(font, textChunk, FONT_SIZE, 1); 
+    if (textChunk != NULL) {
+        memset(textChunk, 0, cell.cursor);
+        strncpy(textChunk, cell.text, cell.cursor);
+        span = MeasureTextEx(font, textChunk, FONT_SIZE, 1);
+        printf("%s\n", textChunk);
+    }
     pos.x = pos.x + (DEFAULT_CELL_WIDTH / 2) - (size.x / 2) + (span.x);
+    free(textChunk);
 
     // TODO: Make cursor blink
     DrawLineEx(pos, (Vector2){pos.x, pos.y + DEFAULT_CELL_HEIGHT}, 1.0, GRAY);
@@ -320,11 +343,59 @@ void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState)
         if (*cellIndex > 2) {
             cell->text = filterCellText(*cell);
             Vector2 cellPos = indexToCR(*cellIndex);
-            CompareTimes(&cellList[crToIndex((Vector2){1, cellPos.y})], &cellList[crToIndex((Vector2){2, cellPos.y})]);
+            unsigned int cellL = crToIndex((Vector2){1, cellPos.y});
+            unsigned int cellR = crToIndex((Vector2){2, cellPos.y});
+            CompareTimes(&cellList[cellL], &cellList[cellR]);
         } 
         cell->cursor = strlen(cell->text);
 
         *cellIndex = *cellIndex + 3;
         SelectionHandler(selectionState, cellIndex, cell);
     }
+}
+
+void placeChar(GapBuffer *gapStr, char c)
+{
+    // memmove(gapStr->str + gapStr->cStart, gapStr->str, strlen(gapStr->str + gapStr->cEnd) + 1);
+    gapStr->str[gapStr->cStart++] = c;
+}
+
+void cursorLeft(GapBuffer *gapStr)
+{
+    chrswap(gapStr->str + gapStr->cStart - 1, gapStr->str + gapStr->cEnd);
+    gapStr->cStart--;
+    gapStr->cEnd--;
+}
+
+GapBuffer strToGapStr(char* str, size_t cursor)
+{
+    GapBuffer gapstr = {0};
+    size_t len = strlen(str);
+    gapstr.str = malloc(sizeof(char) * len);
+    memset(gapstr.str, 0, len);
+    snprintf(gapstr.str, cursor, str);
+    return gapstr;
+}
+
+char* gapStrToStr(GapBuffer gapStr, size_t len)
+{
+    size_t lenR = strlen(gapStr.str + gapStr.cEnd + 1);
+
+    char* str = malloc(sizeof(char) * len);
+    memset(str, 0, len);
+
+    strncpy(str, gapStr.str, gapStr.cStart);
+    strncpy(str + gapStr.cStart, gapStr.str + gapStr.cEnd + 1, lenR);
+
+    return str;
+}
+
+GapBuffer initGapStr(size_t len)
+{
+    GapBuffer gapStr = {0};
+    gapStr.str = malloc(sizeof(char) * len);
+    memset(gapStr.str, 0, len);
+    gapStr.cStart = 0;
+    gapStr.cEnd = len;
+    return gapStr;
 }

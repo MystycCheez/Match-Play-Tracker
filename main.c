@@ -2,6 +2,40 @@
 
 int main()
 {
+    size_t epicLen = strlen("Hello,00000 World!") + 1;
+    GapBuffer gapStr = initGapStr(epicLen);
+    placeChar(&gapStr, 'H');
+    placeChar(&gapStr, 'e');
+    placeChar(&gapStr, 'l');
+    placeChar(&gapStr, 'l');
+    placeChar(&gapStr, 'o');
+    cursorLeft(&gapStr);
+    cursorLeft(&gapStr);
+    cursorLeft(&gapStr);
+    cursorLeft(&gapStr);
+    cursorLeft(&gapStr);
+    // placeChar(&gapStr, 'X');
+    char* buf = gapStrToStr(gapStr, epicLen);
+    printf("%s\n", buf);
+    printf("%lld\n", epicLen);
+    printf("%lld\n", strlen(buf));
+    printf("%lld\n", strlen(gapStr.str));
+    for (size_t i = 0; i < epicLen + 1; i++)
+    {
+        printf("%d ", gapStr.str[i]);
+    }
+    
+    exit(0);
+    char *test = malloc(sizeof("test :)"));
+    sprintf(test, "test :)");
+    char *test2 = malloc(sizeof("This is a "));
+    sprintf(test2, "This is a ");
+    size_t oldLen2 = strlen(test2);
+    test2 = realloc(test2, oldLen2 + sizeof(char) * 5);
+    memmove(test2 + oldLen2, test, 4);
+    test2[strlen(test2)] = 0;
+    printf("%s\n", test2);
+    exit(0);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Match Play Tracker");
 
     Font font = initFont();
@@ -30,6 +64,10 @@ int main()
     }
     initCellText(cell, players);
 
+    // GapBuffer gapBuf;
+    // gapBuf.L = malloc(sizeof(char) * 0);
+    // gapBuf.R = malloc(sizeof(char) * 0);
+
     Vector2 TextPos = {0};
 
     SetTargetFPS(60);
@@ -44,7 +82,7 @@ int main()
         for (size_t i = 0; i < CELL_COUNT; i++) {
             DrawRectangleV(indexToXY(i), (Vector2){DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT}, cell[i].highlight);
         }
-        // The following function is documented incorrectly
+        // The following function is documented incorrectly - TODO: Make PR/Issue
         DrawRectangleGradientEx((Rectangle){0, DEFAULT_CELL_HEIGHT * 21, SCREEN_WIDTH, DEFAULT_CELL_HEIGHT}, 
         GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
         DrawRectangleGradientEx((Rectangle){0, 0, SCREEN_WIDTH, DEFAULT_CELL_HEIGHT}, 

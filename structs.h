@@ -16,6 +16,12 @@ typedef struct Cell {
     Color highlight;
 } Cell;
 
+typedef struct GapBuffer {
+    char* str;
+    size_t cStart;
+    size_t cEnd;
+} GapBuffer;
+
 typedef struct Players {
     char* p1;
     char* p2;
