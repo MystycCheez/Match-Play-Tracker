@@ -179,8 +179,6 @@ void SelectionHandler(bool *selectionState, unsigned int *cellIndex, Cell *cell)
         if (CheckCollisionPointRec(mousePos, SELECTION_AREA)) {
             *selectionState = true;
             *cellIndex = xyToIndex(mousePos);
-            printf("index: %d\n", *cellIndex);
-            printf("cstart: %lld\n", cell[*cellIndex].gapStr.cStart);
         } else {
             *selectionState = false;
             *cellIndex = 0;
