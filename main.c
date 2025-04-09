@@ -22,11 +22,11 @@ int main()
     printf("%s\n", buf);
     // printf("%lld - %lld\n", strlen(gapStr.str), strlen(gapStr.str + gapStr.cEnd + 1));
     // printf("%s\n", gapStr.str + gapStr.cEnd + 1);
-    for (size_t i = 0; i < epicLen + 1; i++) {
+    for (size_t i = 0; i < epicLen; i++) {
         printf("%d ", gapStr.str[i]);
     }
     printf("\n");
-    for (size_t i = 0; i < epicLen + 1; i++) {
+    for (size_t i = 0; i < epicLen; i++) {
         printf("%d ", buf[i]);
     }
     

@@ -386,22 +386,23 @@ GapBuffer strToGapStr(char* str, size_t cursor)
 char* gapStrToStr(GapBuffer gapStr, size_t len)
 {
     size_t lenR = strlen(gapStr.str + gapStr.cEnd + 1);
+    if (lenR > 0) {
+        char* str = malloc(sizeof(char) * len);
+        memset(str, 0, len + 1);
 
-    char* str = malloc(sizeof(char) * len);
-    memset(str, 0, len);
+        strncpy(str, gapStr.str, gapStr.cStart);
+        strncpy(str + strlen(str), gapStr.str + gapStr.cEnd + 1, lenR);
 
-    strncpy(str, gapStr.str, gapStr.cStart);
-    strncpy(str + strlen(str), gapStr.str + gapStr.cEnd + 1, lenR);
-
-    return str;
+        return str;
+    } else return gapStr.str;
 }
 
 GapBuffer initGapStr(size_t len)
 {
     GapBuffer gapStr = {0};
-    gapStr.str = malloc(sizeof(char) * len + 1);
+    gapStr.str = malloc(sizeof(char) * len);
     memset(gapStr.str, 0, len + 1);
     gapStr.cStart = 0;
-    gapStr.cEnd = len;
+    gapStr.cEnd = len - 1;
     return gapStr;
 }
