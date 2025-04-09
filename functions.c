@@ -356,11 +356,26 @@ void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState)
 
 void placeChar(GapBuffer *gapStr, char c)
 {
+    if (gapStr->cStart > gapStr->cEnd) return;
     gapStr->str[gapStr->cStart++] = c;
+}
+
+void placeString(GapBuffer *gapStr, const char *str)
+{
+    for (size_t i = 0; i < strlen(str); i++) {
+        placeChar(gapStr, str[i]);
+    }
+}
+
+void deleteChar(GapBuffer *gapStr)
+{
+    if (gapStr->cStart == 0) return;
+    gapStr->str[--gapStr->cStart] = 0;
 }
 
 void cursorLeft(GapBuffer *gapStr)
 {
+    if (gapStr->cStart == 0) return;
     chrswap(gapStr->str + gapStr->cStart - 1, gapStr->str + gapStr->cEnd);
     gapStr->cStart--;
     gapStr->cEnd--;
@@ -368,7 +383,8 @@ void cursorLeft(GapBuffer *gapStr)
 
 void cursorRight(GapBuffer *gapStr)
 {
-    chrswap(gapStr->str + gapStr->cStart - 1, gapStr->str + gapStr->cEnd);
+    if (gapStr->cStart <= gapStr->cEnd) return;
+    chrswap(gapStr->str + gapStr->cStart, gapStr->str + gapStr->cEnd + 1);
     gapStr->cStart++;
     gapStr->cEnd++;
 }

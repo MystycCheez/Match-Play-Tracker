@@ -9,15 +9,27 @@ int main()
     placeChar(&gapStr, 'l');
     placeChar(&gapStr, 'l');
     placeChar(&gapStr, 'o');
+    placeString(&gapStr, " World!");
+    cursorLeft(&gapStr);
+    cursorLeft(&gapStr);
+    // cursorLeft(&gapStr);
+    // cursorLeft(&gapStr);
+    // cursorLeft(&gapStr);
+    // cursorLeft(&gapStr);
+    // placeChar(&gapStr, 'X');
+    // placeChar(&gapStr, 'X');
+    cursorRight(&gapStr);
+    for (size_t i = 0; i < 4; i++)
+    {
+        placeChar(&gapStr, 'X');
+    }
+    
     cursorLeft(&gapStr);
     cursorLeft(&gapStr);
     cursorLeft(&gapStr);
     cursorLeft(&gapStr);
-    cursorLeft(&gapStr);
-    placeChar(&gapStr, 'X');
-    placeChar(&gapStr, 'X');
-    // cursorRight(&gapStr);
-    // cursorRight(&gapStr);
+    deleteChar(&gapStr);
+    placeChar(&gapStr, 'Z');
     char* buf = gapStrToStr(gapStr, epicLen);
     printf("%s\n", buf);
     // printf("%lld - %lld\n", strlen(gapStr.str), strlen(gapStr.str + gapStr.cEnd + 1));
