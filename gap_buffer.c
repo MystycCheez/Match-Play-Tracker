@@ -7,17 +7,18 @@ void chrswap(char* ptr1, char* ptr2)
     *ptr1 = tmp;
 }
 
-void placeChar(GapBuffer *gapStr, char c)
+void placeChar(GapBuffer *gapStr, char c, size_t bufLen)
 {
-    if (gapStr->cStart > gapStr->cEnd) return;
-    printf("%lld - %lld\n", gapStr->cStart, gapStr->cEnd);
+    if (gapStr->cStart >= gapStr->cEnd) return;
     gapStr->str[gapStr->cStart++] = c;
+    printf("%lld - %lld\n", gapStr->cStart, gapStr->cEnd);
+    printf("%s - %s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
 }
 
-void placeString(GapBuffer *gapStr, const char *str)
+void placeString(GapBuffer *gapStr, const char *str, size_t bufLen)
 {
     for (size_t i = 0; i < strlen(str); i++) {
-        placeChar(gapStr, str[i]);
+        placeChar(gapStr, str[i], bufLen);
     }
 }
 
@@ -26,13 +27,15 @@ void OverwriteStr(GapBuffer *gapStr, const char *str, size_t len)
     memset(gapStr->str, 0, len + 1);
     gapStr->cStart = 0;
     gapStr->cEnd = len - 1;
-    placeString(gapStr, str);
+    placeString(gapStr, str, len);
 }
 
 void deleteChar(GapBuffer *gapStr)
 {
     if (gapStr->cStart == 0) return;
     gapStr->str[--gapStr->cStart] = 0;
+    printf("%lld - %lld\n", gapStr->cStart, gapStr->cEnd);
+    printf("%s - %s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
 }
 
 void cursorLeft(GapBuffer *gapStr)
@@ -41,14 +44,18 @@ void cursorLeft(GapBuffer *gapStr)
     chrswap(gapStr->str + gapStr->cStart - 1, gapStr->str + gapStr->cEnd);
     gapStr->cStart--;
     gapStr->cEnd--;
+    printf("%lld - %lld\n", gapStr->cStart, gapStr->cEnd);
+    printf("%s - %s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
 }
 
-void cursorRight(GapBuffer *gapStr)
+void cursorRight(GapBuffer *gapStr, size_t bufLen)
 {
-    if (gapStr->cStart <= gapStr->cEnd) return;
+    if (bufLen - 1 == gapStr->cEnd) return;
     chrswap(gapStr->str + gapStr->cStart, gapStr->str + gapStr->cEnd + 1);
-    gapStr->cStart++;
     gapStr->cEnd++;
+    gapStr->cStart++;
+    printf("%lld - %lld\n", gapStr->cStart, gapStr->cEnd);
+    printf("%s - %s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
 }
 
 GapBuffer strToGapStr(char* str, size_t cursor)

@@ -119,32 +119,13 @@ Vector2 CalcTextPos(Vector2 pos, size_t index)
     return pos;
 }
 
-void updateGapBuffer(GapBuffer gapBuf, unsigned int cursor)
-{
-    // size_t lenL = strlen(gapBuf.L);
-    // size_t lenR = strlen(gapBuf.R);
-    // if (lenL > cursor) {
-    //     memmove(realloc(gapBuf.R, cursor), gapBuf.R, strlen(gapBuf.R) - 1);
-    // }
-    // realloc(gapBuf.L, sizeof(char) * cursor);
-    // realloc(gapBuf.R, sizeof(char) * 0);
-}
-
 void DrawCursor(Cell cell, unsigned int cellIndex, Font font)
 {
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
     Vector2 size = MeasureTextEx(font, cell.gapStr.str, FONT_SIZE, 1);
-    Vector2 span = {0};
-    char* textChunk = malloc(sizeof(char) * cell.gapStr.cStart);
-    if (textChunk != NULL) {
-        memset(textChunk, 0, cell.gapStr.cStart);
-        strncpy(textChunk, cell.gapStr.str, cell.gapStr.cStart);
-        span = MeasureTextEx(font, textChunk, FONT_SIZE, 1);
-        // printf("%s\n", textChunk);
-    }
-    pos.x = pos.x + (DEFAULT_CELL_WIDTH / 2) - (size.x / 2) + (span.x);
-    free(textChunk);
+
+    pos.x = pos.x + (DEFAULT_CELL_WIDTH / 2) - (size.x / 2);
 
     // TODO: Make cursor blink
     DrawLineEx(pos, (Vector2){pos.x, pos.y + DEFAULT_CELL_HEIGHT}, 1.0, GRAY);
@@ -152,20 +133,24 @@ void DrawCursor(Cell cell, unsigned int cellIndex, Font font)
 
 void DrawTextCentered(Font font, Vector2 pos, float fontSize, float spacing, Cell cell)
 {
-    Vector2 size = MeasureTextEx(font, cell.gapStr.str, fontSize, spacing);
+    char* text = gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH);
+    Vector2 size = MeasureTextEx(font, text, fontSize, spacing);
+    
     pos.x = pos.x + (DEFAULT_CELL_WIDTH / 2) - (size.x / 2);
     pos.y = pos.y + (DEFAULT_CELL_HEIGHT / 2) - (size.y / 2);
 
-    DrawTextEx(font, cell.gapStr.str, pos, fontSize, spacing, cell.color);
+    DrawTextEx(font, text, pos, fontSize, spacing, cell.color);
 }
 
 void DrawTextLeftAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell cell)
 {
-    Vector2 size = MeasureTextEx(font, cell.gapStr.str, fontSize, spacing);
-    pos.x = pos.x + fontSize / 2;
-    pos.y = pos.y + DEFAULT_CELL_HEIGHT / 2 - (size.y / 2);
+    char* text = gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH);
+    Vector2 size = MeasureTextEx(font, text, fontSize, spacing);
 
-    DrawTextEx(font, cell.gapStr.str, pos, fontSize, spacing, cell.color);
+    pos.x = pos.x + fontSize / 2;
+    pos.y = pos.y + (DEFAULT_CELL_HEIGHT / 2) - (size.y / 2);
+
+    DrawTextEx(font, text, pos, fontSize, spacing, cell.color);
 }
 
 void DrawTextAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell cell, size_t i)
@@ -190,7 +175,6 @@ void SelectionHandler(bool *selectionState, unsigned int *cellIndex, Cell *cell)
         if (CheckCollisionPointRec(mousePos, SELECTION_AREA)) {
             *selectionState = true;
             printf("%lld\n", cell[*cellIndex].gapStr.cStart);
-            // cell[*cellIndex].gapStr.cStart = 0;
         } else {
             *selectionState = false;
             *cellIndex = 0;
@@ -255,7 +239,6 @@ char* filterCellText(Cell cell)
     char* dummy = malloc(sizeof(char) * 5);
     sprintf(dummy, "0:00");
     size_t textLen = strlen(cell.gapStr.str);
-    // const char* tEnd = cell.gapStr.str + textLen - 1; // Don't want to refer to null terminator
     if (strpbrk(cell.gapStr.str, ":1234567890") != NULL) {
         unsigned int cCount = countChars(cell.gapStr.str, ':', textLen);
         if (cCount == 0) {
@@ -318,11 +301,11 @@ void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState)
     // Check if more characters have been pressed on the same frame
     while (key > 0) {
         // NOTE: Only allow keys in range [32..125]
-        if ((key >= 32) && (key <= 125)) placeChar(&cell->gapStr, (char)key);
+        if ((key >= 32) && (key <= 125)) placeChar(&cell->gapStr, (char)key, CELL_TEXT_LENGTH);
         key = GetCharPressed(); // Check next character in the queue
     }
     if (IsKeyPressed(KEY_LEFT)) cursorLeft(&cell->gapStr);
-    if (IsKeyPressed(KEY_RIGHT)) cursorRight(&cell->gapStr);
+    if (IsKeyPressed(KEY_RIGHT)) cursorRight(&cell->gapStr, CELL_TEXT_LENGTH);
 
     if (IsKeyPressed(KEY_BACKSPACE)) {
         deleteChar(&cell->gapStr);
@@ -334,8 +317,7 @@ void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState)
             unsigned int cellL = crToIndex((Vector2){1, cellPos.y});
             unsigned int cellR = crToIndex((Vector2){2, cellPos.y});
             CompareTimes(&cellList[cellL], &cellList[cellR]);
-        } 
-        // cell->gapStr.cStart = strlen(cell->gapStr.str);
+        }
 
         *cellIndex = *cellIndex + 3;
         SelectionHandler(selectionState, cellIndex, cell);
