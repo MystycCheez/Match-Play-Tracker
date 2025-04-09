@@ -14,15 +14,20 @@ int main()
     cursorLeft(&gapStr);
     cursorLeft(&gapStr);
     cursorLeft(&gapStr);
-    // placeChar(&gapStr, 'X');
+    placeChar(&gapStr, 'X');
+    placeChar(&gapStr, 'X');
+    // cursorRight(&gapStr);
+    // cursorRight(&gapStr);
     char* buf = gapStrToStr(gapStr, epicLen);
     printf("%s\n", buf);
-    printf("%lld\n", epicLen);
-    printf("%lld\n", strlen(buf));
-    printf("%lld\n", strlen(gapStr.str));
-    for (size_t i = 0; i < epicLen + 1; i++)
-    {
+    // printf("%lld - %lld\n", strlen(gapStr.str), strlen(gapStr.str + gapStr.cEnd + 1));
+    // printf("%s\n", gapStr.str + gapStr.cEnd + 1);
+    for (size_t i = 0; i < epicLen + 1; i++) {
         printf("%d ", gapStr.str[i]);
+    }
+    printf("\n");
+    for (size_t i = 0; i < epicLen + 1; i++) {
+        printf("%d ", buf[i]);
     }
     
     exit(0);

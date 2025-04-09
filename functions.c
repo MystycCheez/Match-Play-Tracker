@@ -356,7 +356,6 @@ void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState)
 
 void placeChar(GapBuffer *gapStr, char c)
 {
-    // memmove(gapStr->str + gapStr->cStart, gapStr->str, strlen(gapStr->str + gapStr->cEnd) + 1);
     gapStr->str[gapStr->cStart++] = c;
 }
 
@@ -365,6 +364,13 @@ void cursorLeft(GapBuffer *gapStr)
     chrswap(gapStr->str + gapStr->cStart - 1, gapStr->str + gapStr->cEnd);
     gapStr->cStart--;
     gapStr->cEnd--;
+}
+
+void cursorRight(GapBuffer *gapStr)
+{
+    chrswap(gapStr->str + gapStr->cStart - 1, gapStr->str + gapStr->cEnd);
+    gapStr->cStart++;
+    gapStr->cEnd++;
 }
 
 GapBuffer strToGapStr(char* str, size_t cursor)
@@ -385,7 +391,7 @@ char* gapStrToStr(GapBuffer gapStr, size_t len)
     memset(str, 0, len);
 
     strncpy(str, gapStr.str, gapStr.cStart);
-    strncpy(str + gapStr.cStart, gapStr.str + gapStr.cEnd + 1, lenR);
+    strncpy(str + strlen(str), gapStr.str + gapStr.cEnd + 1, lenR);
 
     return str;
 }
@@ -393,8 +399,8 @@ char* gapStrToStr(GapBuffer gapStr, size_t len)
 GapBuffer initGapStr(size_t len)
 {
     GapBuffer gapStr = {0};
-    gapStr.str = malloc(sizeof(char) * len);
-    memset(gapStr.str, 0, len);
+    gapStr.str = malloc(sizeof(char) * len + 1);
+    memset(gapStr.str, 0, len + 1);
     gapStr.cStart = 0;
     gapStr.cEnd = len;
     return gapStr;
