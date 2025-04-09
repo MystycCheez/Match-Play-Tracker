@@ -8,19 +8,18 @@ typedef struct Line {
     float y2;
 } Line;
 
-typedef struct Cell {
-    char* text;
-    int cursor;
-    unsigned char alignment : 2;
-    Color color;
-    Color highlight;
-} Cell;
-
 typedef struct GapBuffer {
     char* str;
     size_t cStart;
     size_t cEnd;
 } GapBuffer;
+
+typedef struct Cell {
+    GapBuffer gapStr;
+    unsigned char alignment : 2;
+    Color color;
+    Color highlight;
+} Cell;
 
 typedef struct Players {
     char* p1;

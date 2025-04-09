@@ -1,12 +1,5 @@
 #include "includes.h"
 
-void chrswap(char* ptr1, char* ptr2)
-{
-    char tmp = *ptr2;
-    *ptr2 = *ptr1;
-    *ptr1 = tmp;
-}
-
 Font initFont()
 {
     const char *font_file = "C:/Windows/Fonts/trebucbd.ttf";
@@ -87,15 +80,15 @@ void initCellText(Cell* cell, Players players)
 {
     char** levelText = loadLevelText();
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
-        strncpy(cell[(i * 3) + 3].text, levelText[i], CELL_TEXT_LENGTH);
+        strncpy(cell[(i * 3) + 3].gapStr.str, levelText[i], CELL_TEXT_LENGTH);
     }
     free(levelText);
-    cell[0].text = "Stage";
-    cell[CELL_COUNT - 3].text = "Points"; 
-    sprintf(cell[1].text, "%s", players.p1);
-    sprintf(cell[2].text, "%s", players.p2);
-    sprintf(cell[CELL_COUNT - 2].text, "%d", players.s1);
-    sprintf(cell[CELL_COUNT - 1].text, "%d", players.s2);
+    cell[0].gapStr.str = "Stage";
+    cell[CELL_COUNT - 3].gapStr.str = "Points"; 
+    sprintf(cell[1].gapStr.str, "%s", players.p1);
+    sprintf(cell[2].gapStr.str, "%s", players.p2);
+    sprintf(cell[CELL_COUNT - 2].gapStr.str, "%d", players.s1);
+    sprintf(cell[CELL_COUNT - 1].gapStr.str, "%d", players.s2);
 }
 
 void initBorderPositions(Line* borders)
@@ -141,14 +134,14 @@ void DrawCursor(Cell cell, unsigned int cellIndex, Font font)
 {
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
-    Vector2 size = MeasureTextEx(font, cell.text, FONT_SIZE, 1);
+    Vector2 size = MeasureTextEx(font, cell.gapStr.str, FONT_SIZE, 1);
     Vector2 span = {0};
-    char* textChunk = malloc(sizeof(char) * cell.cursor);
+    char* textChunk = malloc(sizeof(char) * cell.gapStr.cStart);
     if (textChunk != NULL) {
-        memset(textChunk, 0, cell.cursor);
-        strncpy(textChunk, cell.text, cell.cursor);
+        memset(textChunk, 0, cell.gapStr.cStart);
+        strncpy(textChunk, cell.gapStr.str, cell.gapStr.cStart);
         span = MeasureTextEx(font, textChunk, FONT_SIZE, 1);
-        printf("%s\n", textChunk);
+        // printf("%s\n", textChunk);
     }
     pos.x = pos.x + (DEFAULT_CELL_WIDTH / 2) - (size.x / 2) + (span.x);
     free(textChunk);
@@ -159,20 +152,20 @@ void DrawCursor(Cell cell, unsigned int cellIndex, Font font)
 
 void DrawTextCentered(Font font, Vector2 pos, float fontSize, float spacing, Cell cell)
 {
-    Vector2 size = MeasureTextEx(font, cell.text, fontSize, spacing);
+    Vector2 size = MeasureTextEx(font, cell.gapStr.str, fontSize, spacing);
     pos.x = pos.x + (DEFAULT_CELL_WIDTH / 2) - (size.x / 2);
     pos.y = pos.y + (DEFAULT_CELL_HEIGHT / 2) - (size.y / 2);
 
-    DrawTextEx(font, cell.text, pos, fontSize, spacing, cell.color);
+    DrawTextEx(font, cell.gapStr.str, pos, fontSize, spacing, cell.color);
 }
 
 void DrawTextLeftAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell cell)
 {
-    Vector2 size = MeasureTextEx(font, cell.text, fontSize, spacing);
+    Vector2 size = MeasureTextEx(font, cell.gapStr.str, fontSize, spacing);
     pos.x = pos.x + fontSize / 2;
     pos.y = pos.y + DEFAULT_CELL_HEIGHT / 2 - (size.y / 2);
 
-    DrawTextEx(font, cell.text, pos, fontSize, spacing, cell.color);
+    DrawTextEx(font, cell.gapStr.str, pos, fontSize, spacing, cell.color);
 }
 
 void DrawTextAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell cell, size_t i)
@@ -196,8 +189,8 @@ void SelectionHandler(bool *selectionState, unsigned int *cellIndex, Cell *cell)
         Vector2 mousePos = GetMousePosition();
         if (CheckCollisionPointRec(mousePos, SELECTION_AREA)) {
             *selectionState = true;
-            printf("%d\n", cell[*cellIndex].cursor);
-            cell[*cellIndex].cursor = 0;
+            printf("%lld\n", cell[*cellIndex].gapStr.cStart);
+            // cell[*cellIndex].gapStr.cStart = 0;
         } else {
             *selectionState = false;
             *cellIndex = 0;
@@ -242,6 +235,7 @@ char* secsToTime(unsigned int totalSecs)
     return time;
 }
 
+// Count how many times c appears in text limited by len
 unsigned int countChars(char* text, char c, size_t len)
 {
     unsigned int count = 0;
@@ -257,49 +251,51 @@ unsigned int countChars(char* text, char c, size_t len)
 // Filters string to be converted into time / Outputs "mm:ss"
 char* filterCellText(Cell cell)
 {
+    // This is a mess of conditions, would be nice to make it more readable
     char* dummy = malloc(sizeof(char) * 5);
     sprintf(dummy, "0:00");
-    size_t textLen = strlen(cell.text);
-    const char* tEnd = cell.text + textLen - 1; // Don't want to refer to null terminator
-    if (strpbrk(cell.text, ":1234567890") != NULL) {
-        unsigned int cCount = countChars(cell.text, ':', textLen);
+    size_t textLen = strlen(cell.gapStr.str);
+    // const char* tEnd = cell.gapStr.str + textLen - 1; // Don't want to refer to null terminator
+    if (strpbrk(cell.gapStr.str, ":1234567890") != NULL) {
+        unsigned int cCount = countChars(cell.gapStr.str, ':', textLen);
         if (cCount == 0) {
             if (textLen > 4 || textLen < 2) return dummy;
             if (textLen == 3) {
                 char* mod = malloc(sizeof(char) * 4);
-                sprintf(mod, "%c:%s", cell.text[0], cell.text + 1);
+                sprintf(mod, "%c:%s", cell.gapStr.str[0], cell.gapStr.str + 1);
                 return mod;
             }
             char* mod = malloc(sizeof(char) * 4);
-            sprintf(mod, "0:%s", cell.text);
+            sprintf(mod, "0:%s", cell.gapStr.str);
             return mod;
-        } else if (cCount == 1 && tEnd[-2] == ':') {
+        } else if (cCount == 1 && cell.gapStr.str[cell.gapStr.cStart - 2] == ':') {
             if (textLen > 5 || textLen < 3) return dummy;
             if (textLen == 3) {
                 char* mod = malloc(sizeof(char) * 4);
-                sprintf(mod, "0%s", cell.text);
+                sprintf(mod, "0%s", cell.gapStr.str);
                 return mod;
-            } else if ((textLen == 5) && (cell.text[0] == '0')) {
+            } else if ((textLen == 5) && (cell.gapStr.str[0] == '0')) {
                 char* mod = malloc(sizeof(char) * 4);
-                sprintf(mod, "%s", cell.text + 1);
+                sprintf(mod, "%s", cell.gapStr.str + 1);
                 return mod;
             }
-            return cell.text;
-        } else if (cCount == 2 && tEnd[-5] == ':') {
+            return cell.gapStr.str;
+        } else if (cCount == 2 && cell.gapStr.str[cell.gapStr.cStart - 5] == ':') {
             if (textLen != 8) return dummy;
             char* mod = malloc(sizeof(char) * 4);
-            sprintf(mod, "%s", cell.text + 3);
+            sprintf(mod, "%s", cell.gapStr.str + 3);
             return mod;
         } else return dummy;
     } else return dummy;
 }
 
+// TODO: add parameter for score
 void CompareTimes(Cell *cellL, Cell *cellR)
 {
-    if (cellL->text == NULL || cellR->text == NULL) return;
-    printf("%s - %s\n", cellL->text, cellR->text);
-    unsigned int timeL = timeToSecs(cellL->text);
-    unsigned int timeR = timeToSecs(cellR->text);
+    if (cellL->gapStr.str == NULL || cellR->gapStr.str == NULL) return;
+    printf("%s - %s\n", cellL->gapStr.str, cellR->gapStr.str);
+    unsigned int timeL = timeToSecs(cellL->gapStr.str);
+    unsigned int timeR = timeToSecs(cellR->gapStr.str);
     printf("%d - %d\n", timeL, timeR);
     if ((timeL == 0) || (timeR == 0)) return;
     if (timeL < timeR) {
@@ -322,103 +318,26 @@ void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState)
     // Check if more characters have been pressed on the same frame
     while (key > 0) {
         // NOTE: Only allow keys in range [32..125]
-        if ((key >= 32) && (key <= 125) && (cell->cursor < CELL_TEXT_LENGTH - 1)) {
-            cell->text[cell->cursor] = (char)key;
-            cell->text[cell->cursor + 1] = '\0'; // Add null terminator at the end of the string.
-            cell->cursor++;
-        }
-
+        if ((key >= 32) && (key <= 125)) placeChar(&cell->gapStr, (char)key);
         key = GetCharPressed(); // Check next character in the queue
     }
-    if (IsKeyPressed(KEY_LEFT) && cell->cursor > 0) cell->cursor--;
-    if (IsKeyPressed(KEY_RIGHT) && cell->cursor < (int)strlen(cell->text)) cell->cursor++;
+    if (IsKeyPressed(KEY_LEFT)) cursorLeft(&cell->gapStr);
+    if (IsKeyPressed(KEY_RIGHT)) cursorRight(&cell->gapStr);
 
     if (IsKeyPressed(KEY_BACKSPACE)) {
-        cell->cursor--;
-        if (cell->cursor < 0)
-            cell->cursor = 0;
-        cell->text[cell->cursor] = '\0';
+        deleteChar(&cell->gapStr);
     }
     if (IsKeyPressed(KEY_ENTER)) {
         if (*cellIndex > 2) {
-            cell->text = filterCellText(*cell);
+            OverwriteStr(&cell->gapStr, filterCellText(*cell), CELL_TEXT_LENGTH);
             Vector2 cellPos = indexToCR(*cellIndex);
             unsigned int cellL = crToIndex((Vector2){1, cellPos.y});
             unsigned int cellR = crToIndex((Vector2){2, cellPos.y});
             CompareTimes(&cellList[cellL], &cellList[cellR]);
         } 
-        cell->cursor = strlen(cell->text);
+        // cell->gapStr.cStart = strlen(cell->gapStr.str);
 
         *cellIndex = *cellIndex + 3;
         SelectionHandler(selectionState, cellIndex, cell);
     }
-}
-
-void placeChar(GapBuffer *gapStr, char c)
-{
-    if (gapStr->cStart > gapStr->cEnd) return;
-    gapStr->str[gapStr->cStart++] = c;
-}
-
-void placeString(GapBuffer *gapStr, const char *str)
-{
-    for (size_t i = 0; i < strlen(str); i++) {
-        placeChar(gapStr, str[i]);
-    }
-}
-
-void deleteChar(GapBuffer *gapStr)
-{
-    if (gapStr->cStart == 0) return;
-    gapStr->str[--gapStr->cStart] = 0;
-}
-
-void cursorLeft(GapBuffer *gapStr)
-{
-    if (gapStr->cStart == 0) return;
-    chrswap(gapStr->str + gapStr->cStart - 1, gapStr->str + gapStr->cEnd);
-    gapStr->cStart--;
-    gapStr->cEnd--;
-}
-
-void cursorRight(GapBuffer *gapStr)
-{
-    if (gapStr->cStart <= gapStr->cEnd) return;
-    chrswap(gapStr->str + gapStr->cStart, gapStr->str + gapStr->cEnd + 1);
-    gapStr->cStart++;
-    gapStr->cEnd++;
-}
-
-GapBuffer strToGapStr(char* str, size_t cursor)
-{
-    GapBuffer gapstr = {0};
-    size_t len = strlen(str);
-    gapstr.str = malloc(sizeof(char) * len);
-    memset(gapstr.str, 0, len);
-    snprintf(gapstr.str, cursor, str);
-    return gapstr;
-}
-
-char* gapStrToStr(GapBuffer gapStr, size_t len)
-{
-    size_t lenR = strlen(gapStr.str + gapStr.cEnd + 1);
-    if (lenR > 0) {
-        char* str = malloc(sizeof(char) * len);
-        memset(str, 0, len + 1);
-
-        strncpy(str, gapStr.str, gapStr.cStart);
-        strncpy(str + strlen(str), gapStr.str + gapStr.cEnd + 1, lenR);
-
-        return str;
-    } else return gapStr.str;
-}
-
-GapBuffer initGapStr(size_t len)
-{
-    GapBuffer gapStr = {0};
-    gapStr.str = malloc(sizeof(char) * len);
-    memset(gapStr.str, 0, len + 1);
-    gapStr.cStart = 0;
-    gapStr.cEnd = len - 1;
-    return gapStr;
 }
