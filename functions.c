@@ -123,7 +123,7 @@ void DrawCursor(Cell cell, unsigned int cellIndex, Font font)
 {
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
-    Vector2 size = MeasureTextEx(font, cell.gapStr.str, FONT_SIZE, 1);
+    Vector2 size = MeasureTextEx(font, cell.gapStr.str + cell.gapStr.cStart, FONT_SIZE, 1);
 
     pos.x = pos.x + (DEFAULT_CELL_WIDTH / 2) - (size.x / 2);
 
@@ -233,43 +233,58 @@ unsigned int countChars(char* text, char c, size_t len)
 }
 
 // Filters string to be converted into time / Outputs "mm:ss"
-char* filterCellText(Cell cell)
+char* filterText(char* text)
 {
     // This is a mess of conditions, would be nice to make it more readable
     char* dummy = malloc(sizeof(char) * 5);
     sprintf(dummy, "0:00");
-    size_t textLen = strlen(cell.gapStr.str);
-    if (strpbrk(cell.gapStr.str, ":1234567890") != NULL) {
-        unsigned int cCount = countChars(cell.gapStr.str, ':', textLen);
+    size_t textLen = strlen(text);
+    printf("text: %s textLen: %lld\n", text, textLen);
+    if (strpbrk(text, ":1234567890") != NULL) {
+        unsigned int cCount = countChars(text, ':', textLen);
         if (cCount == 0) {
             if (textLen > 4 || textLen < 2) return dummy;
             if (textLen == 3) {
-                char* mod = malloc(sizeof(char) * 4);
-                sprintf(mod, "%c:%s", cell.gapStr.str[0], cell.gapStr.str + 1);
+                char* mod = malloc(sizeof(char) * 5);
+                sprintf(mod, "%c:%s", text[0], text + 1);
                 return mod;
+            } else if (textLen == 4) {
+                char* mod = malloc(sizeof(char) * 5);
+                if (text[0] != '0') {
+                    sprintf(mod, "%c%c:%s", text[0], text[1], text + 2);
+                } else sprintf(mod, "%c:%s", text[1], text + 2);
+                return mod;
+            } else if (textLen == 2 && text[0] == '0') {
+                return dummy;
             }
-            char* mod = malloc(sizeof(char) * 4);
-            sprintf(mod, "0:%s", cell.gapStr.str);
+            char* mod = malloc(sizeof(char) * 5);
+            sprintf(mod, "0:%s", text);
             return mod;
-        } else if (cCount == 1 && cell.gapStr.str[cell.gapStr.cStart - 2] == ':') {
+        } else if (cCount == 1 && text[textLen - 3] == ':') {
             if (textLen > 5 || textLen < 3) return dummy;
             if (textLen == 3) {
-                char* mod = malloc(sizeof(char) * 4);
-                sprintf(mod, "0%s", cell.gapStr.str);
+                char* mod = malloc(sizeof(char) * 5);
+                sprintf(mod, "0%s", text);
                 return mod;
-            } else if ((textLen == 5) && (cell.gapStr.str[0] == '0')) {
-                char* mod = malloc(sizeof(char) * 4);
-                sprintf(mod, "%s", cell.gapStr.str + 1);
+            } else if (textLen == 4) {
+                char* mod = malloc(sizeof(char) * 5);
+                sprintf(mod, "%s", text);
+                return mod;
+            } else if ((textLen == 5) && (text[0] == '0')) {
+                char* mod = malloc(sizeof(char) * 5);
+                sprintf(mod, "%s", text + 1);
                 return mod;
             }
-            return cell.gapStr.str;
-        } else if (cCount == 2 && cell.gapStr.str[cell.gapStr.cStart - 5] == ':') {
-            if (textLen != 8) return dummy;
-            char* mod = malloc(sizeof(char) * 4);
-            sprintf(mod, "%s", cell.gapStr.str + 3);
-            return mod;
+            return text;
+        } else if (cCount == 2 && text[textLen - 6] == ':') {
+            if (textLen <= 8 && textLen >= 6) {
+                char* mod = malloc(sizeof(char) * 5);
+                sprintf(mod, "%s", text + textLen - 5);
+                return filterText(mod);
+            }
         } else return dummy;
     } else return dummy;
+    return dummy;
 }
 
 // TODO: add parameter for score
@@ -312,7 +327,7 @@ void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState)
     }
     if (IsKeyPressed(KEY_ENTER)) {
         if (*cellIndex > 2) {
-            OverwriteStr(&cell->gapStr, filterCellText(*cell), CELL_TEXT_LENGTH);
+            OverwriteStr(&cell->gapStr, filterText(cell->gapStr.str), CELL_TEXT_LENGTH);
             Vector2 cellPos = indexToCR(*cellIndex);
             unsigned int cellL = crToIndex((Vector2){1, cellPos.y});
             unsigned int cellR = crToIndex((Vector2){2, cellPos.y});
