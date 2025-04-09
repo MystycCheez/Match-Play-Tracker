@@ -9,8 +9,8 @@ int main()
 
     Players players = {"Player 1", "Player 2", 0, 0};
 
-    unsigned int selectedCell = 4;
-    bool selectionState = true;
+    unsigned int selectedCell = 0;
+    bool selectionState = false;
 
     Line borders[COLUMNS + ROWS] = {0};
     initBorderPositions(borders);
@@ -26,19 +26,21 @@ int main()
         cell[3 + (i * COLUMNS)].alignment = ALIGN_LEFT;
         cell[3 + (i * COLUMNS)].color = COLOR_LEVEL;
     }
+    
     initCellText(cell, players);
-
+    
     Vector2 TextPos = {0};
-
+    
     SetTargetFPS(60);
-
+    
     while (!WindowShouldClose())
     {
         SelectionHandler(&selectionState, &selectedCell, &cell[selectedCell]);
+        
         if (selectionState) InputHandler(cell, &selectedCell, &selectionState);
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
-
+        
         for (size_t i = 0; i < CELL_COUNT; i++) {
             DrawRectangleV(indexToXY(i), (Vector2){DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT}, cell[i].highlight);
         }
@@ -53,17 +55,18 @@ int main()
         for (size_t i = 0; i < CELL_COUNT; i++) {
             BeginShaderMode(shader);
             DrawTextAligned(font, TextPos, FONT_SIZE, 1, cell[i], i);
+            // printf("%s\n", cell[i].gapStr.str + cell[i].gapStr.cEnd);
             EndShaderMode();
         }    
         if (selectionState) DrawCursor(cell[selectedCell], selectedCell, font);
         DrawCellBorders(selectedCell);
-
+        
         EndDrawing();
     }
-
+    
     UnloadFont(font);
-
+    
     CloseWindow();
-
+    
     return 0;
 }

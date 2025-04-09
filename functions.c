@@ -80,15 +80,19 @@ void initCellText(Cell* cell, Players players)
 {
     char** levelText = loadLevelText();
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
-        strncpy(cell[(i * 3) + 3].gapStr.str, levelText[i], CELL_TEXT_LENGTH);
+        placeString(&cell[(i * 3) + 3].gapStr, levelText[i], CELL_TEXT_LENGTH);
     }
     free(levelText);
-    cell[0].gapStr.str = "Stage";
-    cell[CELL_COUNT - 3].gapStr.str = "Points"; 
-    sprintf(cell[1].gapStr.str, "%s", players.p1);
-    sprintf(cell[2].gapStr.str, "%s", players.p2);
-    sprintf(cell[CELL_COUNT - 2].gapStr.str, "%d", players.s1);
-    sprintf(cell[CELL_COUNT - 1].gapStr.str, "%d", players.s2);
+    char* s1 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    char* s2 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    sprintf(s1, "%d", players.s1);
+    sprintf(s2, "%d", players.s2);
+    placeString(&cell[0].gapStr, "Stage", CELL_TEXT_LENGTH);
+    placeString(&cell[CELL_COUNT - 3].gapStr, "Points", CELL_TEXT_LENGTH); 
+    placeString(&cell[1].gapStr, players.p1, CELL_TEXT_LENGTH);
+    placeString(&cell[2].gapStr, players.p2, CELL_TEXT_LENGTH);
+    placeString(&cell[CELL_COUNT - 2].gapStr, s1, CELL_TEXT_LENGTH);
+    placeString(&cell[CELL_COUNT - 1].gapStr, s2, CELL_TEXT_LENGTH);
 }
 
 void initBorderPositions(Line* borders)
@@ -174,13 +178,14 @@ void SelectionHandler(bool *selectionState, unsigned int *cellIndex, Cell *cell)
         Vector2 mousePos = GetMousePosition();
         if (CheckCollisionPointRec(mousePos, SELECTION_AREA)) {
             *selectionState = true;
-            printf("%lld\n", cell[*cellIndex].gapStr.cStart);
+            *cellIndex = xyToIndex(mousePos);
+            printf("index: %d\n", *cellIndex);
+            printf("cstart: %lld\n", cell[*cellIndex].gapStr.cStart);
         } else {
             *selectionState = false;
             *cellIndex = 0;
             return;
         }
-        *cellIndex = xyToIndex(mousePos);
     }
     if (*cellIndex == 0) return;
     if (*cellIndex < (*cellIndex % 3)) {

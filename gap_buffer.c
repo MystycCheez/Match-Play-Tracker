@@ -11,7 +11,7 @@ void placeChar(GapBuffer *gapStr, char c, size_t bufLen)
 {
     if (gapStr->cStart >= gapStr->cEnd) return;
     gapStr->str[gapStr->cStart++] = c;
-    printf("%s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
+    printf("%s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd);
 }
 
 void placeString(GapBuffer *gapStr, const char *str, size_t bufLen)
@@ -66,13 +66,13 @@ GapBuffer strToGapStr(char* str, size_t cursor)
 
 char* gapStrToStr(GapBuffer gapStr, size_t len)
 {
-    size_t lenR = strlen(gapStr.str + gapStr.cEnd + 1);
+    size_t lenR = strlen(gapStr.str + gapStr.cEnd);
     if (lenR > 0) {
         char* str = malloc(sizeof(char) * len);
-        memset(str, 0, len + 1);
+        memset(str, 0, len);
 
         strncpy(str, gapStr.str, gapStr.cStart);
-        strncpy(str + strlen(str), gapStr.str + gapStr.cEnd + 1, lenR);
+        strncpy(str + strlen(str), gapStr.str + gapStr.cEnd, lenR);
 
         return str;
     } else return gapStr.str;
@@ -82,7 +82,7 @@ GapBuffer initGapStr(size_t len)
 {
     GapBuffer gapStr = {0};
     gapStr.str = malloc(sizeof(char) * len);
-    memset(gapStr.str, 0, len + 1);
+    memset(gapStr.str, 0, len);
     gapStr.cStart = 0;
     gapStr.cEnd = len - 1;
     return gapStr;
