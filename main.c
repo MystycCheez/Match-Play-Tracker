@@ -9,6 +9,8 @@ int main()
 
     Players players = {"Player 1", "Player 2", 0, 0};
 
+    unsigned int scoreTieAcc = 0;
+
     unsigned int selectedCell = 0;
     bool selectionState = false;
 
@@ -37,7 +39,7 @@ int main()
     {
         SelectionHandler(&selectionState, &selectedCell, &cell[selectedCell]);
         
-        if (selectionState) InputHandler(cell, &selectedCell, &selectionState);
+        if (selectionState) InputHandler(cell, &selectedCell, &selectionState, &scoreTieAcc);
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
         

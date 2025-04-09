@@ -291,27 +291,33 @@ char* filterText(char* text)
 }
 
 // TODO: add parameter for score
-void CompareTimes(Cell *cellL, Cell *cellR)
+void CompareTimes(Cell *cellL, Cell *cellR, Cell* cells, unsigned int *scoreTieAcc)
 {
     if (cellL->gapStr.str == NULL || cellR->gapStr.str == NULL) return;
     printf("%s - %s\n", cellL->gapStr.str, cellR->gapStr.str);
     unsigned int timeL = timeToSecs(cellL->gapStr.str);
     unsigned int timeR = timeToSecs(cellR->gapStr.str);
     printf("%d - %d\n", timeL, timeR);
+    printf("%d\n", *scoreTieAcc);
     if ((timeL == 0) || (timeR == 0)) return;
     if (timeL < timeR) {
         cellL->highlight = COLOR_WIN;
         cellR->highlight = COLOR_LOSE;
+        OverwriteStr(&cells[CELL_COUNT - 2].gapStr, u_toStr(1 + atoi(cells[CELL_COUNT - 2].gapStr.str) + *scoreTieAcc), CELL_TEXT_LENGTH);
+        *scoreTieAcc = 0;
     } else if (timeL > timeR) {
         cellL->highlight = COLOR_LOSE;
         cellR->highlight = COLOR_WIN;
+        OverwriteStr(&cells[CELL_COUNT - 1].gapStr, u_toStr(1 + atoi(cells[CELL_COUNT - 1].gapStr.str) + *scoreTieAcc), CELL_TEXT_LENGTH);
+        *scoreTieAcc = 0;
     } else if (timeL == timeR) {
         cellL->highlight = TRANSPARENT;
         cellR->highlight = TRANSPARENT;
+        *scoreTieAcc = *scoreTieAcc + 1;
     } // TODO: user gets WR as time and is highlighted GOLD (unlikely, but would like this feature)
 }
 
-void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState)
+void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState, unsigned int *scoreTieAcc)
 {
     Cell *cell = &cellList[*cellIndex];
     int key = GetCharPressed();
@@ -334,7 +340,7 @@ void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState)
             Vector2 cellPos = indexToCR(*cellIndex);
             unsigned int cellL = crToIndex((Vector2){1, cellPos.y});
             unsigned int cellR = crToIndex((Vector2){2, cellPos.y});
-            CompareTimes(&cellList[cellL], &cellList[cellR]);
+            CompareTimes(&cellList[cellL], &cellList[cellR], cellList, scoreTieAcc);
         }
 
         *cellIndex = *cellIndex + 3;

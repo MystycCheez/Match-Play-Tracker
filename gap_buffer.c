@@ -7,6 +7,13 @@ void chrswap(char* ptr1, char* ptr2)
     *ptr1 = tmp;
 }
 
+char* u_toStr(unsigned int num)
+{
+    char* str = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    sprintf(str, "%d", num);
+    return str;
+}
+
 void placeChar(GapBuffer *gapStr, char c, size_t bufLen)
 {
     if (gapStr->cStart >= gapStr->cEnd) return;
