@@ -16,9 +16,9 @@ char* u_toStr(unsigned int num)
 
 void placeChar(GapBuffer *gapStr, char c, size_t bufLen)
 {
-    if (gapStr->cStart >= gapStr->cEnd) return;
+    if (gapStr->cStart == gapStr->cEnd) return;
     gapStr->str[gapStr->cStart++] = c;
-    printf("%s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd);
+    // printf("%s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd);
 }
 
 void placeString(GapBuffer *gapStr, const char *str, size_t bufLen)
@@ -40,7 +40,7 @@ void deleteChar(GapBuffer *gapStr)
 {
     if (gapStr->cStart == 0) return;
     gapStr->str[--gapStr->cStart] = 0;
-    printf("%s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
+    // printf("%s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
 }
 
 void cursorLeft(GapBuffer *gapStr)
@@ -49,7 +49,7 @@ void cursorLeft(GapBuffer *gapStr)
     chrswap(gapStr->str + gapStr->cStart - 1, gapStr->str + gapStr->cEnd);
     gapStr->cStart--;
     gapStr->cEnd--;
-    printf("%s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
+    // printf("%s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
 }
 
 void cursorRight(GapBuffer *gapStr, size_t bufLen)
@@ -58,29 +58,30 @@ void cursorRight(GapBuffer *gapStr, size_t bufLen)
     chrswap(gapStr->str + gapStr->cStart, gapStr->str + gapStr->cEnd + 1);
     gapStr->cEnd++;
     gapStr->cStart++;
-    printf("%s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
+    // printf("%s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
 }
 
+// TODO
 GapBuffer strToGapStr(char* str, size_t cursor)
 {
-    GapBuffer gapstr = {0};
+    GapBuffer gapStr = {0};
     size_t len = strlen(str);
-    gapstr.str = malloc(sizeof(char) * len);
-    memset(gapstr.str, 0, len);
-    snprintf(gapstr.str, cursor, str);
-    return gapstr;
+    gapStr.str = malloc(sizeof(char) * len);
+    memset(gapStr.str, 0, len);
+    snprintf(gapStr.str, cursor, str);
+    gapStr.cStart = 0;
+    gapStr.cEnd = cursor;
+    return gapStr;
 }
 
 char* gapStrToStr(GapBuffer gapStr, size_t len)
 {
-    size_t lenR = strlen(gapStr.str + gapStr.cEnd);
+    size_t lenR = strlen(gapStr.str + gapStr.cEnd + 1);
     if (lenR > 0) {
-        char* str = malloc(sizeof(char) * len);
-        memset(str, 0, len);
-
+        char* str = malloc(sizeof(char) * len + 1);
+        memset(str, 0, len + 1);
         strncpy(str, gapStr.str, gapStr.cStart);
-        strncpy(str + strlen(str), gapStr.str + gapStr.cEnd, lenR);
-
+        strncpy(str + strlen(str), gapStr.str + gapStr.cEnd + 1, lenR);
         return str;
     } else return gapStr.str;
 }
@@ -88,8 +89,8 @@ char* gapStrToStr(GapBuffer gapStr, size_t len)
 GapBuffer initGapStr(size_t len)
 {
     GapBuffer gapStr = {0};
-    gapStr.str = malloc(sizeof(char) * len);
-    memset(gapStr.str, 0, len);
+    gapStr.str = malloc(sizeof(char) * len + 1);
+    memset(gapStr.str, 0, len + 1);
     gapStr.cStart = 0;
     gapStr.cEnd = len - 1;
     return gapStr;

@@ -17,6 +17,7 @@ typedef struct GapBuffer {
 typedef struct Cell {
     GapBuffer gapStr;
     unsigned char alignment : 2;
+    bool hasTime;
     Color color;
     Color highlight;
 } Cell;

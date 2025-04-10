@@ -45,6 +45,12 @@ char** loadLevelText()
     return levelText;
 }
 
+bool isNotZero(int num)
+{
+    if(num > 0) return true;
+    return false;
+}
+
 Vector2 indexToXY(unsigned int index)
 {
     Vector2 xy = {0};
@@ -123,13 +129,14 @@ Vector2 CalcTextPos(Vector2 pos, size_t index)
     return pos;
 }
 
+// TODO: Fix!
 void DrawCursor(Cell cell, unsigned int cellIndex, Font font)
 {
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
-    Vector2 size = MeasureTextEx(font, cell.gapStr.str + cell.gapStr.cStart, FONT_SIZE, 1);
+    float span = MeasureTextEx(font, cell.gapStr.str, FONT_SIZE, 1).x;
 
-    pos.x = pos.x + (DEFAULT_CELL_WIDTH / 2) - (size.x / 2);
+    pos.x = pos.x + (DEFAULT_CELL_WIDTH / 2) + (span / 2);
 
     // TODO: Make cursor blink
     DrawLineEx(pos, (Vector2){pos.x, pos.y + DEFAULT_CELL_HEIGHT}, 1.0, GRAY);
@@ -295,11 +302,25 @@ void CompareTimes(Cell *cellL, Cell *cellR, Cell* cells, unsigned int *scoreTieA
 {
     if (cellL->gapStr.str == NULL || cellR->gapStr.str == NULL) return;
     printf("%s - %s\n", cellL->gapStr.str, cellR->gapStr.str);
+    bool oldLT = cellL->hasTime;
+    bool oldRT = cellR->hasTime;
     unsigned int timeL = timeToSecs(cellL->gapStr.str);
     unsigned int timeR = timeToSecs(cellR->gapStr.str);
+    cellL->hasTime = isNotZero(timeL);
+    cellR->hasTime = isNotZero(timeR);
     printf("%d - %d\n", timeL, timeR);
     printf("%d\n", *scoreTieAcc);
-    if ((timeL == 0) || (timeR == 0)) return;
+    if (oldLT == cellL->hasTime && oldRT == cellR->hasTime) return;
+    if (cellL->hasTime == false && cellR->hasTime == false) return;
+    if (cellL->hasTime == false != cellR->hasTime == false) {
+        printf("Test\n");
+        cellL->highlight = TRANSPARENT;
+        cellR->highlight = TRANSPARENT;
+        OverwriteStr(&cells[CELL_COUNT - 1].gapStr, u_toStr(max(0, atoi(cells[CELL_COUNT - 1].gapStr.str) - 1)), CELL_TEXT_LENGTH);
+        OverwriteStr(&cells[CELL_COUNT - 2].gapStr, u_toStr(max(0, atoi(cells[CELL_COUNT - 2].gapStr.str) - 1)), CELL_TEXT_LENGTH);
+        if (atoi(cells[CELL_COUNT - 2].gapStr.str) == atoi(cells[CELL_COUNT - 1].gapStr.str)) *scoreTieAcc = *scoreTieAcc - 1;
+        return;
+    }
     if (timeL < timeR) {
         cellL->highlight = COLOR_WIN;
         cellR->highlight = COLOR_LOSE;
@@ -314,7 +335,7 @@ void CompareTimes(Cell *cellL, Cell *cellR, Cell* cells, unsigned int *scoreTieA
         cellL->highlight = TRANSPARENT;
         cellR->highlight = TRANSPARENT;
         *scoreTieAcc = *scoreTieAcc + 1;
-    } // TODO: user gets WR as time and is highlighted GOLD (unlikely, but would like this feature)
+    } // TODO: player gets WR as time and is highlighted GOLD (unlikely, but would like this feature) - UNTIEDS too
 }
 
 void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState, unsigned int *scoreTieAcc)
@@ -335,15 +356,17 @@ void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState,
         deleteChar(&cell->gapStr);
     }
     if (IsKeyPressed(KEY_ENTER)) {
-        if (*cellIndex > 2) {
+        if (*cellIndex > 2 && strlen(cell->gapStr.str) != 0 && *cellIndex < CELL_COUNT - 6) {
             OverwriteStr(&cell->gapStr, filterText(cell->gapStr.str), CELL_TEXT_LENGTH);
             Vector2 cellPos = indexToCR(*cellIndex);
             unsigned int cellL = crToIndex((Vector2){1, cellPos.y});
             unsigned int cellR = crToIndex((Vector2){2, cellPos.y});
             CompareTimes(&cellList[cellL], &cellList[cellR], cellList, scoreTieAcc);
+            *cellIndex = *cellIndex + 3;
+        } else {
+            *cellIndex = 0;
+            selectionState = false;
         }
-
-        *cellIndex = *cellIndex + 3;
         SelectionHandler(selectionState, cellIndex, cell);
     }
 }

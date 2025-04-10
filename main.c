@@ -23,6 +23,7 @@ int main()
         cell[i].alignment = ALIGN_CENTER;
         cell[i].color = WHITE;
         cell[i].highlight = TRANSPARENT;
+        cell[i].hasTime = false;
     }
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
         cell[3 + (i * COLUMNS)].alignment = ALIGN_LEFT;
@@ -57,7 +58,6 @@ int main()
         for (size_t i = 0; i < CELL_COUNT; i++) {
             BeginShaderMode(shader);
             DrawTextAligned(font, TextPos, FONT_SIZE, 1, cell[i], i);
-            // printf("%s\n", cell[i].gapStr.str + cell[i].gapStr.cEnd);
             EndShaderMode();
         }    
         if (selectionState) DrawCursor(cell[selectedCell], selectedCell, font);
