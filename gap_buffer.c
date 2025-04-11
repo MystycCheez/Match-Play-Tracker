@@ -7,8 +7,9 @@ void chrswap(char* ptr1, char* ptr2)
     *ptr1 = tmp;
 }
 
-char* u_toStr(unsigned int num)
+char* i_toStr(int num)
 {
+    // TODO: make more portable or just use itoa in place of this
     char* str = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     sprintf(str, "%d", num);
     return str;
@@ -34,6 +35,7 @@ void OverwriteStr(GapBuffer *gapStr, const char *str, size_t len)
     gapStr->cStart = 0;
     gapStr->cEnd = len - 1;
     placeString(gapStr, str, len);
+    printf("%s\n", str);
 }
 
 void deleteChar(GapBuffer *gapStr)

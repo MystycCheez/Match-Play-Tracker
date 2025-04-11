@@ -246,10 +246,10 @@ unsigned int countChars(char* text, char c, size_t len)
 char* filterText(char* text)
 {
     // This is a mess of conditions, would be nice to make it more readable
-    char* dummy = malloc(sizeof(char) * 5);
-    sprintf(dummy, "0:00");
+    char* dummy = malloc(sizeof(char) * 1);
+    // sprintf(dummy, 0);
     size_t textLen = strlen(text);
-    printf("text: %s textLen: %lld\n", text, textLen);
+    // printf("text: %s textLen: %lld\n", text, textLen);
     if (strpbrk(text, ":1234567890") != NULL) {
         unsigned int cCount = countChars(text, ':', textLen);
         if (cCount == 0) {
@@ -297,45 +297,94 @@ char* filterText(char* text)
     return dummy;
 }
 
+// Consider redoing this by calculating all scores at once
 // TODO: add parameter for score
-void CompareTimes(Cell *cellL, Cell *cellR, Cell* cells, unsigned int *scoreTieAcc)
+void CompareTimes(Cell *cellL, Cell *cellR, Cell *cells, unsigned int *scoreTieAcc)
 {
     if (cellL->gapStr.str == NULL || cellR->gapStr.str == NULL) return;
-    printf("%s - %s\n", cellL->gapStr.str, cellR->gapStr.str);
+    // printf("%s - %s\n", cellL->gapStr.str, cellR->gapStr.str);
     bool oldLT = cellL->hasTime;
     bool oldRT = cellR->hasTime;
     unsigned int timeL = timeToSecs(cellL->gapStr.str);
     unsigned int timeR = timeToSecs(cellR->gapStr.str);
     cellL->hasTime = isNotZero(timeL);
     cellR->hasTime = isNotZero(timeR);
-    printf("%d - %d\n", timeL, timeR);
-    printf("%d\n", *scoreTieAcc);
-    if (oldLT == cellL->hasTime && oldRT == cellR->hasTime) return;
-    if (cellL->hasTime == false && cellR->hasTime == false) return;
-    if (cellL->hasTime == false != cellR->hasTime == false) {
-        printf("Test\n");
-        cellL->highlight = TRANSPARENT;
-        cellR->highlight = TRANSPARENT;
-        OverwriteStr(&cells[CELL_COUNT - 1].gapStr, u_toStr(max(0, atoi(cells[CELL_COUNT - 1].gapStr.str) - 1)), CELL_TEXT_LENGTH);
-        OverwriteStr(&cells[CELL_COUNT - 2].gapStr, u_toStr(max(0, atoi(cells[CELL_COUNT - 2].gapStr.str) - 1)), CELL_TEXT_LENGTH);
-        if (atoi(cells[CELL_COUNT - 2].gapStr.str) == atoi(cells[CELL_COUNT - 1].gapStr.str)) *scoreTieAcc = *scoreTieAcc - 1;
-        return;
+    // If both cells had a time
+    // Which means they would both have a color and contribute toward score in some word
+    if (oldLT && oldRT) {
+        // If one or the other cells has no time entered - Logical XOR
+        // Aka, a deletion happened
+        if ((cellL->hasTime == false) && !(cellR->hasTime == false)) {
+            cellL->highlight = TRANSPARENT;
+            cellR->highlight = TRANSPARENT;
+            OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(max(0, atoi(cells[CELL_COUNT - 1].gapStr.str) - 1)), CELL_TEXT_LENGTH);
+            OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(max(0, atoi(cells[CELL_COUNT - 2].gapStr.str) - 1)), CELL_TEXT_LENGTH);
+            if (atoi(cells[CELL_COUNT - 2].gapStr.str) == atoi(cells[CELL_COUNT - 1].gapStr.str)) *scoreTieAcc = *scoreTieAcc - 1;
+            return;
+        }
     }
+    if (cellL->hasTime && cellR->hasTime) {
+
+    } else return; // No need to compare if there aren't two times to compare
+
+    // printf("L: %d - R: %d\n", cellL->hasTime, cellR->hasTime);
+    // printf("%d - %d\n", timeL, timeR);
+    // printf("%d\n", *scoreTieAcc);
+    
+    // If either cell has no time entered
+    if (cellL->hasTime == false || cellR->hasTime == false) return;
+    
     if (timeL < timeR) {
         cellL->highlight = COLOR_WIN;
         cellR->highlight = COLOR_LOSE;
-        OverwriteStr(&cells[CELL_COUNT - 2].gapStr, u_toStr(1 + atoi(cells[CELL_COUNT - 2].gapStr.str) + *scoreTieAcc), CELL_TEXT_LENGTH);
+        OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(1 + atoi(cells[CELL_COUNT - 2].gapStr.str) + *scoreTieAcc), CELL_TEXT_LENGTH);
         *scoreTieAcc = 0;
     } else if (timeL > timeR) {
         cellL->highlight = COLOR_LOSE;
         cellR->highlight = COLOR_WIN;
-        OverwriteStr(&cells[CELL_COUNT - 1].gapStr, u_toStr(1 + atoi(cells[CELL_COUNT - 1].gapStr.str) + *scoreTieAcc), CELL_TEXT_LENGTH);
+        OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(1 + atoi(cells[CELL_COUNT - 1].gapStr.str) + *scoreTieAcc), CELL_TEXT_LENGTH);
         *scoreTieAcc = 0;
     } else if (timeL == timeR) {
         cellL->highlight = TRANSPARENT;
         cellR->highlight = TRANSPARENT;
         *scoreTieAcc = *scoreTieAcc + 1;
     } // TODO: player gets WR as time and is highlighted GOLD (unlikely, but would like this feature) - UNTIEDS too
+}
+
+// Returns -1 for left win, 1 for right, and 0 for tie
+Int2 CompareX(unsigned int row, Cell *cells)
+{
+    unsigned int cellL = crToIndex((Vector2){1, (float)row});
+    unsigned int cellR = crToIndex((Vector2){2, (float)row});
+
+    unsigned int timeL = timeToSecs(cells[cellL].gapStr.str);
+    unsigned int timeR = timeToSecs(cells[cellR].gapStr.str);
+
+    if (timeL < timeR) {
+        cells[cellL].highlight = COLOR_WIN;
+        cells[cellR].highlight = COLOR_LOSE;
+        return (Int2){1, 0};
+    } else if (timeL > timeR) {
+        cells[cellL].highlight = COLOR_LOSE;
+        cells[cellR].highlight = COLOR_WIN;
+        return (Int2){0, 1};
+    } else if (timeL == timeR) {
+        cells[cellL].highlight = TRANSPARENT;
+        cells[cellR].highlight = TRANSPARENT;
+        return (Int2){0, 0};
+    } // TODO: player gets WR as time and is highlighted GOLD (unlikely, but would like this feature) - UNTIEDS too
+    assert("Shouldn't have reached here!");
+    exit(-1);
+}
+
+void UpdateScores(Cell *cells)
+{
+    Int2 wins[LEVEL_COUNT];
+    for (size_t i = 0; i < LEVEL_COUNT; i++) {
+        wins[i] = CompareX(i + 1 , cells);
+        OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(wins[i].x + atoi(cells[CELL_COUNT - 2].gapStr.str)), CELL_TEXT_LENGTH);
+        OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(wins[i].y + atoi(cells[CELL_COUNT - 1].gapStr.str)), CELL_TEXT_LENGTH);
+    }
 }
 
 void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState, unsigned int *scoreTieAcc)
@@ -356,12 +405,16 @@ void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState,
         deleteChar(&cell->gapStr);
     }
     if (IsKeyPressed(KEY_ENTER)) {
-        if (*cellIndex > 2 && strlen(cell->gapStr.str) != 0 && *cellIndex < CELL_COUNT - 6) {
-            OverwriteStr(&cell->gapStr, filterText(cell->gapStr.str), CELL_TEXT_LENGTH);
-            Vector2 cellPos = indexToCR(*cellIndex);
-            unsigned int cellL = crToIndex((Vector2){1, cellPos.y});
-            unsigned int cellR = crToIndex((Vector2){2, cellPos.y});
-            CompareTimes(&cellList[cellL], &cellList[cellR], cellList, scoreTieAcc);
+        if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 6) {
+            // If change in text occurs
+            if (strcmp(cell->gapStr.str, filterText(cell->gapStr.str)) != 0) {
+                printf("test\n");
+                Vector2 cellPos = indexToCR(*cellIndex);
+                unsigned int cellL = crToIndex((Vector2){1, cellPos.y});
+                unsigned int cellR = crToIndex((Vector2){2, cellPos.y});
+                OverwriteStr(&cell->gapStr, filterText(cell->gapStr.str), CELL_TEXT_LENGTH);
+                CompareTimes(&cellList[cellL], &cellList[cellR], cellList, scoreTieAcc);
+            }
             *cellIndex = *cellIndex + 3;
         } else {
             *cellIndex = 0;
