@@ -13,6 +13,7 @@ int main()
 
     unsigned int selectedCell = 0;
     bool selectionState = false;
+    bool textChanged = false;
 
     Line borders[COLUMNS + ROWS] = {0};
     initBorderPositions(borders);
@@ -32,34 +33,35 @@ int main()
     
     initCellText(cell, players);
     
-    Vector2 TextPos = {0};
+    Vector2 TextPos = {0}; 
     
     SetTargetFPS(60);
     
     while (!WindowShouldClose())
     {
         SelectionHandler(&selectionState, &selectedCell, &cell[selectedCell]);
-        if (selectionState) InputHandler(cell, &selectedCell, &selectionState, &scoreTieAcc);
+        if (selectionState) InputHandler(cell, &selectedCell, &selectionState, &scoreTieAcc, &textChanged);
         
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
         
-        for (size_t i = 0; i < CELL_COUNT; i++) {
+        for (size_t i = 0; i < CELL_COUNT; i++)
             DrawRectangleV(indexToXY(i), (Vector2){DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT}, cell[i].highlight);
-        }
+
         // The following function is documented incorrectly - TODO: Make PR/Issue
         DrawRectangleGradientEx((Rectangle){0, DEFAULT_CELL_HEIGHT * 21, SCREEN_WIDTH, DEFAULT_CELL_HEIGHT}, 
         GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
         DrawRectangleGradientEx((Rectangle){0, 0, SCREEN_WIDTH, DEFAULT_CELL_HEIGHT}, 
         GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
-        for (size_t i = 0; i < COLUMNS + ROWS; i++) {
+
+        for (size_t i = 0; i < COLUMNS + ROWS; i++) 
             DrawLine(borders[i].x1, borders[i].y1, borders[i].x2, borders[i].y2, BORDER_COLOR);
-        }
-        for (size_t i = 0; i < CELL_COUNT; i++) {
-            BeginShaderMode(shader);
+
+        BeginShaderMode(shader);
+        for (size_t i = 0; i < CELL_COUNT; i++) 
             DrawTextAligned(font, TextPos, FONT_SIZE, 1, cell[i], i);
-            EndShaderMode();
-        }    
+        EndShaderMode();
+        
         if (selectionState) DrawCursor(cell[selectedCell], selectedCell, font);
         DrawCellBorders(selectedCell);
         

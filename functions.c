@@ -6,7 +6,7 @@ Font initFont()
     // Font font = LoadFontEx(font_file, FONT_SIZE, NULL, 250);
 
     int fileSize = 0;
-    unsigned char* fileData = LoadFileData(font_file, &fileSize);
+    unsigned char *fileData = LoadFileData(font_file, &fileSize);
     Font font = {0};
     font.baseSize = FONT_SIZE * 5;
     font.glyphCount = 95;
@@ -18,22 +18,21 @@ Font initFont()
     return font;
 }
 
-char** loadLevelText()
+char **loadLevelText()
 {
     FILE *file_ptr = fopen("levels.txt", "r");
     if (file_ptr == NULL) {
         printf("Error: Could not open file: %s\n", "levels.txt");
         exit(1);
     }
-    char** levelText = malloc(sizeof(char*) * LEVEL_COUNT);
+    char **levelText = malloc(sizeof(char *) * LEVEL_COUNT);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
         levelText[i] = malloc(sizeof(char) * CELL_TEXT_LENGTH);
         memset(levelText[i], 0, CELL_TEXT_LENGTH);
     }
     char str[CELL_TEXT_LENGTH];
     size_t index = 0;
-    while (fgets(str, CELL_TEXT_LENGTH, file_ptr) != NULL)
-    {
+    while (fgets(str, CELL_TEXT_LENGTH, file_ptr) != NULL) {
         levelText[index] = malloc(sizeof(char) * CELL_TEXT_LENGTH);
         memset(levelText[index], 0, CELL_TEXT_LENGTH);
         strncpy(levelText[index], str, CELL_TEXT_LENGTH);
@@ -47,7 +46,7 @@ char** loadLevelText()
 
 bool isNotZero(int num)
 {
-    if(num > 0) return true;
+    if (num > 0) return true;
     return false;
 }
 
@@ -82,35 +81,33 @@ unsigned int crToIndex(Vector2 cr)
     return (unsigned int)(cr.x + (cr.y * COLUMNS));
 }
 
-void initCellText(Cell* cell, Players players)
+void initCellText(Cell *cell, Players players)
 {
-    char** levelText = loadLevelText();
+    char **levelText = loadLevelText();
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
         placeString(&cell[(i * 3) + 3].gapStr, levelText[i], CELL_TEXT_LENGTH);
     }
     free(levelText);
-    char* s1 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-    char* s2 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    char *s1 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    char *s2 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     sprintf(s1, "%d", players.s1);
     sprintf(s2, "%d", players.s2);
     placeString(&cell[0].gapStr, "Stage", CELL_TEXT_LENGTH);
-    placeString(&cell[CELL_COUNT - 3].gapStr, "Points", CELL_TEXT_LENGTH); 
+    placeString(&cell[CELL_COUNT - 3].gapStr, "Points", CELL_TEXT_LENGTH);
     placeString(&cell[1].gapStr, players.p1, CELL_TEXT_LENGTH);
     placeString(&cell[2].gapStr, players.p2, CELL_TEXT_LENGTH);
     placeString(&cell[CELL_COUNT - 2].gapStr, s1, CELL_TEXT_LENGTH);
     placeString(&cell[CELL_COUNT - 1].gapStr, s2, CELL_TEXT_LENGTH);
 }
 
-void initBorderPositions(Line* borders)
+void initBorderPositions(Line *borders)
 {
     size_t index = 0;
-    for (size_t i = 0; i < ROWS; i++)
-    {
+    for (size_t i = 0; i < ROWS; i++) {
         borders[i] = (Line){0, DEFAULT_CELL_HEIGHT * i, SCREEN_WIDTH, DEFAULT_CELL_HEIGHT * i};
         index++;
     }
-    for (size_t i = 0; i < COLUMNS; i++)
-    {
+    for (size_t i = 0; i < COLUMNS; i++) {
         borders[i + index] = (Line){DEFAULT_CELL_WIDTH * i, 0, DEFAULT_CELL_WIDTH * i, SCREEN_HEIGHT};
     }
 }
@@ -144,9 +141,9 @@ void DrawCursor(Cell cell, unsigned int cellIndex, Font font)
 
 void DrawTextCentered(Font font, Vector2 pos, float fontSize, float spacing, Cell cell)
 {
-    char* text = gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH);
+    char *text = gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH);
     Vector2 size = MeasureTextEx(font, text, fontSize, spacing);
-    
+
     pos.x = pos.x + (DEFAULT_CELL_WIDTH / 2) - (size.x / 2);
     pos.y = pos.y + (DEFAULT_CELL_HEIGHT / 2) - (size.y / 2);
 
@@ -155,7 +152,7 @@ void DrawTextCentered(Font font, Vector2 pos, float fontSize, float spacing, Cel
 
 void DrawTextLeftAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell cell)
 {
-    char* text = gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH);
+    char *text = gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH);
     Vector2 size = MeasureTextEx(font, text, fontSize, spacing);
 
     pos.x = pos.x + fontSize / 2;
@@ -167,16 +164,16 @@ void DrawTextLeftAligned(Font font, Vector2 pos, float fontSize, float spacing, 
 void DrawTextAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell cell, size_t i)
 {
     switch (cell.alignment) {
-        case ALIGN_LEFT:
-            DrawTextLeftAligned(font, CalcTextPos(pos, i), fontSize, 1, cell);
-            break;
-        case ALIGN_CENTER:
-            DrawTextCentered(font, CalcTextPos(pos, i), fontSize, 1, cell);
-            break;
-        case ALIGN_RIGHT:
-            assert("TODO: ALIGN_RIGHT");
-            break;
-        }
+    case ALIGN_LEFT:
+        DrawTextLeftAligned(font, CalcTextPos(pos, i), fontSize, 1, cell);
+        break;
+    case ALIGN_CENTER:
+        DrawTextCentered(font, CalcTextPos(pos, i), fontSize, 1, cell);
+        break;
+    case ALIGN_RIGHT:
+        assert(!"TODO: ALIGN_RIGHT");
+        break;
+    }
 }
 
 void SelectionHandler(bool *selectionState, unsigned int *cellIndex, Cell *cell)
@@ -200,7 +197,7 @@ void SelectionHandler(bool *selectionState, unsigned int *cellIndex, Cell *cell)
 }
 
 // Expects format: "mm:ss"
-unsigned int timeToSecs(char* time)
+unsigned int timeToSecs(char *time)
 {
     size_t timeLen = strlen(time);
     assert(timeLen < 6 && "use filterCellText");
@@ -218,9 +215,9 @@ unsigned int timeToSecs(char* time)
 }
 
 // Formats to mm:ss or 0:ss / Expects total number of seconds
-char* secsToTime(unsigned int totalSecs)
+char *secsToTime(unsigned int totalSecs)
 {
-    char* time = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    char *time = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     memset(time, 0, CELL_TEXT_LENGTH);
     unsigned int minutes = totalSecs / 60;
     assert(minutes < 100);
@@ -230,24 +227,23 @@ char* secsToTime(unsigned int totalSecs)
 }
 
 // Count how many times c appears in text limited by len
-unsigned int countChars(char* text, char c, size_t len)
+unsigned int countChars(char *text, char c, size_t len)
 {
     unsigned int count = 0;
-    char* p;
+    char *p;
     p = memchr(text, c, len);
     while (p != NULL) {
-        p = memchr(p+1, c, len);
+        p = memchr(p + 1, c, len);
         count++;
     }
     return count;
 }
 
 // Filters string to be converted into time / Outputs "mm:ss"
-char* filterText(char* text)
+char *filterText(char *text)
 {
     // This is a mess of conditions, would be nice to make it more readable
-    char* dummy = malloc(sizeof(char) * 1);
-    // sprintf(dummy, 0);
+    char *dummy = '\0';
     size_t textLen = strlen(text);
     // printf("text: %s textLen: %lld\n", text, textLen);
     if (strpbrk(text, ":1234567890") != NULL) {
@@ -255,40 +251,39 @@ char* filterText(char* text)
         if (cCount == 0) {
             if (textLen > 4 || textLen < 2) return dummy;
             if (textLen == 3) {
-                char* mod = malloc(sizeof(char) * 5);
+                char *mod = malloc(sizeof(char) * 5);
                 sprintf(mod, "%c:%s", text[0], text + 1);
                 return mod;
             } else if (textLen == 4) {
-                char* mod = malloc(sizeof(char) * 5);
+                char *mod = malloc(sizeof(char) * 5);
                 if (text[0] != '0') {
                     sprintf(mod, "%c%c:%s", text[0], text[1], text + 2);
                 } else sprintf(mod, "%c:%s", text[1], text + 2);
                 return mod;
-            } else if (textLen == 2 && text[0] == '0') {
-                return dummy;
             }
-            char* mod = malloc(sizeof(char) * 5);
+            else if (textLen == 2 && text[0] == '0') return dummy;
+            char *mod = malloc(sizeof(char) * 5);
             sprintf(mod, "0:%s", text);
             return mod;
         } else if (cCount == 1 && text[textLen - 3] == ':') {
             if (textLen > 5 || textLen < 3) return dummy;
             if (textLen == 3) {
-                char* mod = malloc(sizeof(char) * 5);
+                char *mod = malloc(sizeof(char) * 5);
                 sprintf(mod, "0%s", text);
                 return mod;
             } else if (textLen == 4) {
-                char* mod = malloc(sizeof(char) * 5);
+                char *mod = malloc(sizeof(char) * 5);
                 sprintf(mod, "%s", text);
                 return mod;
             } else if ((textLen == 5) && (text[0] == '0')) {
-                char* mod = malloc(sizeof(char) * 5);
+                char *mod = malloc(sizeof(char) * 5);
                 sprintf(mod, "%s", text + 1);
                 return mod;
             }
             return text;
         } else if (cCount == 2 && text[textLen - 6] == ':') {
             if (textLen <= 8 && textLen >= 6) {
-                char* mod = malloc(sizeof(char) * 5);
+                char *mod = malloc(sizeof(char) * 5);
                 sprintf(mod, "%s", text + textLen - 5);
                 return filterText(mod);
             }
@@ -297,62 +292,7 @@ char* filterText(char* text)
     return dummy;
 }
 
-// Consider redoing this by calculating all scores at once
-// TODO: add parameter for score
-void CompareTimes(Cell *cellL, Cell *cellR, Cell *cells, unsigned int *scoreTieAcc)
-{
-    if (cellL->gapStr.str == NULL || cellR->gapStr.str == NULL) return;
-    // printf("%s - %s\n", cellL->gapStr.str, cellR->gapStr.str);
-    bool oldLT = cellL->hasTime;
-    bool oldRT = cellR->hasTime;
-    unsigned int timeL = timeToSecs(cellL->gapStr.str);
-    unsigned int timeR = timeToSecs(cellR->gapStr.str);
-    cellL->hasTime = isNotZero(timeL);
-    cellR->hasTime = isNotZero(timeR);
-    // If both cells had a time
-    // Which means they would both have a color and contribute toward score in some word
-    if (oldLT && oldRT) {
-        // If one or the other cells has no time entered - Logical XOR
-        // Aka, a deletion happened
-        if ((cellL->hasTime == false) && !(cellR->hasTime == false)) {
-            cellL->highlight = TRANSPARENT;
-            cellR->highlight = TRANSPARENT;
-            OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(max(0, atoi(cells[CELL_COUNT - 1].gapStr.str) - 1)), CELL_TEXT_LENGTH);
-            OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(max(0, atoi(cells[CELL_COUNT - 2].gapStr.str) - 1)), CELL_TEXT_LENGTH);
-            if (atoi(cells[CELL_COUNT - 2].gapStr.str) == atoi(cells[CELL_COUNT - 1].gapStr.str)) *scoreTieAcc = *scoreTieAcc - 1;
-            return;
-        }
-    }
-    if (cellL->hasTime && cellR->hasTime) {
-
-    } else return; // No need to compare if there aren't two times to compare
-
-    // printf("L: %d - R: %d\n", cellL->hasTime, cellR->hasTime);
-    // printf("%d - %d\n", timeL, timeR);
-    // printf("%d\n", *scoreTieAcc);
-    
-    // If either cell has no time entered
-    if (cellL->hasTime == false || cellR->hasTime == false) return;
-    
-    if (timeL < timeR) {
-        cellL->highlight = COLOR_WIN;
-        cellR->highlight = COLOR_LOSE;
-        OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(1 + atoi(cells[CELL_COUNT - 2].gapStr.str) + *scoreTieAcc), CELL_TEXT_LENGTH);
-        *scoreTieAcc = 0;
-    } else if (timeL > timeR) {
-        cellL->highlight = COLOR_LOSE;
-        cellR->highlight = COLOR_WIN;
-        OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(1 + atoi(cells[CELL_COUNT - 1].gapStr.str) + *scoreTieAcc), CELL_TEXT_LENGTH);
-        *scoreTieAcc = 0;
-    } else if (timeL == timeR) {
-        cellL->highlight = TRANSPARENT;
-        cellR->highlight = TRANSPARENT;
-        *scoreTieAcc = *scoreTieAcc + 1;
-    } // TODO: player gets WR as time and is highlighted GOLD (unlikely, but would like this feature) - UNTIEDS too
-}
-
-// Returns -1 for left win, 1 for right, and 0 for tie
-Int2 CompareX(unsigned int row, Cell *cells)
+Int2 CompareTimes(unsigned int row, Cell *cells, int mode)
 {
     unsigned int cellL = crToIndex((Vector2){1, (float)row});
     unsigned int cellR = crToIndex((Vector2){2, (float)row});
@@ -360,66 +300,92 @@ Int2 CompareX(unsigned int row, Cell *cells)
     unsigned int timeL = timeToSecs(cells[cellL].gapStr.str);
     unsigned int timeR = timeToSecs(cells[cellR].gapStr.str);
 
+    if (cells[cellL].gapStr.str[0] == 0 || cells[cellR].gapStr.str[0] == 0) {
+        cells[cellL].highlight = TRANSPARENT;
+        cells[cellR].highlight = TRANSPARENT;
+        return (Int2){0, 0};
+    }
+
     if (timeL < timeR) {
         cells[cellL].highlight = COLOR_WIN;
         cells[cellR].highlight = COLOR_LOSE;
         return (Int2){1, 0};
-    } else if (timeL > timeR) {
+    }
+    else if (timeL > timeR) {
         cells[cellL].highlight = COLOR_LOSE;
         cells[cellR].highlight = COLOR_WIN;
         return (Int2){0, 1};
-    } else if (timeL == timeR) {
+    }
+    else if (timeL == timeR) {
         cells[cellL].highlight = TRANSPARENT;
         cells[cellR].highlight = TRANSPARENT;
         return (Int2){0, 0};
     } // TODO: player gets WR as time and is highlighted GOLD (unlikely, but would like this feature) - UNTIEDS too
-    assert("Shouldn't have reached here!");
+    assert(!"Shouldn't have reached here!");
     exit(-1);
 }
 
-void UpdateScores(Cell *cells)
+void UpdateScores(Cell *cells, int mode)
 {
-    Int2 wins[LEVEL_COUNT];
+    assert(mode >= 0);
+    Int2 *wins = malloc(sizeof(Int2) * LEVEL_COUNT);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
-        wins[i] = CompareX(i + 1 , cells);
-        OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(wins[i].x + atoi(cells[CELL_COUNT - 2].gapStr.str)), CELL_TEXT_LENGTH);
-        OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(wins[i].y + atoi(cells[CELL_COUNT - 1].gapStr.str)), CELL_TEXT_LENGTH);
+        wins[i] = CompareTimes(i + 1, cells, mode);
+        if (mode == MODE_INSERTION) {
+            OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(wins[i].x + atoi(cells[CELL_COUNT - 2].gapStr.str)), CELL_TEXT_LENGTH);
+            OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(wins[i].y + atoi(cells[CELL_COUNT - 1].gapStr.str)), CELL_TEXT_LENGTH);
+        } else if (mode == MODE_DELETION) {
+            OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(max(0, wins[i].x - atoi(cells[CELL_COUNT - 2].gapStr.str))), CELL_TEXT_LENGTH);
+            OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(max(0, wins[i].y - atoi(cells[CELL_COUNT - 1].gapStr.str))), CELL_TEXT_LENGTH);
+        }
     }
 }
 
-void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState, unsigned int *scoreTieAcc)
+void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState, unsigned int *scoreTieAcc, bool *textChanged)
 {
     Cell *cell = &cellList[*cellIndex];
     int key = GetCharPressed();
+    int mode = -1;
 
     // Check if more characters have been pressed on the same frame
     while (key > 0) {
         // NOTE: Only allow keys in range [32..125]
-        if ((key >= 32) && (key <= 125)) placeChar(&cell->gapStr, (char)key, CELL_TEXT_LENGTH);
+        if ((key >= 32) && (key <= 125))
+            placeChar(&cell->gapStr, (char)key, CELL_TEXT_LENGTH);
         key = GetCharPressed(); // Check next character in the queue
+        *textChanged = true;
     }
-    if (IsKeyPressed(KEY_LEFT)) cursorLeft(&cell->gapStr);
-    if (IsKeyPressed(KEY_RIGHT)) cursorRight(&cell->gapStr, CELL_TEXT_LENGTH);
+    if (IsKeyPressed(KEY_LEFT)) {
+        cursorLeft(&cell->gapStr);
+        *textChanged = true;
+    }
+    if (IsKeyPressed(KEY_RIGHT)) {
+        cursorRight(&cell->gapStr, CELL_TEXT_LENGTH);
+        *textChanged = true;
+    }
 
     if (IsKeyPressed(KEY_BACKSPACE)) {
         deleteChar(&cell->gapStr);
+        *textChanged = true;
     }
     if (IsKeyPressed(KEY_ENTER)) {
+        if (*cellIndex > 0 && *cellIndex < 3 && *textChanged == true) {;;} // TODO: Update Player Names
         if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 6) {
-            // If change in text occurs
-            if (strcmp(cell->gapStr.str, filterText(cell->gapStr.str)) != 0) {
-                printf("test\n");
-                Vector2 cellPos = indexToCR(*cellIndex);
-                unsigned int cellL = crToIndex((Vector2){1, cellPos.y});
-                unsigned int cellR = crToIndex((Vector2){2, cellPos.y});
-                OverwriteStr(&cell->gapStr, filterText(cell->gapStr.str), CELL_TEXT_LENGTH);
-                CompareTimes(&cellList[cellL], &cellList[cellR], cellList, scoreTieAcc);
+            printf("ENTER\n");
+            char *filteredText = filterText(cell->gapStr.str);
+            if (*textChanged == true) {
+                OverwriteStr(&cell->gapStr, filteredText, CELL_TEXT_LENGTH);
+                if (cell->gapStr.str[0] == 0) {
+                    mode = MODE_DELETION;
+                } else mode = MODE_INSERTION;
             }
             *cellIndex = *cellIndex + 3;
+            free(filteredText);
         } else {
             *cellIndex = 0;
             selectionState = false;
         }
+        if (*textChanged == true) UpdateScores(cellList, mode);
         SelectionHandler(selectionState, cellIndex, cell);
     }
 }

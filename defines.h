@@ -36,5 +36,8 @@
 #define ALIGN_CENTER 1
 #define ALIGN_RIGHT 2
 
+#define MODE_INSERTION 0
+#define MODE_DELETION 1
+
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))

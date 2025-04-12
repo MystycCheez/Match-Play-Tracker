@@ -31,11 +31,12 @@ void placeString(GapBuffer *gapStr, const char *str, size_t bufLen)
 
 void OverwriteStr(GapBuffer *gapStr, const char *str, size_t len)
 {
+    if (gapStr->str[0] == 0) return;
     memset(gapStr->str, 0, len + 1);
     gapStr->cStart = 0;
     gapStr->cEnd = len - 1;
     placeString(gapStr, str, len);
-    printf("%s\n", str);
+    // printf("%s\n", str);
 }
 
 void deleteChar(GapBuffer *gapStr)
