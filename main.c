@@ -62,7 +62,9 @@ int main()
             DrawTextAligned(font, TextPos, FONT_SIZE, 1, cell[i], i);
         EndShaderMode();
         
-        if (selectionState) DrawCursor(cell[selectedCell], selectedCell, font);
+        if (selectionState) {
+            DrawCursor(cell[selectedCell], selectedCell, font);
+        }
         DrawCellBorders(selectedCell);
         
         EndDrawing();

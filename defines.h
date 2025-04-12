@@ -1,6 +1,6 @@
 #define GLSL_VERSION 330
 
-#define SCREEN_WIDTH 900
+#define SCREEN_WIDTH 490
 #define SCREEN_HEIGHT 1100
 
 #define COLUMNS 3

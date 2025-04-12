@@ -129,6 +129,7 @@ Vector2 CalcTextPos(Vector2 pos, size_t index)
 // TODO: Fix!
 void DrawCursor(Cell cell, unsigned int cellIndex, Font font)
 {
+    if (cellIndex == 0) return;
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
     float span = MeasureTextEx(font, cell.gapStr.str, FONT_SIZE, 1).x;
@@ -303,7 +304,7 @@ Int2 CompareTimes(unsigned int row, Cell *cells)
     if (cells[cellL].gapStr.str[0] == 0 || cells[cellR].gapStr.str[0] == 0) {
         cells[cellL].highlight = TRANSPARENT;
         cells[cellR].highlight = TRANSPARENT;
-        return (Int2){0, 0};
+        return (Int2){-1, -1};
     }
 
     if (timeL < timeR) {
@@ -336,13 +337,14 @@ void UpdateScores(Cell *cells)
         if (wins[i].a == 0 && wins[i].b == 0) {
             tieCounter++;
         }
+        // if (wins[i].a == -1 || wins[i].b == -1) 
         if (wins[i].a > 0 && tieCounter > 0) {
             OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(cells[CELL_COUNT - 2].gapStr.str) + tieCounter), CELL_TEXT_LENGTH);
             tieCounter = 0;
         } else if (wins[i].b > 0 && tieCounter > 0) {
             OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(cells[CELL_COUNT - 1].gapStr.str) + tieCounter), CELL_TEXT_LENGTH);
             tieCounter = 0;
-        } else {
+        } else if (wins[i].a > 0 || wins[i].b > 0){
             OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(cells[CELL_COUNT - 2].gapStr.str)), CELL_TEXT_LENGTH);
             OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(cells[CELL_COUNT - 1].gapStr.str)), CELL_TEXT_LENGTH);
         }
@@ -378,7 +380,6 @@ void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState,
     if (IsKeyPressed(KEY_ENTER)) {
         if (*cellIndex > 0 && *cellIndex < 3 && *textChanged == true) {;;} // TODO: Update Player Names
         if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 6) {
-            printf("ENTER\n");
             char *filteredText = filterText(cell->gapStr.str);
             if (*textChanged == true) {
                 OverwriteStr(&cell->gapStr, filteredText, CELL_TEXT_LENGTH);
