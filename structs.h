@@ -9,8 +9,8 @@ typedef struct Line {
 } Line;
 
 typedef struct Int2 {
-    int x;
-    int y;
+    int a;
+    int b;
 } Int2;
 
 typedef struct GapBuffer {

@@ -292,7 +292,7 @@ char *filterText(char *text)
     return dummy;
 }
 
-Int2 CompareTimes(unsigned int row, Cell *cells, int mode)
+Int2 CompareTimes(unsigned int row, Cell *cells)
 {
     unsigned int cellL = crToIndex((Vector2){1, (float)row});
     unsigned int cellR = crToIndex((Vector2){2, (float)row});
@@ -325,18 +325,26 @@ Int2 CompareTimes(unsigned int row, Cell *cells, int mode)
     exit(-1);
 }
 
-void UpdateScores(Cell *cells, int mode)
+void UpdateScores(Cell *cells)
 {
-    assert(mode >= 0);
+    unsigned int tieCounter = 0;
+    OverwriteStr(&cells[CELL_COUNT - 2].gapStr, "0", CELL_TEXT_LENGTH);
+    OverwriteStr(&cells[CELL_COUNT - 1].gapStr, "0", CELL_TEXT_LENGTH);
     Int2 *wins = malloc(sizeof(Int2) * LEVEL_COUNT);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
-        wins[i] = CompareTimes(i + 1, cells, mode);
-        if (mode == MODE_INSERTION) {
-            OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(wins[i].x + atoi(cells[CELL_COUNT - 2].gapStr.str)), CELL_TEXT_LENGTH);
-            OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(wins[i].y + atoi(cells[CELL_COUNT - 1].gapStr.str)), CELL_TEXT_LENGTH);
-        } else if (mode == MODE_DELETION) {
-            OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(max(0, wins[i].x - atoi(cells[CELL_COUNT - 2].gapStr.str))), CELL_TEXT_LENGTH);
-            OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(max(0, wins[i].y - atoi(cells[CELL_COUNT - 1].gapStr.str))), CELL_TEXT_LENGTH);
+        wins[i] = CompareTimes(i + 1, cells);
+        if (wins[i].a == 0 && wins[i].b == 0) {
+            tieCounter++;
+        }
+        if (wins[i].a > 0 && tieCounter > 0) {
+            OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(cells[CELL_COUNT - 2].gapStr.str) + tieCounter), CELL_TEXT_LENGTH);
+            tieCounter = 0;
+        } else if (wins[i].b > 0 && tieCounter > 0) {
+            OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(cells[CELL_COUNT - 1].gapStr.str) + tieCounter), CELL_TEXT_LENGTH);
+            tieCounter = 0;
+        } else {
+            OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(cells[CELL_COUNT - 2].gapStr.str)), CELL_TEXT_LENGTH);
+            OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(cells[CELL_COUNT - 1].gapStr.str)), CELL_TEXT_LENGTH);
         }
     }
 }
@@ -345,7 +353,6 @@ void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState,
 {
     Cell *cell = &cellList[*cellIndex];
     int key = GetCharPressed();
-    int mode = -1;
 
     // Check if more characters have been pressed on the same frame
     while (key > 0) {
@@ -375,9 +382,6 @@ void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState,
             char *filteredText = filterText(cell->gapStr.str);
             if (*textChanged == true) {
                 OverwriteStr(&cell->gapStr, filteredText, CELL_TEXT_LENGTH);
-                if (cell->gapStr.str[0] == 0) {
-                    mode = MODE_DELETION;
-                } else mode = MODE_INSERTION;
             }
             *cellIndex = *cellIndex + 3;
             free(filteredText);
@@ -385,7 +389,7 @@ void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState,
             *cellIndex = 0;
             selectionState = false;
         }
-        if (*textChanged == true) UpdateScores(cellList, mode);
+        if (*textChanged == true) UpdateScores(cellList);
         SelectionHandler(selectionState, cellIndex, cell);
     }
 }
