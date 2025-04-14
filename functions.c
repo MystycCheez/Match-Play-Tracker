@@ -18,7 +18,7 @@ Font initFont()
 
 Rectangle initSelectionArea()
 {
-    return (Rectangle){(float)GVARS.cellWidth, 0, (float)GVARS.cellWidth * 2, (GVARS.cellHeight * 21)};
+    return (Rectangle){GVARS.cellWidth, 0, GVARS.cellWidth * 2, (GVARS.cellHeight * 21)};
 }
 
 char **loadLevelText()
@@ -56,8 +56,8 @@ bool isNotZero(int num)
 Vector2 indexToXY(unsigned int index)
 {
     Vector2 xy = {0};
-    xy.x = (index % COLUMNS) * GVARS.screenWidth;
-    xy.y = (index / COLUMNS) * GVARS.screenHeight;
+    xy.x = (index % COLUMNS) * GVARS.cellWidth;
+    xy.y = (index / COLUMNS) * GVARS.cellHeight;
     return xy;
 }
 
@@ -72,7 +72,7 @@ Vector2 indexToCR(unsigned int index)
 unsigned int xyToIndex(Vector2 xy)
 {
     unsigned int index = 0;
-    Vector2 rounded = {xy.x - fmodf(xy.x, (float)GVARS.cellWidth), xy.y - fmodf(xy.y, (float)GVARS.screenHeight)};
+    Vector2 rounded = {xy.x - fmodf(xy.x, GVARS.cellWidth), xy.y - fmodf(xy.y, GVARS.cellHeight)};
     rounded.x = rounded.x / GVARS.cellWidth;
     rounded.y = rounded.y / GVARS.cellHeight;
     index = rounded.x + (rounded.y * COLUMNS);

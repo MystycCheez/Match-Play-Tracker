@@ -75,13 +75,13 @@ int main()
         DrawRectangleGradientEx((Rectangle){0, 0, GVARS.screenWidth, GVARS.cellHeight}, 
         GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
         
+        for (size_t i = 0; i < CELL_COUNT; i++)
+            DrawRectangleV(indexToXY(i), (Vector2){GVARS.cellWidth, GVARS.cellHeight}, cell[i].highlight);
         for (size_t i = 0; i < COLUMNS + ROWS; i++) 
             DrawLine(borders[i].x1, borders[i].y1, borders[i].x2, borders[i].y2, BORDER_COLOR);
         
         for (size_t i = 0; i < CELL_COUNT; i++) 
             DrawTextAligned(font, TextPos, GVARS.fontSize, 1, cell[i], i);
-        for (size_t i = 0; i < CELL_COUNT; i++)
-            DrawRectangleV(indexToXY(i), (Vector2){GVARS.cellWidth, GVARS.cellHeight}, cell[i].highlight);
 
         if (selectionState && cursorTimer % 60 < 30) {
             DrawCursor(cell[selectedCell], selectedCell, font);
