@@ -6,14 +6,19 @@ Font initFont()
     int fileSize = 0;
     unsigned char *fileData = LoadFileData(font_file, &fileSize);
     Font font = {0};
-    font.baseSize = FONT_SIZE * 5;
+    font.baseSize = GVARS.fontSize * 5;
     font.glyphCount = 95;
-    font.glyphs = LoadFontData(fileData, fileSize, FONT_SIZE * 5, 0, 0, FONT_SDF);
-    Image atlas = GenImageFontAtlas(font.glyphs, &font.recs, font.glyphCount, FONT_SIZE * 5, 0, 1);
+    font.glyphs = LoadFontData(fileData, fileSize, GVARS.fontSize * 5, 0, 0, FONT_SDF);
+    Image atlas = GenImageFontAtlas(font.glyphs, &font.recs, font.glyphCount, GVARS.fontSize * 5, 0, 1);
     font.texture = LoadTextureFromImage(atlas);
     UnloadImage(atlas);
     // SetTextureFilter(font.texture, TEXTURE_FILTER_POINT); // Will I need this?
     return font;
+}
+
+Rectangle initSelectionArea()
+{
+    return (Rectangle){(float)GVARS.cellWidth, 0, (float)GVARS.cellWidth * 2, (GVARS.cellHeight * 21)};
 }
 
 char **loadLevelText()
@@ -51,8 +56,8 @@ bool isNotZero(int num)
 Vector2 indexToXY(unsigned int index)
 {
     Vector2 xy = {0};
-    xy.x = (index % COLUMNS) * DEFAULT_CELL_WIDTH;
-    xy.y = (index / COLUMNS) * DEFAULT_CELL_HEIGHT;
+    xy.x = (index % COLUMNS) * GVARS.screenWidth;
+    xy.y = (index / COLUMNS) * GVARS.screenHeight;
     return xy;
 }
 
@@ -67,9 +72,9 @@ Vector2 indexToCR(unsigned int index)
 unsigned int xyToIndex(Vector2 xy)
 {
     unsigned int index = 0;
-    Vector2 rounded = {xy.x - fmodf(xy.x, (float)DEFAULT_CELL_WIDTH), xy.y - fmodf(xy.y, (float)DEFAULT_CELL_HEIGHT)};
-    rounded.x = rounded.x / DEFAULT_CELL_WIDTH;
-    rounded.y = rounded.y / DEFAULT_CELL_HEIGHT;
+    Vector2 rounded = {xy.x - fmodf(xy.x, (float)GVARS.cellWidth), xy.y - fmodf(xy.y, (float)GVARS.screenHeight)};
+    rounded.x = rounded.x / GVARS.cellWidth;
+    rounded.y = rounded.y / GVARS.cellHeight;
     index = rounded.x + (rounded.y * COLUMNS);
     return index;
 }
@@ -102,11 +107,11 @@ void initBorderPositions(Line *borders)
 {
     size_t index = 0;
     for (size_t i = 0; i < ROWS; i++) {
-        borders[i] = (Line){0, DEFAULT_CELL_HEIGHT * i, GetScreenWidth(), DEFAULT_CELL_HEIGHT * i};
+        borders[i] = (Line){0, GVARS.cellHeight * i, GVARS.screenWidth, GVARS.cellHeight * i};
         index++;
     }
     for (size_t i = 0; i < COLUMNS; i++) {
-        borders[i + index] = (Line){DEFAULT_CELL_WIDTH * i, 0, DEFAULT_CELL_WIDTH * i, GetScreenHeight()};
+        borders[i + index] = (Line){GVARS.cellWidth * i, 0, GVARS.cellWidth * i, GVARS.screenHeight};
     }
 }
 
@@ -114,28 +119,25 @@ void DrawCellBorders(unsigned int cellIndex)
 {
     if (cellIndex == 0) return;
     Vector2 cellOrigin = indexToXY(cellIndex);
-    DrawRectangleLinesEx((Rectangle){cellOrigin.x, cellOrigin.y, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT}, 3.0, RAYWHITE);
+    DrawRectangleLinesEx((Rectangle){cellOrigin.x, cellOrigin.y, GVARS.cellWidth, GVARS.cellHeight}, 3.0, RAYWHITE);
 }
 
 Vector2 CalcTextPos(Vector2 pos, size_t index)
 {
-    pos.x = pos.x + (DEFAULT_CELL_WIDTH * (index % 3));
-    pos.y = 1 + pos.y + (DEFAULT_CELL_HEIGHT * (index / 3));
+    pos.x = pos.x + (GVARS.cellWidth * (index % 3));
+    pos.y = 1 + pos.y + (GVARS.cellHeight * (index / 3));
     return pos;
 }
 
-// TODO: Fix!
+// TODO: Fix! // Fix what??
 void DrawCursor(Cell cell, unsigned int cellIndex, Font font)
 {
     if (cellIndex == 0) return;
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
-    float span = MeasureTextEx(font, cell.gapStr.str, FONT_SIZE, 1).x;
-
-    pos.x = pos.x + (DEFAULT_CELL_WIDTH / 2) + (span / 2);
-
-    // TODO: Make cursor blink
-    DrawLineEx(pos, (Vector2){pos.x, pos.y + DEFAULT_CELL_HEIGHT}, 1.0, GRAY);
+    float span = MeasureTextEx(font, cell.gapStr.str, GVARS.fontSize, 1).x;
+    pos.x = pos.x + (GVARS.cellWidth / 2) + (span / 2);
+    DrawLineEx(pos, (Vector2){pos.x, pos.y + GVARS.cellHeight}, 1.0, GRAY);
 }
 
 void DrawTextCentered(Font font, Vector2 pos, float fontSize, float spacing, Cell cell)
@@ -143,8 +145,8 @@ void DrawTextCentered(Font font, Vector2 pos, float fontSize, float spacing, Cel
     char *text = gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH);
     Vector2 size = MeasureTextEx(font, text, fontSize, spacing);
 
-    pos.x = pos.x + (DEFAULT_CELL_WIDTH / 2) - (size.x / 2);
-    pos.y = pos.y + (DEFAULT_CELL_HEIGHT / 2) - (size.y / 2);
+    pos.x = pos.x + (GVARS.cellWidth / 2) - (size.x / 2);
+    pos.y = pos.y + (GVARS.cellHeight / 2) - (size.y / 2);
 
     DrawTextEx(font, text, pos, fontSize, spacing, cell.color);
 }
@@ -155,7 +157,7 @@ void DrawTextLeftAligned(Font font, Vector2 pos, float fontSize, float spacing, 
     Vector2 size = MeasureTextEx(font, text, fontSize, spacing);
 
     pos.x = pos.x + fontSize / 2;
-    pos.y = pos.y + (DEFAULT_CELL_HEIGHT / 2) - (size.y / 2);
+    pos.y = pos.y + (GVARS.cellHeight / 2) - (size.y / 2);
 
     DrawTextEx(font, text, pos, fontSize, spacing, cell.color);
 }
@@ -179,7 +181,7 @@ void SelectionHandler(bool *selectionState, unsigned int *cellIndex, Cell *cell)
 {
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         Vector2 mousePos = GetMousePosition();
-        if (CheckCollisionPointRec(mousePos, SELECTION_AREA)) {
+        if (CheckCollisionPointRec(mousePos, GVARS.SelectionArea)) {
             *selectionState = true;
             *cellIndex = xyToIndex(mousePos);
         } else {
@@ -240,10 +242,11 @@ unsigned int countChars(char *text, char c, size_t len)
 
 bool HasSpecialText(Cell cell)
 {
+    // Surely I can put these in a text file and read them
     if (strcmp(cell.gapStr.str, "veto") == 0 ||
         strcmp(cell.gapStr.str, "Veto") == 0 ||
         strcmp(cell.gapStr.str, "VETO") == 0 ||
-        strcmp(cell.gapStr.str, "-")    == 0 ||
+        strcmp(cell.gapStr.str, "-")    == 0 || // "-" Should be veto
         strcmp(cell.gapStr.str, "dnf")  == 0 ||
         strcmp(cell.gapStr.str, "DNF")  == 0 ||
         strcmp(cell.gapStr.str, "Dnf")  == 0) {

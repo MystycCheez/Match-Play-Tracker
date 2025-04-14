@@ -33,3 +33,14 @@ typedef struct Players {
     unsigned int s1;
     unsigned int s2;
 } Players;
+
+typedef struct Globals {
+    float screenWidth;
+    float screenHeight;
+    float cellWidth;
+    float cellHeight;
+    float fontSize;
+    Rectangle SelectionArea;
+} Globals;
+
+Globals GVARS = {0};

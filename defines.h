@@ -1,7 +1,7 @@
 #define GLSL_VERSION 330
 
-#define SCREEN_WIDTH 490
-#define SCREEN_HEIGHT 1100
+#define DEFAULT_SCREEN_WIDTH 490
+#define DEFAULT_SCREEN_HEIGHT 1100
 
 #define COLUMNS 3
 #define ROWS 22
@@ -10,16 +10,13 @@
 
 #define LEVEL_COUNT 20
 
-#define FONT_SIZE 25
+#define DEFAULT_FONT_SIZE 25
 #define SPACING 3
 
-#define DEFAULT_CELL_HEIGHT (GetScreenHeight() / ROWS)
-#define DEFAULT_CELL_WIDTH  (GetScreenWidth() / COLUMNS)
+#define DEFAULT_CELL_HEIGHT (DEFAULT_SCREEN_HEIGHT / ROWS)
+#define DEFAULT_CELL_WIDTH  (DEFAULT_SCREEN_WIDTH / COLUMNS)
 
-#define SELECTION_AREA (Rectangle){\
-    (float)DEFAULT_CELL_WIDTH, 0,\
-    (float)DEFAULT_CELL_WIDTH * 2,\
-    (DEFAULT_CELL_HEIGHT * 21)}
+// #define SELECTION_AREA 
 
 #define BACKGROUND_COLOR (Color){0x15, 0x17, 0x19, 0xFF}
 #define BORDER_COLOR     (Color){0x66, 0x66, 0x66, 0xFF}

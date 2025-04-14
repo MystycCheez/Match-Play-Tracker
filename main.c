@@ -1,13 +1,20 @@
+// #define GAP_DEBUG
+
 #include "includes.h"
 
 int main()
 {
+    GVARS.screenHeight = DEFAULT_SCREEN_HEIGHT;
+    GVARS.screenWidth = DEFAULT_SCREEN_WIDTH;
+    GVARS.cellHeight = DEFAULT_CELL_HEIGHT;
+    GVARS.cellWidth = DEFAULT_CELL_WIDTH;
+    GVARS.fontSize = DEFAULT_FONT_SIZE;
+    GVARS.SelectionArea = initSelectionArea();
+
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Match Play Tracker");
+    InitWindow(GVARS.screenWidth, GVARS.screenHeight, "Match Play Tracker");
     Image WindowIcon = LoadImage("logo-transparent.png");
 
-    // ImageFormat(&WindowIcon, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
-    // ImageResize(&WindowIcon, 64, 64);
     SetWindowIcon(WindowIcon);
 
     Font font = initFont();
@@ -46,30 +53,36 @@ int main()
     while (!WindowShouldClose())
     {
         if (IsWindowResized()) {
+            GVARS.screenHeight = GetScreenHeight();
+            GVARS.screenWidth = GetScreenWidth();
+            GVARS.cellHeight = GVARS.screenHeight / ROWS;
+            GVARS.cellWidth = GVARS.screenWidth / COLUMNS;
+            GVARS.fontSize = GVARS.screenHeight / 44;
+            GVARS.SelectionArea = initSelectionArea();
             initBorderPositions(borders);
-            // if (GetScreenHeight )
         }
+        
         SelectionHandler(&selectionState, &selectedCell, &cell[selectedCell]);
         if (selectionState) InputHandler(cell, &selectedCell, &selectionState, &scoreTieAcc, &textChanged);
         
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
         
-        for (size_t i = 0; i < CELL_COUNT; i++)
-            DrawRectangleV(indexToXY(i), (Vector2){DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT}, cell[i].highlight);
-
+        
         // The following function is documented incorrectly - TODO: Make PR/Issue
-        DrawRectangleGradientEx((Rectangle){0, DEFAULT_CELL_HEIGHT * 21, GetScreenWidth(), DEFAULT_CELL_HEIGHT}, 
+        DrawRectangleGradientEx((Rectangle){0, GVARS.cellHeight * 21, GVARS.screenWidth, GVARS.cellHeight}, 
         GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
-        DrawRectangleGradientEx((Rectangle){0, 0, GetScreenWidth(), DEFAULT_CELL_HEIGHT}, 
+        DrawRectangleGradientEx((Rectangle){0, 0, GVARS.screenWidth, GVARS.cellHeight}, 
         GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
-
+        
         for (size_t i = 0; i < COLUMNS + ROWS; i++) 
             DrawLine(borders[i].x1, borders[i].y1, borders[i].x2, borders[i].y2, BORDER_COLOR);
-
-        for (size_t i = 0; i < CELL_COUNT; i++) 
-            DrawTextAligned(font, TextPos, FONT_SIZE, 1, cell[i], i);
         
+        for (size_t i = 0; i < CELL_COUNT; i++) 
+            DrawTextAligned(font, TextPos, GVARS.fontSize, 1, cell[i], i);
+        for (size_t i = 0; i < CELL_COUNT; i++)
+            DrawRectangleV(indexToXY(i), (Vector2){GVARS.cellWidth, GVARS.cellHeight}, cell[i].highlight);
+
         if (selectionState && cursorTimer % 60 < 30) {
             DrawCursor(cell[selectedCell], selectedCell, font);
         }
