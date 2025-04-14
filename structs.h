@@ -1,6 +1,6 @@
 #include "includes.h"
 
-// Line, 4 components
+// 4 components: x1, y1, x2, y2
 typedef struct Line {
     float x1;
     float y1;
@@ -8,25 +8,30 @@ typedef struct Line {
     float y2;
 } Line;
 
+// For needing pairs of Ints instead of a Vector2
+// 2 components: a/b
 typedef struct Int2 {
     int a;
     int b;
 } Int2;
 
+// 3 components: str, cStart, cEnd
 typedef struct GapBuffer {
     char* str;
     size_t cStart;
     size_t cEnd;
 } GapBuffer;
 
+// 5 components: gapStr, color, highlight, alignment, hasTime
 typedef struct Cell {
     GapBuffer gapStr;
-    unsigned char alignment : 2;
-    bool hasTime;
     Color color;
     Color highlight;
+    unsigned char alignment : 2;
+    bool hasTime;
 } Cell;
 
+// 4 components: p1, p2, s1, s2
 typedef struct Players {
     char* p1;
     char* p2;
@@ -34,6 +39,7 @@ typedef struct Players {
     unsigned int s2;
 } Players;
 
+// screenWidth, screenHeight, cellWidth, cellHeight, fontSize, SelectionArea
 typedef struct Globals {
     float screenWidth;
     float screenHeight;

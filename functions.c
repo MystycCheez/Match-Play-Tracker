@@ -21,9 +21,22 @@ Rectangle initSelectionArea()
     return (Rectangle){GVARS.cellWidth, 0, GVARS.cellWidth * 2, (GVARS.cellHeight * 21)};
 }
 
-char **loadLevelText()
+void reInitGVARS()
 {
-    FILE *file_ptr = fopen("levels.txt", "r");
+    GVARS.screenHeight = GetScreenHeight();
+    GVARS.screenWidth = GetScreenWidth();
+    GVARS.cellHeight = GVARS.screenHeight / ROWS;
+    GVARS.cellWidth = GVARS.screenWidth / COLUMNS;
+    GVARS.fontSize = GVARS.screenHeight / 44;
+    GVARS.SelectionArea = initSelectionArea();
+}
+
+char **loadLevelText(int game)
+{
+    char* filename;
+    if (game == LEVELS_GE) filename = "resources/levels-ge.txt";
+    if (game == LEVELS_PD) filename = "resources/levels-pd.txt";
+    FILE *file_ptr = fopen(filename, "r");
     if (file_ptr == NULL) {
         printf("Error: Could not open file: %s\n", "levels.txt");
         exit(1);
@@ -84,9 +97,9 @@ unsigned int crToIndex(Vector2 cr)
     return (unsigned int)(cr.x + (cr.y * COLUMNS));
 }
 
-void initCellText(Cell *cell, Players players)
+void initCellText(Cell *cell, Players players, int game)
 {
-    char **levelText = loadLevelText();
+    char **levelText = loadLevelText(game);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
         placeString(&cell[(i * 3) + 3].gapStr, levelText[i], CELL_TEXT_LENGTH);
     }

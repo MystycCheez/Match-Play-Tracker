@@ -13,7 +13,9 @@ int main()
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(GVARS.screenWidth, GVARS.screenHeight, "Match Play Tracker");
-    Image WindowIcon = LoadImage("logo-transparent.png");
+    Image WindowIcon = LoadImage("resources/logo-transparent.png");
+
+    int game = LEVELS_PD;
 
     SetWindowIcon(WindowIcon);
 
@@ -43,7 +45,7 @@ int main()
         cell[3 + (i * COLUMNS)].color = COLOR_LEVEL;
     }
     
-    initCellText(cell, players);
+    initCellText(cell, players, game);
     
     Vector2 TextPos = {0}; 
     
@@ -53,12 +55,7 @@ int main()
     while (!WindowShouldClose())
     {
         if (IsWindowResized()) {
-            GVARS.screenHeight = GetScreenHeight();
-            GVARS.screenWidth = GetScreenWidth();
-            GVARS.cellHeight = GVARS.screenHeight / ROWS;
-            GVARS.cellWidth = GVARS.screenWidth / COLUMNS;
-            GVARS.fontSize = GVARS.screenHeight / 44;
-            GVARS.SelectionArea = initSelectionArea();
+            reInitGVARS();
             initBorderPositions(borders);
         }
         
