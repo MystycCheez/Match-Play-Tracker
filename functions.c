@@ -3,8 +3,6 @@
 Font initFont()
 {
     const char *font_file = "C:/Windows/Fonts/trebucbd.ttf";
-    // Font font = LoadFontEx(font_file, FONT_SIZE, NULL, 250);
-
     int fileSize = 0;
     unsigned char *fileData = LoadFileData(font_file, &fileSize);
     Font font = {0};
@@ -14,7 +12,7 @@ Font initFont()
     Image atlas = GenImageFontAtlas(font.glyphs, &font.recs, font.glyphCount, FONT_SIZE * 5, 0, 1);
     font.texture = LoadTextureFromImage(atlas);
     UnloadImage(atlas);
-    // SetTextureFilter(font.texture, TEXTURE_FILTER_POINT);
+    // SetTextureFilter(font.texture, TEXTURE_FILTER_POINT); // Will I need this?
     return font;
 }
 
@@ -104,11 +102,11 @@ void initBorderPositions(Line *borders)
 {
     size_t index = 0;
     for (size_t i = 0; i < ROWS; i++) {
-        borders[i] = (Line){0, DEFAULT_CELL_HEIGHT * i, SCREEN_WIDTH, DEFAULT_CELL_HEIGHT * i};
+        borders[i] = (Line){0, DEFAULT_CELL_HEIGHT * i, GetScreenWidth(), DEFAULT_CELL_HEIGHT * i};
         index++;
     }
     for (size_t i = 0; i < COLUMNS; i++) {
-        borders[i + index] = (Line){DEFAULT_CELL_WIDTH * i, 0, DEFAULT_CELL_WIDTH * i, SCREEN_HEIGHT};
+        borders[i + index] = (Line){DEFAULT_CELL_WIDTH * i, 0, DEFAULT_CELL_WIDTH * i, GetScreenHeight()};
     }
 }
 
@@ -240,13 +238,26 @@ unsigned int countChars(char *text, char c, size_t len)
     return count;
 }
 
+bool HasSpecialText(Cell cell)
+{
+    if (strcmp(cell.gapStr.str, "veto") == 0 ||
+        strcmp(cell.gapStr.str, "Veto") == 0 ||
+        strcmp(cell.gapStr.str, "VETO") == 0 ||
+        strcmp(cell.gapStr.str, "-")    == 0 ||
+        strcmp(cell.gapStr.str, "dnf")  == 0 ||
+        strcmp(cell.gapStr.str, "DNF")  == 0 ||
+        strcmp(cell.gapStr.str, "Dnf")  == 0) {
+            return true;
+        } else return false;
+}
+
 // Filters string to be converted into time / Outputs "mm:ss"
 char *filterText(char *text)
 {
     // This is a mess of conditions, would be nice to make it more readable
-    char *dummy = '\0';
+    char *dummy = "\0";
     size_t textLen = strlen(text);
-    // printf("text: %s textLen: %lld\n", text, textLen);
+    // printf("text: %s textLen: %lld\n", text, textLen);  
     if (strpbrk(text, ":1234567890") != NULL) {
         unsigned int cCount = countChars(text, ':', textLen);
         if (cCount == 0) {
@@ -300,6 +311,12 @@ Int2 CompareTimes(unsigned int row, Cell *cells)
 
     unsigned int timeL = timeToSecs(cells[cellL].gapStr.str);
     unsigned int timeR = timeToSecs(cells[cellR].gapStr.str);
+
+    if (HasSpecialText(cells[cellL]) || HasSpecialText(cells[cellR])) {
+        cells[cellL].highlight = TRANSPARENT;
+        cells[cellR].highlight = TRANSPARENT;
+        return (Int2){-1, -1};
+    } 
 
     if (cells[cellL].gapStr.str[0] == 0 || cells[cellR].gapStr.str[0] == 0) {
         cells[cellL].highlight = TRANSPARENT;
@@ -380,12 +397,13 @@ void InputHandler(Cell *cellList, unsigned int *cellIndex, bool *selectionState,
     if (IsKeyPressed(KEY_ENTER)) {
         if (*cellIndex > 0 && *cellIndex < 3 && *textChanged == true) {;;} // TODO: Update Player Names
         if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 6) {
-            char *filteredText = filterText(cell->gapStr.str);
-            if (*textChanged == true) {
-                OverwriteStr(&cell->gapStr, filteredText, CELL_TEXT_LENGTH);
-            }
-            *cellIndex = *cellIndex + 3;
-            free(filteredText);
+            if (HasSpecialText(*cell) == false) {
+                    char *filteredText = filterText(cell->gapStr.str);
+                    if (*textChanged == true) {
+                        OverwriteStr(&cell->gapStr, filteredText, CELL_TEXT_LENGTH);
+                    }
+                }
+        *cellIndex = *cellIndex + 3;
         } else {
             *cellIndex = 0;
             selectionState = false;

@@ -2,10 +2,15 @@
 
 int main()
 {
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Match Play Tracker");
+    Image WindowIcon = LoadImage("logo-transparent.png");
+
+    // ImageFormat(&WindowIcon, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    // ImageResize(&WindowIcon, 64, 64);
+    SetWindowIcon(WindowIcon);
 
     Font font = initFont();
-    Shader shader = LoadShader(0, TextFormat("resources/shaders/glsl%i/sdf.fs", GLSL_VERSION));
 
     Players players = {"Player 1", "Player 2", 0, 0};
 
@@ -36,9 +41,14 @@ int main()
     Vector2 TextPos = {0}; 
     
     SetTargetFPS(60);
+    int cursorTimer = 0;
     
     while (!WindowShouldClose())
     {
+        if (IsWindowResized()) {
+            initBorderPositions(borders);
+            // if (GetScreenHeight )
+        }
         SelectionHandler(&selectionState, &selectedCell, &cell[selectedCell]);
         if (selectionState) InputHandler(cell, &selectedCell, &selectionState, &scoreTieAcc, &textChanged);
         
@@ -49,30 +59,30 @@ int main()
             DrawRectangleV(indexToXY(i), (Vector2){DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT}, cell[i].highlight);
 
         // The following function is documented incorrectly - TODO: Make PR/Issue
-        DrawRectangleGradientEx((Rectangle){0, DEFAULT_CELL_HEIGHT * 21, SCREEN_WIDTH, DEFAULT_CELL_HEIGHT}, 
+        DrawRectangleGradientEx((Rectangle){0, DEFAULT_CELL_HEIGHT * 21, GetScreenWidth(), DEFAULT_CELL_HEIGHT}, 
         GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
-        DrawRectangleGradientEx((Rectangle){0, 0, SCREEN_WIDTH, DEFAULT_CELL_HEIGHT}, 
+        DrawRectangleGradientEx((Rectangle){0, 0, GetScreenWidth(), DEFAULT_CELL_HEIGHT}, 
         GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
 
         for (size_t i = 0; i < COLUMNS + ROWS; i++) 
             DrawLine(borders[i].x1, borders[i].y1, borders[i].x2, borders[i].y2, BORDER_COLOR);
 
-        BeginShaderMode(shader);
         for (size_t i = 0; i < CELL_COUNT; i++) 
             DrawTextAligned(font, TextPos, FONT_SIZE, 1, cell[i], i);
-        EndShaderMode();
         
-        if (selectionState) {
+        if (selectionState && cursorTimer % 60 < 30) {
             DrawCursor(cell[selectedCell], selectedCell, font);
         }
         DrawCellBorders(selectedCell);
         
         EndDrawing();
+        cursorTimer++;
     }
     
     UnloadFont(font);
     
     CloseWindow();
+    UnloadImage(WindowIcon);
     
     return 0;
 }

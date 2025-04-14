@@ -13,8 +13,8 @@
 #define FONT_SIZE 25
 #define SPACING 3
 
-#define DEFAULT_CELL_HEIGHT (SCREEN_HEIGHT / ROWS)
-#define DEFAULT_CELL_WIDTH  (SCREEN_WIDTH / COLUMNS)
+#define DEFAULT_CELL_HEIGHT (GetScreenHeight() / ROWS)
+#define DEFAULT_CELL_WIDTH  (GetScreenWidth() / COLUMNS)
 
 #define SELECTION_AREA (Rectangle){\
     (float)DEFAULT_CELL_WIDTH, 0,\
