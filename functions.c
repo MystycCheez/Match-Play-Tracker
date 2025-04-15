@@ -77,14 +77,16 @@ void loadSpecialText()
     GVARS.specials.count = specialCount;
 }
 
-// TODO
+// Returns -1 if special text not found
+// Returns TEXT_VETO or TEXT_DNF if found
 int CompareSpecialText(char* text)
 {
     int returnVal = -1;
     for (size_t i = 0; i < GVARS.specials.count; i++) {
-        if (i > 0 && i < 4) returnVal = TEXT_VETO;
-        if (i > 3)          returnVal = TEXT_DNF;
-        if (strcmp(text, GVARS.specials.text[i]) == 0) return returnVal;
+        if (strcmp(text, GVARS.specials.text[i]) == 0) {
+            if (i < 4) returnVal = TEXT_VETO;
+            if (i > 3)           returnVal = TEXT_DNF;
+        } else if (strcmp(text, GVARS.specials.text[i]) == 0) return returnVal;
     }
     return returnVal;
 }
@@ -285,12 +287,14 @@ int HasSpecialText(Cell cell)
 // Filters string to be converted into time / Outputs "mm:ss" or "m:ss"
 char *filterText(char *text)
 {
-    char *text_veto = malloc(sizeof("Veto"));
-    char *text_dnf  = malloc(sizeof("DNF"));
+    char *text_veto = malloc(sizeof("Veto\n"));
+    char *text_dnf  = malloc(sizeof("DNF\n"));
     strcpy(text_veto, "Veto");
     strcpy(text_dnf, "DNF");
 
-    // if (getSpecialText(text) == TEXT_VETO) return text_veto;
+    int special = CompareSpecialText(text);
+    if (special == TEXT_VETO) return text_veto;
+    if (special == TEXT_DNF)  return text_dnf;
     
     // This is a mess of conditions, would be nice to make it more readable
     char *dummy = "\0";
@@ -348,34 +352,38 @@ Int2 CompareTimes(size_t row, Cell *cells)
 {
     size_t cellL = crToIndex((Vector2){1, (float)row});
     size_t cellR = crToIndex((Vector2){2, (float)row});
-
-    size_t timeL = timeToSecs(cells[cellL].gapStr.str);
-    size_t timeR = timeToSecs(cells[cellR].gapStr.str);
-
+    
     int specialL = CompareSpecialText(cells[cellL].gapStr.str);
     int specialR = CompareSpecialText(cells[cellR].gapStr.str);
 
-    if (cells[cellL].gapStr.str[0] == 0 || cells[cellR].gapStr.str[0] == 0) {
+    size_t timeL = -1;
+    size_t timeR = -1;
+    if (specialL == -1) timeL = timeToSecs(cells[cellL].gapStr.str);
+    if (specialR == -1) timeR = timeToSecs(cells[cellR].gapStr.str);
+
+    // printf("%lld, %lld\n", timeL, timeR);
+
+    if (cells[cellL].gapStr.str[0] == 0 || cells[cellR].gapStr.str[0] == 0 || specialL == TEXT_VETO || specialR == TEXT_VETO) {
         cells[cellL].highlight = TRANSPARENT;
         cells[cellR].highlight = TRANSPARENT;
         return (Int2){-1, -1};
     }
-
-    if ((timeL < timeR) || (specialL != -1 && specialR > 0)) {
+    if ((timeL == timeR) || (specialL == TEXT_DNF && specialR == TEXT_DNF)) {
+        cells[cellL].highlight = TRANSPARENT;
+        cells[cellR].highlight = TRANSPARENT;
+        return (Int2){0, 0};
+    } 
+    if ((timeL < timeR) || (specialR == TEXT_DNF)) { // Why doesn't this work????
         cells[cellL].highlight = COLOR_WIN;
         cells[cellR].highlight = COLOR_LOSE;
         return (Int2){1, 0};
     }
-    if ((timeL > timeR) || (specialR != -1 && specialL > 0)) {
+    if ((timeL > timeR) || (specialL == TEXT_DNF)) {
         cells[cellL].highlight = COLOR_LOSE;
         cells[cellR].highlight = COLOR_WIN;
         return (Int2){0, 1};
     }
-    if ((timeL == timeR) || (specialL > 0 && specialR > 0)) {
-        cells[cellL].highlight = TRANSPARENT;
-        cells[cellR].highlight = TRANSPARENT;
-        return (Int2){0, 0};
-    } // TODO: player gets WR as time and is highlighted GOLD (unlikely, but would like this feature) - UNTIEDS too
+    // TODO: player gets WR as time and is highlighted GOLD (unlikely, but would like this feature) - UNTIEDS too
     // printf("%s:%d\n", __FILE__, __LINE__);
     assert(!"Shouldn't have reached here!");
     exit(-1);
@@ -470,7 +478,6 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, size_
                 selectionState = false;
             }
             if (*textChanged == true) UpdateScores(cellList);
-            InputHandler(cell, cellIndex, selectionState, scoreTieAcc, textChanged);
         }
     }
 }
