@@ -12,6 +12,9 @@
 #define LEVELS_GE 0
 #define LEVELS_PD 1
 
+#define TEXT_VETO 0
+#define TEXT_DNF  1
+
 #define DEFAULT_FONT_SIZE 25
 #define SPACING 3
 

@@ -10,12 +10,15 @@ int main()
     GVARS.cellWidth = DEFAULT_CELL_WIDTH;
     GVARS.fontSize = DEFAULT_FONT_SIZE;
     GVARS.SelectionArea = initSelectionArea();
+    loadSpecialText();
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(GVARS.screenWidth, GVARS.screenHeight, "Match Play Tracker");
     Image WindowIcon = LoadImage("resources/logo-transparent.png");
 
-    int game = LEVELS_PD;
+    SetExitKey(KEY_NULL);
+
+    int game = LEVELS_GE;
 
     SetWindowIcon(WindowIcon);
 
@@ -23,9 +26,9 @@ int main()
 
     Players players = {"Player 1", "Player 2", 0, 0};
 
-    unsigned int scoreTieAcc = 0;
+    size_t scoreTieAcc = 0;
 
-    unsigned int selectedCell = 0;
+    size_t selectedCell = 0;
     bool selectionState = false;
     bool textChanged = false;
 
@@ -59,12 +62,10 @@ int main()
             initBorderPositions(borders);
         }
         
-        SelectionHandler(&selectionState, &selectedCell, &cell[selectedCell]);
-        if (selectionState) InputHandler(cell, &selectedCell, &selectionState, &scoreTieAcc, &textChanged);
+        InputHandler(cell, &selectedCell, &selectionState, &scoreTieAcc, &textChanged);
         
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
-        
         
         // The following function is documented incorrectly - TODO: Make PR/Issue
         DrawRectangleGradientEx((Rectangle){0, GVARS.cellHeight * 21, GVARS.screenWidth, GVARS.cellHeight}, 
@@ -72,11 +73,13 @@ int main()
         DrawRectangleGradientEx((Rectangle){0, 0, GVARS.screenWidth, GVARS.cellHeight}, 
         GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
         
+        // Draw Cell Highlights for win/loss
         for (size_t i = 0; i < CELL_COUNT; i++)
             DrawRectangleV(indexToXY(i), (Vector2){GVARS.cellWidth, GVARS.cellHeight}, cell[i].highlight);
+        // Draw Borders
         for (size_t i = 0; i < COLUMNS + ROWS; i++) 
             DrawLine(borders[i].x1, borders[i].y1, borders[i].x2, borders[i].y2, BORDER_COLOR);
-        
+        // Draw Text :)
         for (size_t i = 0; i < CELL_COUNT; i++) 
             DrawTextAligned(font, TextPos, GVARS.fontSize, 1, cell[i], i);
 

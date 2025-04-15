@@ -35,9 +35,14 @@ typedef struct Cell {
 typedef struct Players {
     char* p1;
     char* p2;
-    unsigned int s1;
-    unsigned int s2;
+    size_t s1;
+    size_t s2;
 } Players;
+
+typedef struct Specials {
+    char** text;
+    size_t count;
+} Specials;
 
 // screenWidth, screenHeight, cellWidth, cellHeight, fontSize, SelectionArea
 typedef struct Globals {
@@ -46,7 +51,14 @@ typedef struct Globals {
     float cellWidth;
     float cellHeight;
     float fontSize;
-    Rectangle SelectionArea;
+    Specials specials;
+    Rectangle SelectionArea; // Replace selection area with list of selectable cells
 } Globals;
+
+typedef struct Node {
+    void* data;
+    struct Node* next;
+    struct Node* prev;
+} Node;
 
 Globals GVARS = {0};
