@@ -269,81 +269,76 @@ size_t countChars(char *text, char c, size_t len)
     return count;
 }
 
-// i.e. "veto" or "dnf"
-int HasSpecialText(Cell cell)
-{   
-    // Surely I can put these in a text file and read them
-    if (strcmp(cell.gapStr.str, "veto") == 0 ||
-        strcmp(cell.gapStr.str, "Veto") == 0 ||
-        strcmp(cell.gapStr.str, "VETO") == 0 ||
-        strcmp(cell.gapStr.str, "-")    == 0 || // Should it be veto?
-        strcmp(cell.gapStr.str, "dnf")  == 0 ||
-        strcmp(cell.gapStr.str, "DNF")  == 0 ||
-        strcmp(cell.gapStr.str, "Dnf")  == 0) {
-            return true;
-        } else return false;
-}
-
 // Filters string to be converted into time / Outputs "mm:ss" or "m:ss"
-char *filterText(char *text)
+char* filterText(char* text)
 {
-    char *text_veto = malloc(sizeof("Veto\n"));
-    char *text_dnf  = malloc(sizeof("DNF\n"));
-    strcpy(text_veto, "Veto");
-    strcpy(text_dnf, "DNF");
+    // Do these need to be static?
+    static char* dummy = "\0";
+    static char* text_veto = "Veto";
+    static char* text_dnf = "DNF";
+
+    char *filtered = malloc(sizeof(char) * 5);
 
     int special = CompareSpecialText(text);
     if (special == TEXT_VETO) return text_veto;
     if (special == TEXT_DNF)  return text_dnf;
     
-    // This is a mess of conditions, would be nice to make it more readable
-    char *dummy = "\0";
     size_t textLen = strlen(text);
-    // printf("text: %s textLen: %lld\n", text, textLen);  
-    if (strpbrk(text, ":1234567890") != NULL) {
-        size_t cCount = countChars(text, ':', textLen);
-        if (cCount == 0) {
-            if (textLen > 4 || textLen < 2) return dummy;
-            if (textLen == 3) {
-                char *mod = malloc(sizeof(char) * 5);
-                sprintf(mod, "%c:%s", text[0], text + 1);
-                return mod;
-            } else if (textLen == 4) {
-                char *mod = malloc(sizeof(char) * 5);
-                if (text[0] != '0') {
-                    sprintf(mod, "%c%c:%s", text[0], text[1], text + 2);
-                } else sprintf(mod, "%c:%s", text[1], text + 2);
-                return mod;
-            }
-            else if (textLen == 2 && text[0] == '0') return dummy;
-            char *mod = malloc(sizeof(char) * 5);
-            sprintf(mod, "0:%s", text);
-            return mod;
-        } else if (cCount == 1 && text[textLen - 3] == ':') {
-            if (textLen > 5 || textLen < 3) return dummy;
-            if (textLen == 3) {
-                char *mod = malloc(sizeof(char) * 5);
-                sprintf(mod, "0%s", text);
-                return mod;
-            } else if (textLen == 4) {
-                char *mod = malloc(sizeof(char) * 5);
-                sprintf(mod, "%s", text);
-                return mod;
-            } else if ((textLen == 5) && (text[0] == '0')) {
-                char *mod = malloc(sizeof(char) * 5);
-                sprintf(mod, "%s", text + 1);
-                return mod;
-            }
-            return text;
-        } else if (cCount == 2 && text[textLen - 6] == ':') {
-            if (textLen <= 8 && textLen >= 6) {
-                char *mod = malloc(sizeof(char) * 5);
-                sprintf(mod, "%s", text + textLen - 5);
-                return filterText(mod);
-            }
-        } else return dummy;
-    } else return dummy;
-    return dummy;
+
+    if (strpbrk(text, ":1234567890") == NULL) return dummy;
+
+    size_t cCount = countChars(text, ':', textLen);
+    if (cCount > 2) return dummy;
+    switch (cCount) {
+    case 0:
+        switch (textLen) {
+        case 2:
+            // TODO: text[0] == '0' // Aka 0x
+            sprintf(filtered, "0:%s", text);
+            break;
+        case 3:
+            // TODO: text[0,1] == 0 // Aka 00x
+            sprintf(filtered, "%c:%s", text[0], text + 1);
+            break;
+        case 4:
+            // TODO: text[0,1,3] == 0 // Aka 000x
+            if (text[0] != '0') {
+                sprintf(filtered, "%c%c:%s", text[0], text[1], text + 2);
+            } else sprintf(filtered, "%c:%s", text[1], text + 2);
+            break;
+        default:
+            return dummy;
+        }
+        return filtered;
+    case 1:
+        if (text[textLen - 3] != ':') return dummy;
+        switch (textLen) {
+        case 3:
+            // TODO: text[1] == 0 // Aka :0x
+            sprintf(filtered, "0%s", text);
+            break;
+        case 4:
+            // TODO: text[2] == 0 // Aka 0:0x
+            sprintf(filtered, "%s", text);
+            break;
+        case 5:
+            // TODO: text[0] == 0 // Aka 0x:xx
+            // TODO: text[0,1,3] == 0 // Aka 00:0x
+            sprintf(filtered, "%s", text + 1);
+            break;
+        default:
+            return dummy;
+        }
+        return filtered;
+    case 2:
+        if (text[textLen - 6] != ':') return dummy;
+        if (!(textLen <= 8 && textLen >= 6)) return dummy;
+        sprintf(filtered, "%s", text + textLen - 5);
+        // TODO: Is this a memory leak?
+        return filterText(filtered);
+    default:
+        return dummy;
+    }    
 }
 
 // Compares two cells in a row and returns a pair of ints representing who won or lost
@@ -366,12 +361,12 @@ Int2 CompareTimes(size_t row, Cell *cells)
     if (cells[cellL].gapStr.str[0] == 0 || cells[cellR].gapStr.str[0] == 0 || specialL == TEXT_VETO || specialR == TEXT_VETO) {
         cells[cellL].highlight = TRANSPARENT;
         cells[cellR].highlight = TRANSPARENT;
-        return (Int2){-1, -1};
+        return (Int2){-1, -1}; // Indicates Veto
     }
     if ((timeL == timeR) || (specialL == TEXT_DNF && specialR == TEXT_DNF)) {
         cells[cellL].highlight = TRANSPARENT;
         cells[cellR].highlight = TRANSPARENT;
-        return (Int2){0, 0};
+        return (Int2){0, 0}; // Indicates Tie
     } 
     if ((timeL < timeR) || (specialR == TEXT_DNF)) { // Why doesn't this work????
         cells[cellL].highlight = COLOR_WIN;
@@ -401,7 +396,6 @@ void UpdateScores(Cell *cells)
         if (wins[i].a == 0 && wins[i].b == 0) {
             tieCounter++;
         }
-        // if (wins[i].a == -1 || wins[i].b == -1) 
         if (wins[i].a > 0 && tieCounter > 0) {
             OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(cells[CELL_COUNT - 2].gapStr.str) + tieCounter), CELL_TEXT_LENGTH);
             tieCounter = 0;

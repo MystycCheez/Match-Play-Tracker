@@ -15,17 +15,15 @@ int main()
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(GVARS.screenWidth, GVARS.screenHeight, "Match Play Tracker");
     Image WindowIcon = LoadImage("resources/logo-transparent.png");
-
-    SetExitKey(KEY_NULL);
-
-    int game = LEVELS_GE;
-
     SetWindowIcon(WindowIcon);
 
+    SetExitKey(KEY_NULL);
     Font font = initFont();
-
     Players players = {"Player 1", "Player 2", 0, 0};
+    Vector2 TextPos = {0}; 
 
+    int game = LEVELS_GE;
+    int cursorTimer = 0;
     size_t scoreTieAcc = 0;
 
     size_t selectedCell = 0;
@@ -47,13 +45,9 @@ int main()
         cell[3 + (i * COLUMNS)].alignment = ALIGN_LEFT;
         cell[3 + (i * COLUMNS)].color = COLOR_LEVEL;
     }
-    
     initCellText(cell, players, game);
     
-    Vector2 TextPos = {0}; 
-    
     SetTargetFPS(60);
-    int cursorTimer = 0;
     
     while (!WindowShouldClose())
     {
@@ -61,7 +55,6 @@ int main()
             reInitGVARS();
             initBorderPositions(borders);
         }
-        
         InputHandler(cell, &selectedCell, &selectionState, &scoreTieAcc, &textChanged);
         
         BeginDrawing();
@@ -72,7 +65,6 @@ int main()
         GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
         DrawRectangleGradientEx((Rectangle){0, 0, GVARS.screenWidth, GVARS.cellHeight}, 
         GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
-        
         // Draw Cell Highlights for win/loss
         for (size_t i = 0; i < CELL_COUNT; i++)
             DrawRectangleV(indexToXY(i), (Vector2){GVARS.cellWidth, GVARS.cellHeight}, cell[i].highlight);
