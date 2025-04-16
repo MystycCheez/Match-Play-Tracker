@@ -132,26 +132,44 @@ size_t crToIndex(Vector2 cr)
     return (size_t)(cr.x + (cr.y * COLUMNS));
 }
 
-void initCellText(Cell *cell, Players players, int game)
+void initSheetText(Cell *sheet, Players players, int game)
 {
     char **levelText = loadLevelText(game);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
-        placeString(&cell[(i * 3) + 3].gapStr, levelText[i], CELL_TEXT_LENGTH);
+        placeString(&sheet[(i * 3) + 3].gapStr, levelText[i], CELL_TEXT_LENGTH);
     }
     free(levelText);
     char *s1 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     char *s2 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     sprintf(s1, "%lld", players.s1);
     sprintf(s2, "%lld", players.s2);
-    placeString(&cell[0].gapStr, "Stage", CELL_TEXT_LENGTH);
-    placeString(&cell[CELL_COUNT - 3].gapStr, "Points", CELL_TEXT_LENGTH);
-    placeString(&cell[1].gapStr, players.p1, CELL_TEXT_LENGTH);
-    placeString(&cell[2].gapStr, players.p2, CELL_TEXT_LENGTH);
-    placeString(&cell[CELL_COUNT - 2].gapStr, s1, CELL_TEXT_LENGTH);
-    placeString(&cell[CELL_COUNT - 1].gapStr, s2, CELL_TEXT_LENGTH);
+    placeString(&sheet[0].gapStr, "Stage", CELL_TEXT_LENGTH);
+    placeString(&sheet[CELL_COUNT - 3].gapStr, "Points", CELL_TEXT_LENGTH);
+    placeString(&sheet[1].gapStr, players.p1, CELL_TEXT_LENGTH);
+    placeString(&sheet[2].gapStr, players.p2, CELL_TEXT_LENGTH);
+    placeString(&sheet[CELL_COUNT - 2].gapStr, s1, CELL_TEXT_LENGTH);
+    placeString(&sheet[CELL_COUNT - 1].gapStr, s2, CELL_TEXT_LENGTH);
 }
 
-void initBorderPositions(Line *borders)
+Cell* initSheet(Players players, int game)
+{
+    Cell *sheet = malloc(sizeof(Cell) * CELL_COUNT);
+    for (size_t i = 0; i < CELL_COUNT; i++) {
+        sheet[i].gapStr = initGapStr(CELL_TEXT_LENGTH);
+        sheet[i].alignment = ALIGN_CENTER;
+        sheet[i].color = WHITE;
+        sheet[i].highlight = TRANSPARENT;
+        sheet[i].hasTime = false;
+    }
+    for (size_t i = 0; i < LEVEL_COUNT; i++) {
+        sheet[3 + (i * COLUMNS)].alignment = ALIGN_LEFT;
+        sheet[3 + (i * COLUMNS)].color = COLOR_LEVEL;
+    }
+    initSheetText(sheet, players, game);
+    return sheet;
+}
+
+void setBorderPositions(Line *borders)
 {
     size_t index = 0;
     for (size_t i = 0; i < ROWS; i++) {
@@ -416,6 +434,17 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, size_
     int key_char = GetCharPressed();
     int key_key = GetKeyPressed();
 
+    if (key_key == KEY_ESCAPE) {
+        *selectionState = false;
+        *cellIndex = 0;
+    }
+    if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) {
+        if (IsKeyPressed(KEY_R)) {
+            printf("Testing\n");
+            SetWindowSize(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT);
+        }
+    }
+
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         Vector2 mousePos = GetMousePosition();
         if (CheckCollisionPointRec(mousePos, GVARS.SelectionArea)) {
@@ -429,11 +458,6 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, size_
     }
     if (*cellIndex == 0) return;
     if (*cellIndex < (*cellIndex % 3)) {
-        *selectionState = false;
-        *cellIndex = 0;
-    }
-
-    if (key_key == KEY_ESCAPE) {
         *selectionState = false;
         *cellIndex = 0;
     }
@@ -461,17 +485,23 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, size_
         }
         if (IsKeyPressed(KEY_ENTER)) {
             // if (*cellIndex > 0 && *cellIndex < 3 && *textChanged == true) {;;} // TODO: Update Player Names
-            if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 6) {
-                    char *filteredText = filterText(cell->gapStr.str);
-                    if (*textChanged == true) {
-                        OverwriteStr(&cell->gapStr, filteredText, CELL_TEXT_LENGTH);
-                    }
-            *cellIndex = *cellIndex + 3;
+            if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3) {
+                char *filteredText = filterText(cell->gapStr.str);
+                if (*textChanged == true) {
+                    OverwriteStr(&cell->gapStr, filteredText, CELL_TEXT_LENGTH);
+                }
+                if (*cellIndex > CELL_COUNT - 6) {
+                    *cellIndex = 0;
+                    selectionState = false;
+                } else *cellIndex = *cellIndex + 3;
             } else {
                 *cellIndex = 0;
                 selectionState = false;
             }
-            if (*textChanged == true) UpdateScores(cellList);
+            if (*textChanged == true) {
+                UpdateScores(cellList);
+                // ReplaceNextNode(cell, )
+            }
         }
     }
 }

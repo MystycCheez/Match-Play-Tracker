@@ -31,31 +31,19 @@ int main()
     bool textChanged = false;
 
     Line borders[COLUMNS + ROWS] = {0};
-    initBorderPositions(borders);
+    setBorderPositions(borders);
 
-    Cell cell[CELL_COUNT];
-    for (size_t i = 0; i < CELL_COUNT; i++) {
-        cell[i].gapStr = initGapStr(CELL_TEXT_LENGTH);
-        cell[i].alignment = ALIGN_CENTER;
-        cell[i].color = WHITE;
-        cell[i].highlight = TRANSPARENT;
-        cell[i].hasTime = false;
-    }
-    for (size_t i = 0; i < LEVEL_COUNT; i++) {
-        cell[3 + (i * COLUMNS)].alignment = ALIGN_LEFT;
-        cell[3 + (i * COLUMNS)].color = COLOR_LEVEL;
-    }
-    initCellText(cell, players, game);
+    Cell* sheet = initSheet(players, game);
     
     SetTargetFPS(60);
     
     while (!WindowShouldClose())
     {
+        InputHandler(sheet, &selectedCell, &selectionState, &scoreTieAcc, &textChanged);
         if (IsWindowResized()) {
             reInitGVARS();
-            initBorderPositions(borders);
+            setBorderPositions(borders);
         }
-        InputHandler(cell, &selectedCell, &selectionState, &scoreTieAcc, &textChanged);
         
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
@@ -67,16 +55,16 @@ int main()
         GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
         // Draw Cell Highlights for win/loss
         for (size_t i = 0; i < CELL_COUNT; i++)
-            DrawRectangleV(indexToXY(i), (Vector2){GVARS.cellWidth, GVARS.cellHeight}, cell[i].highlight);
+            DrawRectangleV(indexToXY(i), (Vector2){GVARS.cellWidth, GVARS.cellHeight}, sheet[i].highlight);
         // Draw Borders
         for (size_t i = 0; i < COLUMNS + ROWS; i++) 
             DrawLine(borders[i].x1, borders[i].y1, borders[i].x2, borders[i].y2, BORDER_COLOR);
         // Draw Text :)
         for (size_t i = 0; i < CELL_COUNT; i++) 
-            DrawTextAligned(font, TextPos, GVARS.fontSize, 1, cell[i], i);
+            DrawTextAligned(font, TextPos, GVARS.fontSize, 1, sheet[i], i);
 
         if (selectionState && cursorTimer % 60 < 30) {
-            DrawCursor(cell[selectedCell], selectedCell, font);
+            DrawCursor(sheet[selectedCell], selectedCell, font);
         }
         DrawCellBorders(selectedCell);
         
