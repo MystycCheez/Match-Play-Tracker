@@ -24,7 +24,6 @@ int main()
 
     int game = LEVELS_GE;
     int cursorTimer = 0;
-    size_t scoreTieAcc = 0;
 
     size_t selectedCell = 0;
     bool selectionState = false;
@@ -39,7 +38,7 @@ int main()
     
     while (!WindowShouldClose())
     {
-        InputHandler(sheet, &selectedCell, &selectionState, &scoreTieAcc, &textChanged);
+        InputHandler(sheet, &selectedCell, &selectionState, &textChanged);
         if (IsWindowResized()) {
             reInitGVARS();
             setBorderPositions(borders);

@@ -22,13 +22,13 @@ typedef struct GapBuffer {
     size_t cEnd;
 } GapBuffer;
 
-// 5 components: gapStr, color, highlight, alignment, hasTime
+// 5 components: gapStr, color, highlight, alignment, selectable
 typedef struct Cell {
     GapBuffer gapStr;
     Color color;
     Color highlight;
     unsigned char alignment : 2;
-    bool hasTime;
+    bool selectable;
 } Cell;
 
 // 4 components: p1, p2, s1, s2
@@ -54,6 +54,12 @@ typedef struct Globals {
     Specials specials;
     Rectangle SelectionArea; // Replace selection area with list of selectable cells
 } Globals;
+
+typedef struct Button {
+    Rectangle rect;
+    Image image[3]; // Unhighlighted, Highlighted, and Pressed/Selected
+    bool selected;
+} Button;
 
 typedef struct Node {
     void* data;

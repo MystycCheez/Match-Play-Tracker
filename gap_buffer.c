@@ -15,7 +15,7 @@ char* i_toStr(int num)
     return str;
 }
 
-void placeChar(GapBuffer *gapStr, char c, size_t bufLen)
+void placeChar(GapBuffer *gapStr, char c)
 {
     if (gapStr->cStart == gapStr->cEnd) return;
     gapStr->str[gapStr->cStart++] = c;
@@ -24,10 +24,10 @@ void placeChar(GapBuffer *gapStr, char c, size_t bufLen)
     #endif
 }
 
-void placeString(GapBuffer *gapStr, const char *str, size_t bufLen)
+void placeString(GapBuffer *gapStr, const char *str)
 {
     for (size_t i = 0; i < strlen(str); i++) {
-        placeChar(gapStr, str[i], bufLen);
+        placeChar(gapStr, str[i]);
     }
 }
 
@@ -37,7 +37,7 @@ void OverwriteStr(GapBuffer *gapStr, const char *str, size_t len)
     memset(gapStr->str, 0, len + 1);
     gapStr->cStart = 0;
     gapStr->cEnd = len - 1;
-    placeString(gapStr, str, len);
+    placeString(gapStr, str);
     #ifdef GAP_DEBUG
     printf("%s\n", str);
     #endif

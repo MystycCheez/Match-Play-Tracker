@@ -91,12 +91,6 @@ int CompareSpecialText(char* text)
     return returnVal;
 }
 
-bool isNotZero(int num)
-{
-    if (num > 0) return true;
-    return false;
-}
-
 // XY being the top left corner of the cell index
 Vector2 indexToXY(size_t index)
 {
@@ -136,19 +130,19 @@ void initSheetText(Cell *sheet, Players players, int game)
 {
     char **levelText = loadLevelText(game);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
-        placeString(&sheet[(i * 3) + 3].gapStr, levelText[i], CELL_TEXT_LENGTH);
+        placeString(&sheet[(i * 3) + 3].gapStr, levelText[i]);
     }
     free(levelText);
     char *s1 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     char *s2 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     sprintf(s1, "%lld", players.s1);
     sprintf(s2, "%lld", players.s2);
-    placeString(&sheet[0].gapStr, "Stage", CELL_TEXT_LENGTH);
-    placeString(&sheet[CELL_COUNT - 3].gapStr, "Points", CELL_TEXT_LENGTH);
-    placeString(&sheet[1].gapStr, players.p1, CELL_TEXT_LENGTH);
-    placeString(&sheet[2].gapStr, players.p2, CELL_TEXT_LENGTH);
-    placeString(&sheet[CELL_COUNT - 2].gapStr, s1, CELL_TEXT_LENGTH);
-    placeString(&sheet[CELL_COUNT - 1].gapStr, s2, CELL_TEXT_LENGTH);
+    placeString(&sheet[0].gapStr, "Stage");
+    placeString(&sheet[CELL_COUNT - 3].gapStr, "Points");
+    placeString(&sheet[1].gapStr, players.p1);
+    placeString(&sheet[2].gapStr, players.p2);
+    placeString(&sheet[CELL_COUNT - 2].gapStr, s1);
+    placeString(&sheet[CELL_COUNT - 1].gapStr, s2);
 }
 
 Cell* initSheet(Players players, int game)
@@ -159,11 +153,14 @@ Cell* initSheet(Players players, int game)
         sheet[i].alignment = ALIGN_CENTER;
         sheet[i].color = WHITE;
         sheet[i].highlight = TRANSPARENT;
-        sheet[i].hasTime = false;
+        sheet[i].selectable = true;
     }
+    sheet[CELL_COUNT - 1].selectable = false;
+    sheet[CELL_COUNT - 2].selectable = false;
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
         sheet[3 + (i * COLUMNS)].alignment = ALIGN_LEFT;
         sheet[3 + (i * COLUMNS)].color = COLOR_LEVEL;
+        sheet[3 + (i * COLUMNS)].selectable = false;
     }
     initSheetText(sheet, players, game);
     return sheet;
@@ -233,10 +230,10 @@ void DrawTextAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell
 {
     switch (cell.alignment) {
     case ALIGN_LEFT:
-        DrawTextLeftAligned(font, CalcTextPos(pos, i), fontSize, 1, cell);
+        DrawTextLeftAligned(font, CalcTextPos(pos, i), fontSize, spacing, cell);
         break;
     case ALIGN_CENTER:
-        DrawTextCentered(font, CalcTextPos(pos, i), fontSize, 1, cell);
+        DrawTextCentered(font, CalcTextPos(pos, i), fontSize, spacing, cell);
         break;
     case ALIGN_RIGHT:
         assert(!"TODO: ALIGN_RIGHT");
@@ -428,45 +425,46 @@ void UpdateScores(Cell *cells)
 }
 
 // This is a big function, Should I break it down?
-void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, size_t *scoreTieAcc, bool *textChanged)
+void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool *textChanged)
 {
     Cell *cell = &cellList[*cellIndex];
     int key_char = GetCharPressed();
-    int key_key = GetKeyPressed();
 
-    if (key_key == KEY_ESCAPE) {
+    // TODO: escape should have multiple purposes
+    // The case here is one, but there are more
+    // If text is selected, escape should deselect // TODO: Text Selection
+    if (IsKeyPressed(KEY_ESCAPE)) {
         *selectionState = false;
         *cellIndex = 0;
     }
     if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) {
         if (IsKeyPressed(KEY_R)) {
-            printf("Testing\n");
             SetWindowSize(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT);
         }
+        // TODO: undo/redo
+        // TODO: save/load
+        // TODO: select all
     }
+    // TODO: shift selection
 
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         Vector2 mousePos = GetMousePosition();
-        if (CheckCollisionPointRec(mousePos, GVARS.SelectionArea)) {
+        *cellIndex = xyToIndex(mousePos);
+        printf("%zu - ", *cellIndex);
+        (cell[*cellIndex].selectable) ? printf("true\n") : printf("false\n");
+        if (cell[*cellIndex].selectable) {
             *selectionState = true;
-            *cellIndex = xyToIndex(mousePos);
         } else {
             *selectionState = false;
             *cellIndex = 0;
-            return;
         }
-    }
-    if (*cellIndex == 0) return;
-    if (*cellIndex < (*cellIndex % 3)) {
-        *selectionState = false;
-        *cellIndex = 0;
     }
     if (*selectionState == true) {
         // Check if more characters have been pressed on the same frame
         while (key_char > 0) {
             // NOTE: Only allow keys in range [32..125]
             if ((key_char >= 32) && (key_char <= 125))
-                placeChar(&cell->gapStr, (char)key_char, CELL_TEXT_LENGTH);
+                placeChar(&cell->gapStr, (char)key_char);
             key_char = GetCharPressed(); // Check next character in the queue
             *textChanged = true;
         }
