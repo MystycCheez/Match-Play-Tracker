@@ -62,10 +62,12 @@ int main()
         for (size_t i = 0; i < CELL_COUNT; i++) 
             DrawTextAligned(font, TextPos, GVARS.fontSize, 1, sheet[i], i);
 
-        if (selectionState && cursorTimer % 60 < 30) {
-            DrawCursor(sheet[selectedCell], selectedCell, font);
+        if (selectionState) {
+            if (cursorTimer % 60 < 30) {
+                DrawCursor(sheet[selectedCell], selectedCell, font);
+            }
+            DrawCellBorders(selectedCell);
         }
-        DrawCellBorders(selectedCell);
         
         EndDrawing();
         cursorTimer++;

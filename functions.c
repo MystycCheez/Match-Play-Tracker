@@ -155,8 +155,10 @@ Cell* initSheet(Players players, int game)
         sheet[i].highlight = TRANSPARENT;
         sheet[i].selectable = true;
     }
+    sheet[0].selectable = false;
     sheet[CELL_COUNT - 1].selectable = false;
     sheet[CELL_COUNT - 2].selectable = false;
+    sheet[CELL_COUNT - 3].selectable = false;
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
         sheet[3 + (i * COLUMNS)].alignment = ALIGN_LEFT;
         sheet[3 + (i * COLUMNS)].color = COLOR_LEVEL;
@@ -427,7 +429,6 @@ void UpdateScores(Cell *cells)
 // This is a big function, Should I break it down?
 void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool *textChanged)
 {
-    Cell *cell = &cellList[*cellIndex];
     int key_char = GetCharPressed();
 
     // TODO: escape should have multiple purposes
@@ -450,43 +451,39 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         Vector2 mousePos = GetMousePosition();
         *cellIndex = xyToIndex(mousePos);
-        printf("%zu - ", *cellIndex);
-        (cell[*cellIndex].selectable) ? printf("true\n") : printf("false\n");
-        if (cell[*cellIndex].selectable) {
-            *selectionState = true;
-        } else {
-            *selectionState = false;
-            *cellIndex = 0;
-        }
+        printf("%lld - ", *cellIndex);
+        cellList[*cellIndex].selectable ? printf("true\n") : printf ("false\n");
+        *selectionState = cellList[*cellIndex].selectable ? true : false;
+        cellIndex = *selectionState ? cellIndex : 0;
     }
     if (*selectionState == true) {
         // Check if more characters have been pressed on the same frame
         while (key_char > 0) {
             // NOTE: Only allow keys in range [32..125]
             if ((key_char >= 32) && (key_char <= 125))
-                placeChar(&cell->gapStr, (char)key_char);
+                placeChar(&cellList[*cellIndex].gapStr, (char)key_char);
             key_char = GetCharPressed(); // Check next character in the queue
             *textChanged = true;
         }
         if (IsKeyPressed(KEY_LEFT)) {
-            cursorLeft(&cell->gapStr);
+            cursorLeft(&cellList[*cellIndex].gapStr);
             *textChanged = true;
         }
         if (IsKeyPressed(KEY_RIGHT)) {
-            cursorRight(&cell->gapStr, CELL_TEXT_LENGTH);
+            cursorRight(&cellList[*cellIndex].gapStr, CELL_TEXT_LENGTH);
             *textChanged = true;
         }
 
         if (IsKeyPressed(KEY_BACKSPACE)) {
-            deleteChar(&cell->gapStr);
+            deleteChar(&cellList[*cellIndex].gapStr);
             *textChanged = true;
         }
         if (IsKeyPressed(KEY_ENTER)) {
             // if (*cellIndex > 0 && *cellIndex < 3 && *textChanged == true) {;;} // TODO: Update Player Names
             if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3) {
-                char *filteredText = filterText(cell->gapStr.str);
+                char *filteredText = filterText(cellList[*cellIndex].gapStr.str);
                 if (*textChanged == true) {
-                    OverwriteStr(&cell->gapStr, filteredText, CELL_TEXT_LENGTH);
+                    OverwriteStr(&cellList[*cellIndex].gapStr, filteredText, CELL_TEXT_LENGTH);
                 }
                 if (*cellIndex > CELL_COUNT - 6) {
                     *cellIndex = 0;
