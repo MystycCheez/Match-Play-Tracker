@@ -63,8 +63,8 @@ int main()
         // TODO: Draw custom title bar
         DrawTextureNPatch(TitleBarTexture, TitleBarNPatch, TitleBarRec, (Vector2){0, 0}, 0, WHITE);
         // DrawTextureEx(DownTexture, (Vector2){GVARS.screenWidth / 2, (73 / 2) - 12}, 0, 2, WHITE);
-        DrawTextureEx(GVARS.buttons[BTN_EXIT].textures[STATE_BTN_UNHIGHLIGHTED], GVARS.buttons[BTN_EXIT].pos, 0, 2, WHITE);
-        DrawTextureEx(GVARS.buttons[BTN_MINIMIZE].textures[STATE_BTN_UNHIGHLIGHTED], GVARS.buttons[BTN_MINIMIZE].pos, 0, 2, WHITE);
+        DrawTextureEx(GVARS.buttons[BTN_EXIT].texture, GVARS.buttons[BTN_EXIT].pos, 0, 2, getStateColor(GVARS.buttons[BTN_EXIT].state));
+        DrawTextureEx(GVARS.buttons[BTN_MINIMIZE].texture, GVARS.buttons[BTN_MINIMIZE].pos, 0, 2, getStateColor(GVARS.buttons[BTN_MINIMIZE].state));
         
         // The following function is documented incorrectly - TODO: Make PR/Issue
         DrawRectangleGradientEx(gradTop, GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
@@ -86,12 +86,12 @@ int main()
             DrawCellBorders(selectedCell);
         }
 
-        if (CheckCollisionPointRec(GetMousePosition(), getButtonRect(GVARS.buttons[BTN_EXIT]))) {
-            DrawRectangleRec(getButtonRect(GVARS.buttons[BTN_EXIT]), WHITE);
-        }
-        if (CheckCollisionPointRec(GetMousePosition(), getButtonRect(GVARS.buttons[BTN_MINIMIZE]))) {
-            DrawRectangleRec(getButtonRect(GVARS.buttons[BTN_MINIMIZE]), WHITE);
-        }
+        // if (CheckCollisionPointRec(GetMousePosition(), getButtonRect(GVARS.buttons[BTN_EXIT]))) {
+        //     DrawRectangleRec(getButtonRect(GVARS.buttons[BTN_EXIT]), WHITE);
+        // }
+        // if (CheckCollisionPointRec(GetMousePosition(), getButtonRect(GVARS.buttons[BTN_MINIMIZE]))) {
+        //     DrawRectangleRec(getButtonRect(GVARS.buttons[BTN_MINIMIZE]), WHITE);
+        // }
         
         EndDrawing();
         cursorTimer++;

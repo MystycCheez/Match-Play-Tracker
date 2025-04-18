@@ -47,7 +47,7 @@ typedef struct Specials {
 
 typedef struct Button {
     Vector2 pos;
-    Texture2D textures[3]; // Unhighlighted, Highlighted, and Pressed/Selected
+    Texture2D texture;
     unsigned char state : 2;
 } Button;
 

@@ -29,11 +29,13 @@ void initButtons()
 {
     GVARS.buttons = malloc(sizeof(Button) * 2);
     GVARS.buttons[BTN_EXIT].pos = (Vector2){GVARS.screenWidth - 65, (TOP_BAR_HEIGHT / 2) - 13};
-    GVARS.buttons[BTN_EXIT].textures[TEXTURE_UNHIGHLIGHTED] = LoadTextureFromImage(LoadImage("resources/x.png"));
-    SetTextureFilter(GVARS.buttons[BTN_EXIT].textures[TEXTURE_UNHIGHLIGHTED], TEXTURE_FILTER_BILINEAR);
+    GVARS.buttons[BTN_EXIT].texture = LoadTextureFromImage(LoadImage("resources/x.png"));
+    GVARS.buttons[BTN_EXIT].state = STATE_BTN_UNHIGHLIGHTED;
+    SetTextureFilter(GVARS.buttons[BTN_EXIT].texture, TEXTURE_FILTER_BILINEAR);
     GVARS.buttons[BTN_MINIMIZE].pos = (Vector2){GVARS.screenWidth - 130, (TOP_BAR_HEIGHT / 2) - 13};
-    GVARS.buttons[BTN_MINIMIZE].textures[TEXTURE_UNHIGHLIGHTED] = LoadTextureFromImage(LoadImage("resources/minimize.png"));
-    SetTextureFilter(GVARS.buttons[BTN_MINIMIZE].textures[TEXTURE_UNHIGHLIGHTED], TEXTURE_FILTER_BILINEAR);
+    GVARS.buttons[BTN_MINIMIZE].texture = LoadTextureFromImage(LoadImage("resources/minimize.png"));
+    GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_UNHIGHLIGHTED;
+    SetTextureFilter(GVARS.buttons[BTN_MINIMIZE].texture, TEXTURE_FILTER_BILINEAR);
 }
 
 char **loadLevelText(int game)
@@ -80,6 +82,13 @@ void loadSpecialText()
     }
     GVARS.specials.text = specialText;
     GVARS.specials.count = specialCount;
+}
+
+Color getStateColor(unsigned char state)
+{
+    if (state == STATE_BTN_PRESSED) return GRAY;
+    if (state == STATE_BTN_HIGHLIGHTED) return LIGHTGRAY;
+    return WHITE;
 }
 
 // Returns -1 if special text not found
@@ -469,7 +478,15 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
     }
     // TODO: shift selection
 
+    for (size_t i = 0; i < 2; i++) {
+        GVARS.buttons[i].state = 0;
+    }
     
+    for (size_t i = 0; i < 2; i++) {
+        GVARS.buttons[i].state = (
+            CheckCollisionPointRec(GetMousePosition(), getButtonRect(GVARS.buttons[i]))) 
+            ? STATE_BTN_HIGHLIGHTED : STATE_BTN_UNHIGHLIGHTED;
+    }
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         Vector2 mousePos = GetMousePosition();
         if (!CheckCollisionPointRec(mousePos, (Rectangle){0, 0, GVARS.screenWidth, TOP_BAR_HEIGHT})) {
@@ -484,11 +501,11 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
     if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
         Vector2 mousePos = GetMousePosition();
         if (CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_EXIT]))) {
-            // GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
+            GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
             GVARS.shouldExit = true;
         }
         if (CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_MINIMIZE]))) {
-            // GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
+            GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
             MinimizeWindow();
         }
     }
