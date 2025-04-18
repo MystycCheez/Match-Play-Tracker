@@ -481,7 +481,7 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
         if (IsKeyPressed(KEY_ENTER)) {
             // if (*cellIndex > 0 && *cellIndex < 3 && *textChanged == true) {;;} // TODO: Update Player Names
             if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3) {
-                char *filteredText = filterText(cellList[*cellIndex].gapStr.str);
+                char *filteredText = secsToTime(timeToSecs(filterText(cellList[*cellIndex].gapStr.str)));
                 if (*textChanged == true) {
                     OverwriteStr(&cellList[*cellIndex].gapStr, filteredText, CELL_TEXT_LENGTH);
                 }
