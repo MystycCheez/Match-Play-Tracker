@@ -9,13 +9,20 @@ int main()
     GVARS.cellHeight = DEFAULT_CELL_HEIGHT;
     GVARS.cellWidth = DEFAULT_CELL_WIDTH;
     GVARS.fontSize = DEFAULT_FONT_SIZE;
-    GVARS.SelectionArea = initSelectionArea();
+    GVARS.shouldExit = false;
     loadSpecialText();
-
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    
+    SetConfigFlags(FLAG_WINDOW_UNDECORATED);
     InitWindow(GVARS.screenWidth, GVARS.screenHeight, "Match Play Tracker");
     Image WindowIcon = LoadImage("resources/logo-transparent.png");
     SetWindowIcon(WindowIcon);
+    
+    Image TitleBarImage = LoadImage("resources/title-bar.png");
+    Texture2D TitleBarTexture = LoadTextureFromImage(TitleBarImage);
+    NPatchInfo TitleBarNPatch = {(Rectangle){0, 0, 1, TOP_BAR_HEIGHT}, 0, 0, 0, 0, NPATCH_THREE_PATCH_HORIZONTAL};
+    Rectangle TitleBarRec = {0, 0, GVARS.screenWidth, TOP_BAR_HEIGHT};
+    
+    initButtons();
 
     SetExitKey(KEY_NULL);
     Font font = initFont();
@@ -32,26 +39,36 @@ int main()
     Line borders[COLUMNS + ROWS] = {0};
     setBorderPositions(borders);
 
+    Rectangle gradTop = {0, TOP_BAR_HEIGHT, GVARS.screenWidth, GVARS.cellHeight};
+    Rectangle gradBot = {0, (GVARS.cellHeight * 21) + TOP_BAR_HEIGHT, GVARS.screenWidth, GVARS.cellHeight};
+
     Cell* sheet = initSheet(players, game);
+
+    // size_t index = 0;
     
     SetTargetFPS(60);
     
-    while (!WindowShouldClose())
+    while (!GVARS.shouldExit)
     {
         InputHandler(sheet, &selectedCell, &selectionState, &textChanged);
         if (IsWindowResized()) {
             reInitGVARS();
             setBorderPositions(borders);
+            UpdateRects(&gradTop, &gradBot);
         }
         
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
+
+        // TODO: Draw custom title bar
+        DrawTextureNPatch(TitleBarTexture, TitleBarNPatch, TitleBarRec, (Vector2){0, 0}, 0, WHITE);
+        // DrawTextureEx(DownTexture, (Vector2){GVARS.screenWidth / 2, (73 / 2) - 12}, 0, 2, WHITE);
+        DrawTextureEx(GVARS.buttons[BTN_EXIT].textures[STATE_BTN_UNHIGHLIGHTED], GVARS.buttons[BTN_EXIT].pos, 0, 2, WHITE);
+        DrawTextureEx(GVARS.buttons[BTN_MINIMIZE].textures[STATE_BTN_UNHIGHLIGHTED], GVARS.buttons[BTN_MINIMIZE].pos, 0, 2, WHITE);
         
         // The following function is documented incorrectly - TODO: Make PR/Issue
-        DrawRectangleGradientEx((Rectangle){0, GVARS.cellHeight * 21, GVARS.screenWidth, GVARS.cellHeight}, 
-        GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
-        DrawRectangleGradientEx((Rectangle){0, 0, GVARS.screenWidth, GVARS.cellHeight}, 
-        GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
+        DrawRectangleGradientEx(gradTop, GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
+        DrawRectangleGradientEx(gradBot, GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
         // Draw Cell Highlights for win/loss
         for (size_t i = 0; i < CELL_COUNT; i++)
             DrawRectangleV(indexToXY(i), (Vector2){GVARS.cellWidth, GVARS.cellHeight}, sheet[i].highlight);
@@ -67,6 +84,13 @@ int main()
                 DrawCursor(sheet[selectedCell], selectedCell, font);
             }
             DrawCellBorders(selectedCell);
+        }
+
+        if (CheckCollisionPointRec(GetMousePosition(), getButtonRect(GVARS.buttons[BTN_EXIT]))) {
+            DrawRectangleRec(getButtonRect(GVARS.buttons[BTN_EXIT]), WHITE);
+        }
+        if (CheckCollisionPointRec(GetMousePosition(), getButtonRect(GVARS.buttons[BTN_MINIMIZE]))) {
+            DrawRectangleRec(getButtonRect(GVARS.buttons[BTN_MINIMIZE]), WHITE);
         }
         
         EndDrawing();

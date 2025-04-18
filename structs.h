@@ -39,10 +39,17 @@ typedef struct Players {
     size_t s2;
 } Players;
 
+// List of veto/dnf variations and how many
 typedef struct Specials {
     char** text;
     size_t count;
 } Specials;
+
+typedef struct Button {
+    Vector2 pos;
+    Texture2D textures[3]; // Unhighlighted, Highlighted, and Pressed/Selected
+    unsigned char state : 2;
+} Button;
 
 // screenWidth, screenHeight, cellWidth, cellHeight, fontSize, SelectionArea
 typedef struct Globals {
@@ -52,14 +59,9 @@ typedef struct Globals {
     float cellHeight;
     float fontSize;
     Specials specials;
-    Rectangle SelectionArea; // Replace selection area with list of selectable cells
+    Button *buttons;
+    bool shouldExit;
 } Globals;
-
-typedef struct Button {
-    Rectangle rect;
-    Image image[3]; // Unhighlighted, Highlighted, and Pressed/Selected
-    bool selected;
-} Button;
 
 typedef struct Node {
     void* data;
@@ -67,4 +69,4 @@ typedef struct Node {
     struct Node* prev;
 } Node;
 
-Globals GVARS = {0};
+Globals GVARS;

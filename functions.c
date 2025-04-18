@@ -16,12 +16,6 @@ Font initFont()
     return font;
 }
 
-// What cells can the user select (not the special text like stage names/points)
-Rectangle initSelectionArea()
-{
-    return (Rectangle){GVARS.cellWidth, 0, GVARS.cellWidth * 2, (GVARS.cellHeight * 21)};
-}
-
 void reInitGVARS()
 {
     GVARS.screenHeight = GetScreenHeight();
@@ -29,7 +23,17 @@ void reInitGVARS()
     GVARS.cellHeight = GVARS.screenHeight / ROWS;
     GVARS.cellWidth = GVARS.screenWidth / COLUMNS;
     GVARS.fontSize = GVARS.screenHeight / 44;
-    GVARS.SelectionArea = initSelectionArea();
+}
+
+void initButtons()
+{
+    GVARS.buttons = malloc(sizeof(Button) * 2);
+    GVARS.buttons[BTN_EXIT].pos = (Vector2){GVARS.screenWidth - 65, (TOP_BAR_HEIGHT / 2) - 13};
+    GVARS.buttons[BTN_EXIT].textures[TEXTURE_UNHIGHLIGHTED] = LoadTextureFromImage(LoadImage("resources/x.png"));
+    SetTextureFilter(GVARS.buttons[BTN_EXIT].textures[TEXTURE_UNHIGHLIGHTED], TEXTURE_FILTER_BILINEAR);
+    GVARS.buttons[BTN_MINIMIZE].pos = (Vector2){GVARS.screenWidth - 130, (TOP_BAR_HEIGHT / 2) - 13};
+    GVARS.buttons[BTN_MINIMIZE].textures[TEXTURE_UNHIGHLIGHTED] = LoadTextureFromImage(LoadImage("resources/minimize.png"));
+    SetTextureFilter(GVARS.buttons[BTN_MINIMIZE].textures[TEXTURE_UNHIGHLIGHTED], TEXTURE_FILTER_BILINEAR);
 }
 
 char **loadLevelText(int game)
@@ -54,6 +58,7 @@ char **loadLevelText(int game)
     return levelText;
 }
 
+// Loads dnf/veto variations
 void loadSpecialText()
 {
     FILE *file_ptr = fopen("resources/specials.txt", "r");
@@ -113,6 +118,7 @@ Vector2 indexToCR(size_t index)
 size_t xyToIndex(Vector2 xy)
 {
     size_t index = 0;
+    xy.y = xy.y - TOP_BAR_HEIGHT;
     Vector2 rounded = {xy.x - fmodf(xy.x, GVARS.cellWidth), xy.y - fmodf(xy.y, GVARS.cellHeight)};
     rounded.x = rounded.x / GVARS.cellWidth;
     rounded.y = rounded.y / GVARS.cellHeight;
@@ -124,6 +130,11 @@ size_t xyToIndex(Vector2 xy)
 size_t crToIndex(Vector2 cr)
 {
     return (size_t)(cr.x + (cr.y * COLUMNS));
+}
+
+Rectangle getButtonRect(Button button)
+{
+    return (Rectangle){button.pos.x, button.pos.y, BTN_SIZE, BTN_SIZE};
 }
 
 void initSheetText(Cell *sheet, Players players, int game)
@@ -172,11 +183,11 @@ void setBorderPositions(Line *borders)
 {
     size_t index = 0;
     for (size_t i = 0; i < ROWS; i++) {
-        borders[i] = (Line){0, GVARS.cellHeight * i, GVARS.screenWidth, GVARS.cellHeight * i};
+        borders[i] = (Line){0, (GVARS.cellHeight * i) + TOP_BAR_HEIGHT, GVARS.screenWidth, (GVARS.cellHeight * i) + TOP_BAR_HEIGHT};
         index++;
     }
     for (size_t i = 0; i < COLUMNS; i++) {
-        borders[i + index] = (Line){GVARS.cellWidth * i, 0, GVARS.cellWidth * i, GVARS.screenHeight};
+        borders[i + index] = (Line){GVARS.cellWidth * i, TOP_BAR_HEIGHT, GVARS.cellWidth * i, GVARS.screenHeight};
     }
 }
 
@@ -184,14 +195,14 @@ void DrawCellBorders(size_t cellIndex)
 {
     if (cellIndex == 0) return;
     Vector2 cellOrigin = indexToXY(cellIndex);
-    DrawRectangleLinesEx((Rectangle){cellOrigin.x, cellOrigin.y, GVARS.cellWidth, GVARS.cellHeight}, 3.0, RAYWHITE);
+    DrawRectangleLinesEx((Rectangle){cellOrigin.x, cellOrigin.y + TOP_BAR_HEIGHT, GVARS.cellWidth, GVARS.cellHeight}, 3.0, RAYWHITE);
 }
 
 // TODO: check if this can utilize xy/cr functions
 Vector2 CalcTextPos(Vector2 pos, size_t index)
 {
     pos.x = pos.x + (GVARS.cellWidth * (index % 3));
-    pos.y = 1 + pos.y + (GVARS.cellHeight * (index / 3));
+    pos.y = 1 + pos.y + (GVARS.cellHeight * (index / 3) + TOP_BAR_HEIGHT);
     return pos;
 }
 
@@ -426,6 +437,16 @@ void UpdateScores(Cell *cells)
     }
 }
 
+void UpdateRects(Rectangle *recTop, Rectangle *recBot)
+{
+    recTop->width = GVARS.screenWidth;
+    recTop->height = GVARS.cellHeight;
+
+    recBot->y = GVARS.cellHeight * 21;
+    recBot->width = GVARS.screenWidth;
+    recBot->height = GVARS.cellHeight;
+}
+
 // This is a big function, Should I break it down?
 void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool *textChanged)
 {
@@ -448,13 +469,28 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
     }
     // TODO: shift selection
 
+    
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         Vector2 mousePos = GetMousePosition();
-        *cellIndex = xyToIndex(mousePos);
-        printf("%lld - ", *cellIndex);
-        cellList[*cellIndex].selectable ? printf("true\n") : printf ("false\n");
-        *selectionState = cellList[*cellIndex].selectable ? true : false;
-        cellIndex = *selectionState ? cellIndex : 0;
+        if (!CheckCollisionPointRec(mousePos, (Rectangle){0, 0, GVARS.screenWidth, TOP_BAR_HEIGHT})) {
+            *cellIndex = xyToIndex(mousePos);
+            *selectionState = cellList[*cellIndex].selectable;
+            cellIndex = *selectionState ? cellIndex : 0;
+        } else {
+            *selectionState = 0;
+            cellIndex = 0;
+        }
+    }
+    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+        Vector2 mousePos = GetMousePosition();
+        if (CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_EXIT]))) {
+            // GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
+            GVARS.shouldExit = true;
+        }
+        if (CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_MINIMIZE]))) {
+            // GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
+            MinimizeWindow();
+        }
     }
     if (*selectionState == true) {
         // Check if more characters have been pressed on the same frame
@@ -482,9 +518,8 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
             // if (*cellIndex > 0 && *cellIndex < 3 && *textChanged == true) {;;} // TODO: Update Player Names
             if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3) {
                 char *filteredText = secsToTime(timeToSecs(filterText(cellList[*cellIndex].gapStr.str)));
-                if (*textChanged == true) {
+                if (*textChanged == true)
                     OverwriteStr(&cellList[*cellIndex].gapStr, filteredText, CELL_TEXT_LENGTH);
-                }
                 if (*cellIndex > CELL_COUNT - 6) {
                     *cellIndex = 0;
                     selectionState = false;
@@ -493,10 +528,8 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
                 *cellIndex = 0;
                 selectionState = false;
             }
-            if (*textChanged == true) {
+            if (*textChanged == true)
                 UpdateScores(cellList);
-                // ReplaceNextNode(cell, )
-            }
         }
     }
 }

@@ -1,7 +1,10 @@
 #define GLSL_VERSION 330
 
 #define DEFAULT_SCREEN_WIDTH 490
-#define DEFAULT_SCREEN_HEIGHT 1100
+#define DEFAULT_SCREEN_HEIGHT 1173
+
+#define DEFAULT_SHEET_HEIGHT 1100
+#define TOP_BAR_HEIGHT 73
 
 #define COLUMNS 3
 #define ROWS 22
@@ -18,7 +21,7 @@
 #define DEFAULT_FONT_SIZE 25
 #define SPACING 3
 
-#define DEFAULT_CELL_HEIGHT (DEFAULT_SCREEN_HEIGHT / ROWS)
+#define DEFAULT_CELL_HEIGHT (DEFAULT_SHEET_HEIGHT / ROWS)
 #define DEFAULT_CELL_WIDTH  (DEFAULT_SCREEN_WIDTH / COLUMNS)
 
 #define BACKGROUND_COLOR (Color){0x15, 0x17, 0x19, 0xFF}
@@ -38,6 +41,19 @@
 
 #define MODE_INSERTION 0
 #define MODE_DELETION 1
+
+#define BTN_EXIT 0
+#define BTN_MINIMIZE 1
+
+#define BTN_SIZE 26
+
+#define TEXTURE_UNHIGHLIGHTED 0
+#define TEXTURE_HIGHLIGHTED 1
+#define TEXTURE_SELECTED 2
+
+#define STATE_BTN_UNHIGHLIGHTED 0
+#define STATE_BTN_HIGHLIGHTED 1
+#define STATE_BTN_PRESSED 2
 
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))
