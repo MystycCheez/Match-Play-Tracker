@@ -1,10 +1,11 @@
 #define GLSL_VERSION 330
 
-#define DEFAULT_SCREEN_WIDTH 490
-#define DEFAULT_SCREEN_HEIGHT 1173
-
+#define TOP_BAR_HEIGHT 50
 #define DEFAULT_SHEET_HEIGHT 1100
-#define TOP_BAR_HEIGHT 73
+
+#define DEFAULT_SCREEN_WIDTH 490
+#define DEFAULT_SCREEN_HEIGHT DEFAULT_SHEET_HEIGHT + TOP_BAR_HEIGHT
+
 
 #define COLUMNS 3
 #define ROWS 22
@@ -45,7 +46,7 @@
 #define BTN_EXIT 0
 #define BTN_MINIMIZE 1
 
-#define BTN_SIZE 26
+#define BUTTON_SIZE 26
 
 #define TEXTURE_UNHIGHLIGHTED 0
 #define TEXTURE_HIGHLIGHTED 1
@@ -54,6 +55,8 @@
 #define STATE_BTN_UNHIGHLIGHTED 0
 #define STATE_BTN_HIGHLIGHTED 1
 #define STATE_BTN_PRESSED 2
+
+#define COLLISION_TOP_BAR 2
 
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))

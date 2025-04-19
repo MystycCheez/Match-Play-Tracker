@@ -28,11 +28,11 @@ void reInitGVARS()
 void initButtons()
 {
     GVARS.buttons = malloc(sizeof(Button) * 2);
-    GVARS.buttons[BTN_EXIT].pos = (Vector2){GVARS.screenWidth - 65, (TOP_BAR_HEIGHT / 2) - 13};
+    GVARS.buttons[BTN_EXIT].pos = (Vector2){GVARS.screenWidth - BUTTON_SIZE - (BUTTON_SIZE / 2), (TOP_BAR_HEIGHT / 2) - 13};
     GVARS.buttons[BTN_EXIT].texture = LoadTextureFromImage(LoadImage("resources/x.png"));
     GVARS.buttons[BTN_EXIT].state = STATE_BTN_UNHIGHLIGHTED;
     SetTextureFilter(GVARS.buttons[BTN_EXIT].texture, TEXTURE_FILTER_BILINEAR);
-    GVARS.buttons[BTN_MINIMIZE].pos = (Vector2){GVARS.screenWidth - 130, (TOP_BAR_HEIGHT / 2) - 13};
+    GVARS.buttons[BTN_MINIMIZE].pos = (Vector2){GVARS.screenWidth - (BUTTON_SIZE * 3), (TOP_BAR_HEIGHT / 2) - 13};
     GVARS.buttons[BTN_MINIMIZE].texture = LoadTextureFromImage(LoadImage("resources/minimize.png"));
     GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_UNHIGHLIGHTED;
     SetTextureFilter(GVARS.buttons[BTN_MINIMIZE].texture, TEXTURE_FILTER_BILINEAR);
@@ -110,7 +110,7 @@ Vector2 indexToXY(size_t index)
 {
     Vector2 xy = {0};
     xy.x = (index % COLUMNS) * GVARS.cellWidth;
-    xy.y = (index / COLUMNS) * GVARS.cellHeight;
+    xy.y = (index / COLUMNS) * GVARS.cellHeight + TOP_BAR_HEIGHT;
     return xy;
 }
 
@@ -143,7 +143,7 @@ size_t crToIndex(Vector2 cr)
 
 Rectangle getButtonRect(Button button)
 {
-    return (Rectangle){button.pos.x, button.pos.y, BTN_SIZE, BTN_SIZE};
+    return (Rectangle){button.pos.x, button.pos.y, BUTTON_SIZE, BUTTON_SIZE};
 }
 
 void initSheetText(Cell *sheet, Players players, int game)
@@ -204,7 +204,7 @@ void DrawCellBorders(size_t cellIndex)
 {
     if (cellIndex == 0) return;
     Vector2 cellOrigin = indexToXY(cellIndex);
-    DrawRectangleLinesEx((Rectangle){cellOrigin.x, cellOrigin.y + TOP_BAR_HEIGHT, GVARS.cellWidth, GVARS.cellHeight}, 3.0, RAYWHITE);
+    DrawRectangleLinesEx((Rectangle){cellOrigin.x, cellOrigin.y, GVARS.cellWidth, GVARS.cellHeight}, 3.0, RAYWHITE);
 }
 
 // TODO: check if this can utilize xy/cr functions
@@ -286,8 +286,7 @@ char *secsToTime(size_t totalSecs)
 {
     char *time = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     memset(time, 0, CELL_TEXT_LENGTH);
-    size_t minutes = totalSecs / 60;
-    assert(minutes < 100);
+    size_t minutes = totalSecs / 60 < 100 ? totalSecs / 60 : 59;
     size_t secs = totalSecs % 60;
     sprintf(time, "%lld:%02lld", minutes, secs);
     return time;
@@ -460,6 +459,15 @@ void UpdateRects(Rectangle *recTop, Rectangle *recBot)
 void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool *textChanged)
 {
     int key_char = GetCharPressed();
+    Vector2 mousePos = GetMousePosition();
+    Vector2 windowPos = GetWindowPosition();
+    static bool windowDrag = false;
+    static Vector2 dragOffset = {0};
+    bool CollisionMap[3] = {false}; 
+
+    CollisionMap[BTN_EXIT] = CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_EXIT]));
+    CollisionMap[BTN_MINIMIZE] = CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_MINIMIZE]));
+    CollisionMap[COLLISION_TOP_BAR] = CheckCollisionPointRec(mousePos, (Rectangle){0, 0, GVARS.screenWidth, GVARS.screenHeight});
 
     // TODO: escape should have multiple purposes
     // The case here is one, but there are more
@@ -483,13 +491,23 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
     }
     
     for (size_t i = 0; i < 2; i++) {
-        GVARS.buttons[i].state = (
-            CheckCollisionPointRec(GetMousePosition(), getButtonRect(GVARS.buttons[i]))) 
-            ? STATE_BTN_HIGHLIGHTED : STATE_BTN_UNHIGHLIGHTED;
+        GVARS.buttons[i].state = CollisionMap[i] ? STATE_BTN_HIGHLIGHTED : STATE_BTN_UNHIGHLIGHTED;
+    }
+    // TODO: Figure out how to retain the state of where the mouse was clicked for not dragging
+    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && !windowDrag) {
+        if (CollisionMap[COLLISION_TOP_BAR] && !(CollisionMap[BTN_EXIT] || CollisionMap[BTN_MINIMIZE])) {
+            windowDrag = true;
+            dragOffset = mousePos;
+        } else windowDrag = false;
+    }
+    if (windowDrag) {
+        windowPos.x += mousePos.x - dragOffset.x;
+        windowPos.y += mousePos.y - dragOffset.y;
+        SetWindowPosition(windowPos.x, windowPos.y);
+        if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT)) windowDrag = false;
     }
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-        Vector2 mousePos = GetMousePosition();
-        if (!CheckCollisionPointRec(mousePos, (Rectangle){0, 0, GVARS.screenWidth, TOP_BAR_HEIGHT})) {
+        if (!CollisionMap[COLLISION_TOP_BAR]) {
             *cellIndex = xyToIndex(mousePos);
             *selectionState = cellList[*cellIndex].selectable;
             cellIndex = *selectionState ? cellIndex : 0;
@@ -498,14 +516,13 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
             cellIndex = 0;
         }
     }
-    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
-        Vector2 mousePos = GetMousePosition();
-        if (CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_EXIT]))) {
+    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && !windowDrag) {
+        if (CollisionMap[BTN_EXIT]) {
             GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
             GVARS.shouldExit = true;
         }
-        if (CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_MINIMIZE]))) {
-            GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
+        if (CollisionMap[BTN_MINIMIZE]) {
+            GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
             MinimizeWindow();
         }
     }

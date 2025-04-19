@@ -15,8 +15,12 @@ int main()
     SetConfigFlags(FLAG_WINDOW_UNDECORATED);
     InitWindow(GVARS.screenWidth, GVARS.screenHeight, "Match Play Tracker");
     Image WindowIcon = LoadImage("resources/logo-transparent.png");
+    Texture2D WindowIconTexture = LoadTextureFromImage(WindowIcon);
+    SetTextureFilter(WindowIconTexture, TEXTURE_FILTER_BILINEAR);
     SetWindowIcon(WindowIcon);
     
+    // Texture2D WindowIconTexture = LoadTextureFromImage(LoadImage("resources/logo-transparent-42.png"));
+
     Image TitleBarImage = LoadImage("resources/title-bar.png");
     Texture2D TitleBarTexture = LoadTextureFromImage(TitleBarImage);
     NPatchInfo TitleBarNPatch = {(Rectangle){0, 0, 1, TOP_BAR_HEIGHT}, 0, 0, 0, 0, NPATCH_THREE_PATCH_HORIZONTAL};
@@ -48,23 +52,19 @@ int main()
     
     SetTargetFPS(60);
     
-    while (!GVARS.shouldExit)
+    while (!GVARS.shouldExit && !WindowShouldClose())
     {
         InputHandler(sheet, &selectedCell, &selectionState, &textChanged);
-        if (IsWindowResized()) {
-            reInitGVARS();
-            setBorderPositions(borders);
-            UpdateRects(&gradTop, &gradBot);
-        }
         
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
 
         // TODO: Draw custom title bar
         DrawTextureNPatch(TitleBarTexture, TitleBarNPatch, TitleBarRec, (Vector2){0, 0}, 0, WHITE);
-        // DrawTextureEx(DownTexture, (Vector2){GVARS.screenWidth / 2, (73 / 2) - 12}, 0, 2, WHITE);
         DrawTextureEx(GVARS.buttons[BTN_EXIT].texture, GVARS.buttons[BTN_EXIT].pos, 0, 2, getStateColor(GVARS.buttons[BTN_EXIT].state));
         DrawTextureEx(GVARS.buttons[BTN_MINIMIZE].texture, GVARS.buttons[BTN_MINIMIZE].pos, 0, 2, getStateColor(GVARS.buttons[BTN_MINIMIZE].state));
+        // DrawTextureEx(WindowIconTexture, (Vector2){4, 4}, 0, 0.125, WHITE);
+        DrawTexturePro(WindowIconTexture, (Rectangle){0, 0, 352, 352}, (Rectangle){3, 3, 44, 44}, (Vector2){0, 0}, 0, WHITE);
         
         // The following function is documented incorrectly - TODO: Make PR/Issue
         DrawRectangleGradientEx(gradTop, GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
