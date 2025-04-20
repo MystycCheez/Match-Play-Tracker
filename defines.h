@@ -57,6 +57,7 @@
 #define STATE_BTN_PRESSED 2
 
 #define COLLISION_TOP_BAR 2
+#define COLLISION_SHEET 3
 
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))

@@ -50,7 +50,7 @@ int main()
 
     // size_t index = 0;
     
-    SetTargetFPS(60);
+    SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor()));
     
     while (!GVARS.shouldExit && !WindowShouldClose())
     {
