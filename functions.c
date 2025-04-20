@@ -215,14 +215,14 @@ Vector2 CalcTextPos(Vector2 pos, size_t index)
     return pos;
 }
 
-// TODO: Fix! // Fix what??
 void DrawCursor(Cell cell, size_t cellIndex, Font font)
 {
     if (cellIndex == 0) return;
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
-    float span = MeasureTextEx(font, cell.gapStr.str, GVARS.fontSize, 1).x;
-    pos.x = pos.x + (GVARS.cellWidth / 2) + (span / 2);
+    float span = MeasureTextEx(font, gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH), GVARS.fontSize, 1).x;
+    float offset = MeasureTextEx(font, cell.gapStr.str, GVARS.fontSize, 1).x;
+    pos.x += (GVARS.cellWidth / 2) - (span / 2) + offset;
     DrawLineEx(pos, (Vector2){pos.x, pos.y + GVARS.cellHeight}, 1.0, GRAY);
 }
 
