@@ -9,6 +9,7 @@
 
 #include "raylib.h"
 
+#include "enums.h"
 #include "defines.h"
 #include "structs.h"
 

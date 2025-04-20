@@ -63,9 +63,9 @@ void cursorLeft(GapBuffer *gapStr)
     #endif
 }
 
-void cursorRight(GapBuffer *gapStr, size_t bufLen)
+void cursorRight(GapBuffer *gapStr)
 {
-    if (bufLen - 1 == gapStr->cEnd) return;
+    if (gapStr->cEnd == CELL_TEXT_LENGTH - 1) return;
     chrswap(gapStr->str + gapStr->cStart, gapStr->str + gapStr->cEnd + 1);
     gapStr->cEnd++;
     gapStr->cStart++;
@@ -74,7 +74,18 @@ void cursorRight(GapBuffer *gapStr, size_t bufLen)
     #endif
 }
 
-// TODO
+void GapStrGotoIndex(GapBuffer *gapStr, size_t index)
+{
+    while (gapStr->cStart > index) {
+        cursorLeft(gapStr);
+        if (!(gapStr->cStart > index)) return;
+    } 
+    while (gapStr->cStart < index) {
+        cursorRight(gapStr);
+    }
+}
+
+// TODO // TODO What?
 GapBuffer strToGapStr(char* str, size_t cursor)
 {
     GapBuffer gapStr = {0};

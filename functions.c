@@ -461,14 +461,20 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
     int key_char = GetCharPressed();
     Vector2 mousePos = GetMousePosition();
     Vector2 windowPos = GetWindowPosition();
+
     static bool windowDrag = false;
     static bool buttonDrag = false;
     static bool buttonLeft = false;
     static Vector2 dragOffset = {0};
-    bool CollisionMap[3] = {false}; 
 
-    CollisionMap[BTN_EXIT] = CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_EXIT]));
-    CollisionMap[BTN_MINIMIZE] = CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_MINIMIZE]));
+    bool CollisionMap[3] = {false};
+
+    bool Ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
+    bool Left = IsKeyPressed(KEY_LEFT);
+    bool Right = IsKeyPressed(KEY_RIGHT);
+
+    CollisionMap[COLLISION_EXIT] = CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_EXIT]));
+    CollisionMap[COLLISION_MINIMIZE] = CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_MINIMIZE]));
     CollisionMap[COLLISION_TOP_BAR] = CheckCollisionPointRec(mousePos, (Rectangle){0, 0, GVARS.screenWidth, TOP_BAR_HEIGHT});
     CollisionMap[COLLISION_SHEET] = CheckCollisionPointRec(mousePos, (Rectangle){0, TOP_BAR_HEIGHT, GVARS.screenWidth, DEFAULT_SHEET_HEIGHT});
 
@@ -546,13 +552,23 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
             key_char = GetCharPressed(); // Check next character in the queue
             *textChanged = true;
         }
-        if (IsKeyPressed(KEY_LEFT)) {
-            cursorLeft(&cellList[*cellIndex].gapStr);
-            *textChanged = true;
+        if (Ctrl) {
+            if (Left) {
+                GapStrGotoIndex(&cellList[*cellIndex].gapStr, 0);
+            }
+            if (Right) {
+                GapStrGotoIndex(&cellList[*cellIndex].gapStr, strlen(gapStrToStr(cellList[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
+            }
         }
-        if (IsKeyPressed(KEY_RIGHT)) {
-            cursorRight(&cellList[*cellIndex].gapStr, CELL_TEXT_LENGTH);
-            *textChanged = true;
+        if (!Ctrl) {
+            if (Left) {
+                cursorLeft(&cellList[*cellIndex].gapStr);
+                *textChanged = true;
+            }
+            if (Right) {
+                cursorRight(&cellList[*cellIndex].gapStr);
+                *textChanged = true;
+            }
         }
 
         if (IsKeyPressed(KEY_BACKSPACE)) {

@@ -1,4 +1,4 @@
-// #define GAP_DEBUG
+#define GAP_DEBUG
 
 #include "includes.h"
 
