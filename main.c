@@ -18,8 +18,6 @@ int main()
     Texture2D WindowIconTexture = LoadTextureFromImage(WindowIcon);
     SetTextureFilter(WindowIconTexture, TEXTURE_FILTER_BILINEAR);
     SetWindowIcon(WindowIcon);
-    
-    // Texture2D WindowIconTexture = LoadTextureFromImage(LoadImage("resources/logo-transparent-42.png"));
 
     Image TitleBarImage = LoadImage("resources/title-bar.png");
     Texture2D TitleBarTexture = LoadTextureFromImage(TitleBarImage);
@@ -47,10 +45,9 @@ int main()
     Rectangle gradBot = {0, (GVARS.cellHeight * 21) + TOP_BAR_HEIGHT, GVARS.screenWidth, GVARS.cellHeight};
 
     Cell* sheet = initSheet(players, game);
-
-    // size_t index = 0;
     
-    SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor()));
+    const int RefreshRate = GetMonitorRefreshRate(GetCurrentMonitor());
+    SetTargetFPS(RefreshRate);
     
     while (!GVARS.shouldExit && !WindowShouldClose())
     {
@@ -63,7 +60,6 @@ int main()
         DrawTextureNPatch(TitleBarTexture, TitleBarNPatch, TitleBarRec, (Vector2){0, 0}, 0, WHITE);
         DrawTextureEx(GVARS.buttons[BTN_EXIT].texture, GVARS.buttons[BTN_EXIT].pos, 0, 2, getStateColor(GVARS.buttons[BTN_EXIT].state));
         DrawTextureEx(GVARS.buttons[BTN_MINIMIZE].texture, GVARS.buttons[BTN_MINIMIZE].pos, 0, 2, getStateColor(GVARS.buttons[BTN_MINIMIZE].state));
-        // DrawTextureEx(WindowIconTexture, (Vector2){4, 4}, 0, 0.125, WHITE);
         DrawTexturePro(WindowIconTexture, (Rectangle){0, 0, 352, 352}, (Rectangle){3, 3, 44, 44}, (Vector2){0, 0}, 0, WHITE);
         
         // The following function is documented incorrectly - TODO: Make PR/Issue
@@ -80,18 +76,11 @@ int main()
             DrawTextAligned(font, TextPos, GVARS.fontSize, 1, sheet[i], i);
 
         if (selectionState) {
-            if (cursorTimer % 60 < 30) {
+            if (cursorTimer % RefreshRate < RefreshRate / 2) {
                 DrawCursor(sheet[selectedCell], selectedCell, font);
             }
             DrawCellBorders(selectedCell);
         }
-
-        // if (CheckCollisionPointRec(GetMousePosition(), getButtonRect(GVARS.buttons[BTN_EXIT]))) {
-        //     DrawRectangleRec(getButtonRect(GVARS.buttons[BTN_EXIT]), WHITE);
-        // }
-        // if (CheckCollisionPointRec(GetMousePosition(), getButtonRect(GVARS.buttons[BTN_MINIMIZE]))) {
-        //     DrawRectangleRec(getButtonRect(GVARS.buttons[BTN_MINIMIZE]), WHITE);
-        // }
         
         EndDrawing();
         cursorTimer++;

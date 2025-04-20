@@ -463,6 +463,7 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
     Vector2 windowPos = GetWindowPosition();
     static bool windowDrag = false;
     static bool buttonDrag = false;
+    static bool buttonLeft = false;
     static Vector2 dragOffset = {0};
     bool CollisionMap[3] = {false}; 
 
@@ -495,12 +496,15 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
     for (size_t i = 0; i < 2; i++) {
         GVARS.buttons[i].state = CollisionMap[i] ? STATE_BTN_HIGHLIGHTED : STATE_BTN_UNHIGHLIGHTED;
     }
-    // TODO: Figure out how to retain the state of where the mouse was clicked for not dragging
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
         if ((CollisionMap[BTN_EXIT] || CollisionMap[BTN_MINIMIZE]) && !buttonDrag) {
             buttonDrag = true;
-        } else buttonDrag = false;
-    }
+        } 
+        if (!(CollisionMap[BTN_EXIT] || CollisionMap[BTN_MINIMIZE]) && buttonDrag) {
+            buttonLeft = true;
+        } else buttonLeft = false;
+    } else buttonDrag = false;
+
     if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && !windowDrag && !buttonDrag) {
         if (CollisionMap[COLLISION_TOP_BAR] && !(CollisionMap[BTN_EXIT] || CollisionMap[BTN_MINIMIZE])) {
             windowDrag = true;
@@ -523,7 +527,7 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
             cellIndex = 0;
         }
     }
-    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && !windowDrag && !buttonDrag) {
+    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && !windowDrag && !buttonDrag && !buttonLeft) {
         if (CollisionMap[BTN_EXIT]) {
             GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
             GVARS.shouldExit = true;
@@ -556,7 +560,6 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
             *textChanged = true;
         }
         if (IsKeyPressed(KEY_ENTER)) {
-            // if (*cellIndex > 0 && *cellIndex < 3 && *textChanged == true) {;;} // TODO: Update Player Names
             if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3) {
                 char *filteredText = secsToTime(timeToSecs(filterText(cellList[*cellIndex].gapStr.str)));
                 if (*textChanged == true)
