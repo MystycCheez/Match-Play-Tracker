@@ -15,6 +15,19 @@ typedef struct Int2 {
     int b;
 } Int2;
 
+typedef struct MouseState {
+    bool down;
+    bool pressed;
+    bool released;
+} MouseState;
+
+typedef struct CollisionMap {
+    bool exit;
+    bool minimize;
+    bool titleBar;
+    bool sheet;
+} CollisionMap;
+
 // 3 components: str, cStart, cEnd
 typedef struct GapBuffer {
     char* str;

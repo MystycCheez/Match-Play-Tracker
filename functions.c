@@ -456,32 +456,102 @@ void UpdateRects(Rectangle *recTop, Rectangle *recBot)
     recBot->height = GVARS.cellHeight;
 }
 
+void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mousePos, Vector2 windowPos)
+{
+    static bool buttonLeft = false;
+    static bool windowDrag = false;
+    static CollisionMap Drag = {false};
+    static Vector2 dragOffset = {0};
+
+    for (size_t i = 0; i < 2; i++) {
+        GVARS.buttons[i].state = ((bool*)(&Collision))[i] ? STATE_BTN_HIGHLIGHTED : STATE_BTN_UNHIGHLIGHTED;
+    }
+    if (Mouse.down) {
+        if (Collision.exit && !Drag.titleBar) {
+            Drag.titleBar = true;
+            GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
+        }
+        if (Collision.minimize && !Drag.minimize) {
+            Drag.minimize = true;
+            GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
+        }
+        if (!(Collision.exit || Collision.minimize) && (Drag.titleBar || Drag.minimize)) {
+            buttonLeft = true;
+        } else buttonLeft = false;
+    } else {
+        Drag.titleBar = Drag.minimize = false;
+    }
+
+    if (Mouse.down && !windowDrag && !(Drag.titleBar || Drag.minimize)) {
+        if (Collision.titleBar && !(Collision.exit || Collision.minimize)) {
+            windowDrag = true;
+            dragOffset = mousePos;
+        } else windowDrag = false;
+    }
+    if (windowDrag) {
+        windowPos.x += mousePos.x - dragOffset.x;
+        windowPos.y += mousePos.y - dragOffset.y;
+        SetWindowPosition(windowPos.x, windowPos.y);
+        if (!Mouse.down) windowDrag = false;
+    }
+    if (Mouse.released && !windowDrag && !(Drag.titleBar || Drag.minimize) && !buttonLeft) {
+        if (Collision.exit) {
+            GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
+            GVARS.shouldExit = true;
+        }
+        if (Collision.minimize) {
+            GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
+            MinimizeWindow();
+        }
+    }
+}
+
+void MouseSheetHandler(CollisionMap Collision, Vector2 mousePos, Cell *cellList, size_t *cellIndex, bool *selectionState)
+{
+    if (Collision.sheet) {
+        *cellIndex = xyToIndex(mousePos);
+        *selectionState = cellList[*cellIndex].selectable;
+        cellIndex = *selectionState ? cellIndex : 0;
+    } else {
+        *selectionState = 0;
+        cellIndex = 0;
+    }
+}
+
+void MouseHandler(Cell *cellList, size_t *cellIndex, bool *selectionState)
+{
+    Vector2 mousePos = GetMousePosition();
+    Vector2 windowPos = GetWindowPosition();
+
+    MouseState Mouse = {
+        IsMouseButtonDown(MOUSE_BUTTON_LEFT),
+        IsMouseButtonPressed(MOUSE_BUTTON_LEFT),
+        IsMouseButtonReleased(MOUSE_BUTTON_LEFT)
+    };
+
+    CollisionMap Collision = {
+        CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_EXIT])),
+        CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_MINIMIZE])),
+        CheckCollisionPointRec(mousePos, (Rectangle){0, 0, GVARS.screenWidth, TOP_BAR_HEIGHT}),
+        CheckCollisionPointRec(mousePos, (Rectangle){0, TOP_BAR_HEIGHT, GVARS.screenWidth, DEFAULT_SHEET_HEIGHT})
+    };
+
+    MouseTitleBarHandler(Collision, Mouse, mousePos, windowPos);
+    if (Mouse.pressed) {
+        MouseSheetHandler(Collision, mousePos, cellList, cellIndex, selectionState);
+    }
+}
+
 // This is a big function, Should I break it down?
 void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool *textChanged)
 {
     int key_char = GetCharPressed();
-    Vector2 mousePos = GetMousePosition();
-    Vector2 windowPos = GetWindowPosition();
-
-    static bool windowDrag = false;
-    static bool buttonDrag[2] = {false};
-    static bool buttonLeft = false;
-    static Vector2 dragOffset = {0};
-
-    bool CollisionMap[3] = {false};
 
     bool Ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
     bool Left = IsKeyPressed(KEY_LEFT);
     bool Right = IsKeyPressed(KEY_RIGHT);
 
-    bool MouseDown = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
-    bool MousePressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
-    bool MouseReleased = IsMouseButtonReleased(MOUSE_BUTTON_LEFT);
-
-    CollisionMap[COLLISION_EXIT] = CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_EXIT]));
-    CollisionMap[COLLISION_MINIMIZE] = CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_MINIMIZE]));
-    CollisionMap[COLLISION_TOP_BAR] = CheckCollisionPointRec(mousePos, (Rectangle){0, 0, GVARS.screenWidth, TOP_BAR_HEIGHT});
-    CollisionMap[COLLISION_SHEET] = CheckCollisionPointRec(mousePos, (Rectangle){0, TOP_BAR_HEIGHT, GVARS.screenWidth, DEFAULT_SHEET_HEIGHT});
+    MouseHandler(cellList, cellIndex, selectionState);
 
     // TODO: escape should have multiple purposes
     // The case here is one, but there are more
@@ -500,61 +570,6 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
     }
     // TODO: shift selection
 
-    for (size_t i = 0; i < 2; i++) {
-        GVARS.buttons[i].state = 0;
-    }
-    
-    for (size_t i = 0; i < 2; i++) {
-        GVARS.buttons[i].state = CollisionMap[i] ? STATE_BTN_HIGHLIGHTED : STATE_BTN_UNHIGHLIGHTED;
-    }
-    if (MouseDown) {
-        if (CollisionMap[BTN_EXIT] && !buttonDrag[BTN_EXIT]) {
-            buttonDrag[BTN_EXIT] = true;
-            GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
-        }
-        if (CollisionMap[BTN_MINIMIZE] && !buttonDrag[BTN_MINIMIZE]) {
-            buttonDrag[BTN_MINIMIZE] = true;
-            GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
-        }
-        if (!(CollisionMap[BTN_EXIT] || CollisionMap[BTN_MINIMIZE]) && (buttonDrag[BTN_EXIT] || buttonDrag[BTN_MINIMIZE])) {
-            buttonLeft = true;
-        } else buttonLeft = false;
-    } else {
-        buttonDrag[BTN_EXIT] = buttonDrag[BTN_MINIMIZE] = false;
-    }
-
-    if (MouseDown && !windowDrag && !(buttonDrag[BTN_EXIT] || buttonDrag[BTN_MINIMIZE])) {
-        if (CollisionMap[COLLISION_TOP_BAR] && !(CollisionMap[BTN_EXIT] || CollisionMap[BTN_MINIMIZE])) {
-            windowDrag = true;
-            dragOffset = mousePos;
-        } else windowDrag = false;
-    }
-    if (windowDrag) {
-        windowPos.x += mousePos.x - dragOffset.x;
-        windowPos.y += mousePos.y - dragOffset.y;
-        SetWindowPosition(windowPos.x, windowPos.y);
-        if (!MouseDown) windowDrag = false;
-    }
-    if (MousePressed) {
-        if (CollisionMap[COLLISION_SHEET]) {
-            *cellIndex = xyToIndex(mousePos);
-            *selectionState = cellList[*cellIndex].selectable;
-            cellIndex = *selectionState ? cellIndex : 0;
-        } else {
-            *selectionState = 0;
-            cellIndex = 0;
-        }
-    }
-    if (MouseReleased && !windowDrag && !(buttonDrag[BTN_EXIT] || buttonDrag[BTN_MINIMIZE]) && !buttonLeft) {
-        if (CollisionMap[BTN_EXIT]) {
-            GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
-            GVARS.shouldExit = true;
-        }
-        if (CollisionMap[BTN_MINIMIZE]) {
-            GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
-            MinimizeWindow();
-        }
-    }
     if (*selectionState == true) {
         // Check if more characters have been pressed on the same frame
         while (key_char > 0) {
