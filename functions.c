@@ -346,7 +346,7 @@ char* filterText(char* text)
         default:
             return dummy;
         }
-        return filtered;
+        return secsToTime(timeToSecs(filtered));
     case 1:
         if (text[textLen - 3] != ':') return dummy;
         switch (textLen) {
@@ -366,7 +366,7 @@ char* filterText(char* text)
         default:
             return dummy;
         }
-        return filtered;
+        return secsToTime(timeToSecs(filtered));
     case 2:
         if (text[textLen - 6] != ':') return dummy;
         if (!(textLen <= 8 && textLen >= 6)) return dummy;
@@ -542,26 +542,61 @@ void MouseHandler(Cell *cellList, size_t *cellIndex, bool *selectionState)
     }
 }
 
-// This is a big function, Should I break it down?
-void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool *textChanged)
+void CellInputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool *textChanged, KeyMap key)
 {
     int key_char = GetCharPressed();
+    bool tmpSelectState = *selectionState;
 
-    bool Ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
-    bool Left = IsKeyPressed(KEY_LEFT);
-    bool Right = IsKeyPressed(KEY_RIGHT);
+    // Check if more characters have been pressed on the same frame
+    while (key_char > 0) {
+        if ((key_char >= 32) && (key_char <= 125))
+            placeChar(&cellList[*cellIndex].gapStr, (char)key_char);
+        key_char = GetCharPressed(); // Check next character in the queue
+        *textChanged = true;
+    }
+    if (key.ctrl) {
+        if (key.left) GapStrGotoIndex(&cellList[*cellIndex].gapStr, 0);
+        if (key.right) GapStrGotoIndex(&cellList[*cellIndex].gapStr, strlen(gapStrToStr(cellList[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
+    }
+    if (!key.ctrl) {
+        if (key.left) cursorLeft(&cellList[*cellIndex].gapStr);
+        if (key.right) cursorRight(&cellList[*cellIndex].gapStr);
+    }
 
-    MouseHandler(cellList, cellIndex, selectionState);
+    if (IsKeyPressed(KEY_BACKSPACE)) {
+        deleteChar(&cellList[*cellIndex].gapStr);
+        *textChanged = true;
+    }
+    if (IsKeyPressed(KEY_ENTER)) {
+        if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3) {
+            char *filteredText = filterText(cellList[*cellIndex].gapStr.str);
+            if (*textChanged == true)
+                OverwriteStr(&cellList[*cellIndex].gapStr, filteredText, CELL_TEXT_LENGTH);
+            if (*cellIndex > CELL_COUNT - 6) {
+                *cellIndex = 0;
+                tmpSelectState = false;
+            } else *cellIndex = *cellIndex + 3;
+        } else {
+            *cellIndex = 0;
+            tmpSelectState = false;
+        }
+        if (*textChanged == true)
+            UpdateScores(cellList);
+    }
+    *selectionState = tmpSelectState;
+}
 
+void KeyPressHandler(KeyMap key, size_t *cellIndex, bool *selectionState)
+{
     // TODO: escape should have multiple purposes
     // The case here is one, but there are more
     // If text is selected, escape should deselect // TODO: Text Selection
-    if (IsKeyPressed(KEY_ESCAPE)) {
+    if (key.escape) {
         *selectionState = false;
         *cellIndex = 0;
     }
-    if (Ctrl) {
-        if (IsKeyPressed(KEY_R)) {
+    if (key.ctrl) {
+        if (IsKeyPressed(KEY_R)) { // TODO: Remove set window size behavior
             SetWindowSize(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT);
         }
         // TODO: undo/redo
@@ -569,54 +604,19 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
         // TODO: select all
     }
     // TODO: shift selection
+}
 
-    if (*selectionState == true) {
-        // Check if more characters have been pressed on the same frame
-        while (key_char > 0) {
-            // NOTE: Only allow keys in range [32..125]
-            if ((key_char >= 32) && (key_char <= 125))
-                placeChar(&cellList[*cellIndex].gapStr, (char)key_char);
-            key_char = GetCharPressed(); // Check next character in the queue
-            *textChanged = true;
-        }
-        if (Ctrl) {
-            if (Left) {
-                GapStrGotoIndex(&cellList[*cellIndex].gapStr, 0);
-            }
-            if (Right) {
-                GapStrGotoIndex(&cellList[*cellIndex].gapStr, strlen(gapStrToStr(cellList[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
-            }
-        }
-        if (!Ctrl) {
-            if (Left) {
-                cursorLeft(&cellList[*cellIndex].gapStr);
-                *textChanged = true;
-            }
-            if (Right) {
-                cursorRight(&cellList[*cellIndex].gapStr);
-                *textChanged = true;
-            }
-        }
+// This is a big function, Should I break it down?
+void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool *textChanged)
+{
+    KeyMap key = {false};
 
-        if (IsKeyPressed(KEY_BACKSPACE)) {
-            deleteChar(&cellList[*cellIndex].gapStr);
-            *textChanged = true;
-        }
-        if (IsKeyPressed(KEY_ENTER)) {
-            if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3) {
-                char *filteredText = secsToTime(timeToSecs(filterText(cellList[*cellIndex].gapStr.str)));
-                if (*textChanged == true)
-                    OverwriteStr(&cellList[*cellIndex].gapStr, filteredText, CELL_TEXT_LENGTH);
-                if (*cellIndex > CELL_COUNT - 6) {
-                    *cellIndex = 0;
-                    selectionState = false;
-                } else *cellIndex = *cellIndex + 3;
-            } else {
-                *cellIndex = 0;
-                selectionState = false;
-            }
-            if (*textChanged == true)
-                UpdateScores(cellList);
-        }
-    }
+    key.ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
+    key.left = IsKeyPressed(KEY_LEFT);
+    key.right = IsKeyPressed(KEY_RIGHT);
+    key.escape = IsKeyPressed(KEY_ESCAPE);
+
+    MouseHandler(cellList, cellIndex, selectionState);
+
+    if (*selectionState) CellInputHandler(cellList, cellIndex, selectionState, textChanged, key);
 }

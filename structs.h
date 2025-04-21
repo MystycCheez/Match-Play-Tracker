@@ -28,6 +28,16 @@ typedef struct CollisionMap {
     bool sheet;
 } CollisionMap;
 
+typedef struct KeyMap {
+    bool ctrl;
+    bool left;
+    bool right;
+    bool up;
+    bool down;
+    bool enter;
+    bool escape;
+} KeyMap;
+
 // 3 components: str, cStart, cEnd
 typedef struct GapBuffer {
     char* str;
