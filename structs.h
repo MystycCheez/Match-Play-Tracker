@@ -27,7 +27,7 @@ typedef struct Cell {
     GapBuffer gapStr;
     Color color;
     Color highlight;
-    unsigned char alignment : 2;
+    Alignment alignment : 2;
     bool selectable;
 } Cell;
 
@@ -48,7 +48,7 @@ typedef struct Specials {
 typedef struct Button {
     Vector2 pos;
     Texture2D texture;
-    unsigned char state : 2;
+    State_Button state : 2;
 } Button;
 
 // screenWidth, screenHeight, cellWidth, cellHeight, fontSize, SelectionArea

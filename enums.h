@@ -31,6 +31,7 @@ typedef enum {
 } Collision_List;
 
 typedef enum {
+    TEXT_NA = -1,
     TEXT_VETO = 0,
     TEXT_DNF = 1,
 } Text_Type;

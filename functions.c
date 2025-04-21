@@ -84,18 +84,18 @@ void loadSpecialText()
     GVARS.specials.count = specialCount;
 }
 
-Color getStateColor(unsigned char state)
+Color getStateColor(State_Button state)
 {
     if (state == STATE_BTN_PRESSED) return GRAY;
     if (state == STATE_BTN_HIGHLIGHTED) return LIGHTGRAY;
     return WHITE;
 }
 
-// Returns -1 if special text not found
 // Returns TEXT_VETO or TEXT_DNF if found
-int CompareSpecialText(char* text)
+// Returns TEXT_NA if special text not found
+Text_Type CompareSpecialText(char* text)
 {
-    int returnVal = -1;
+    Text_Type returnVal = TEXT_NA;
     for (size_t i = 0; i < GVARS.specials.count; i++) {
         if (strcmp(text, GVARS.specials.text[i]) == 0) {
             if (i < 4) returnVal = TEXT_VETO;
@@ -284,6 +284,7 @@ size_t timeToSecs(char *time)
 // Formats to mm:ss or 0:ss / Expects total number of seconds
 char *secsToTime(size_t totalSecs)
 {
+    if (totalSecs == 0) return "\0";
     char *time = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     memset(time, 0, CELL_TEXT_LENGTH);
     size_t minutes = totalSecs / 60 < 100 ? totalSecs / 60 : 59;
@@ -384,8 +385,8 @@ Int2 CompareTimes(size_t row, Cell *cells)
     size_t cellL = crToIndex((Vector2){1, (float)row});
     size_t cellR = crToIndex((Vector2){2, (float)row});
     
-    int specialL = CompareSpecialText(cells[cellL].gapStr.str);
-    int specialR = CompareSpecialText(cells[cellR].gapStr.str);
+    Text_Type specialL = CompareSpecialText(cells[cellL].gapStr.str);
+    Text_Type specialR = CompareSpecialText(cells[cellR].gapStr.str);
 
     size_t timeL = -1;
     size_t timeR = -1;
@@ -463,7 +464,7 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
     Vector2 windowPos = GetWindowPosition();
 
     static bool windowDrag = false;
-    static bool buttonDrag = false;
+    static bool buttonDrag[2] = {false};
     static bool buttonLeft = false;
     static Vector2 dragOffset = {0};
 
@@ -472,6 +473,10 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
     bool Ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
     bool Left = IsKeyPressed(KEY_LEFT);
     bool Right = IsKeyPressed(KEY_RIGHT);
+
+    bool MouseDown = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
+    bool MousePressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+    bool MouseReleased = IsMouseButtonReleased(MOUSE_BUTTON_LEFT);
 
     CollisionMap[COLLISION_EXIT] = CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_EXIT]));
     CollisionMap[COLLISION_MINIMIZE] = CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_MINIMIZE]));
@@ -485,7 +490,7 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
         *selectionState = false;
         *cellIndex = 0;
     }
-    if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) {
+    if (Ctrl) {
         if (IsKeyPressed(KEY_R)) {
             SetWindowSize(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT);
         }
@@ -502,16 +507,23 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
     for (size_t i = 0; i < 2; i++) {
         GVARS.buttons[i].state = CollisionMap[i] ? STATE_BTN_HIGHLIGHTED : STATE_BTN_UNHIGHLIGHTED;
     }
-    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
-        if ((CollisionMap[BTN_EXIT] || CollisionMap[BTN_MINIMIZE]) && !buttonDrag) {
-            buttonDrag = true;
-        } 
-        if (!(CollisionMap[BTN_EXIT] || CollisionMap[BTN_MINIMIZE]) && buttonDrag) {
+    if (MouseDown) {
+        if (CollisionMap[BTN_EXIT] && !buttonDrag[BTN_EXIT]) {
+            buttonDrag[BTN_EXIT] = true;
+            GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
+        }
+        if (CollisionMap[BTN_MINIMIZE] && !buttonDrag[BTN_MINIMIZE]) {
+            buttonDrag[BTN_MINIMIZE] = true;
+            GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
+        }
+        if (!(CollisionMap[BTN_EXIT] || CollisionMap[BTN_MINIMIZE]) && (buttonDrag[BTN_EXIT] || buttonDrag[BTN_MINIMIZE])) {
             buttonLeft = true;
         } else buttonLeft = false;
-    } else buttonDrag = false;
+    } else {
+        buttonDrag[BTN_EXIT] = buttonDrag[BTN_MINIMIZE] = false;
+    }
 
-    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && !windowDrag && !buttonDrag) {
+    if (MouseDown && !windowDrag && !(buttonDrag[BTN_EXIT] || buttonDrag[BTN_MINIMIZE])) {
         if (CollisionMap[COLLISION_TOP_BAR] && !(CollisionMap[BTN_EXIT] || CollisionMap[BTN_MINIMIZE])) {
             windowDrag = true;
             dragOffset = mousePos;
@@ -521,9 +533,9 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
         windowPos.x += mousePos.x - dragOffset.x;
         windowPos.y += mousePos.y - dragOffset.y;
         SetWindowPosition(windowPos.x, windowPos.y);
-        if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT)) windowDrag = false;
+        if (!MouseDown) windowDrag = false;
     }
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+    if (MousePressed) {
         if (CollisionMap[COLLISION_SHEET]) {
             *cellIndex = xyToIndex(mousePos);
             *selectionState = cellList[*cellIndex].selectable;
@@ -533,7 +545,7 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
             cellIndex = 0;
         }
     }
-    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && !windowDrag && !buttonDrag && !buttonLeft) {
+    if (MouseReleased && !windowDrag && !(buttonDrag[BTN_EXIT] || buttonDrag[BTN_MINIMIZE]) && !buttonLeft) {
         if (CollisionMap[BTN_EXIT]) {
             GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
             GVARS.shouldExit = true;
