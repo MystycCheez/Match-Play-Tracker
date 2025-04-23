@@ -4,6 +4,8 @@
 
 int main()
 {
+    SetTraceLogLevel(LOG_NONE);
+    
     GVARS.screenHeight = DEFAULT_SCREEN_HEIGHT;
     GVARS.screenWidth = DEFAULT_SCREEN_WIDTH;
     GVARS.cellHeight = DEFAULT_CELL_HEIGHT;
@@ -34,9 +36,11 @@ int main()
     int game = LEVELS_GE;
     int cursorTimer = 0;
 
-    size_t selectedCell = 0;
+    size_t selectedCellIndex = 0;
     bool selectionState = false;
     bool textChanged = false;
+
+    Selection selectedText = {0};
 
     Line borders[COLUMNS + ROWS] = {0};
     setBorderPositions(borders);
@@ -51,7 +55,7 @@ int main()
     
     while (!GVARS.shouldExit && !WindowShouldClose())
     {
-        InputHandler(sheet, &selectedCell, &selectionState, &textChanged);
+        InputHandler(sheet, &selectedCellIndex, &selectionState, &textChanged, &selectedText);
         
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
@@ -71,15 +75,19 @@ int main()
         // Draw Borders
         for (size_t i = 0; i < COLUMNS + ROWS; i++) 
             DrawLine(borders[i].x1, borders[i].y1, borders[i].x2, borders[i].y2, BORDER_COLOR);
+        // Draw text highlighting
+        if (selectionState) {
+            DrawTextHighlight(sheet, selectedCellIndex, selectedText, font);
+        }
         // Draw Text :)
         for (size_t i = 0; i < CELL_COUNT; i++) 
             DrawTextAligned(font, TextPos, GVARS.fontSize, 1, sheet[i], i);
 
         if (selectionState) {
             if (cursorTimer % RefreshRate < RefreshRate / 2) {
-                DrawCursor(sheet[selectedCell], selectedCell, font);
+                DrawCursor(sheet, selectedCellIndex, font);
             }
-            DrawCellBorders(selectedCell);
+            DrawCellBorders(selectedCellIndex);
         }
         
         EndDrawing();

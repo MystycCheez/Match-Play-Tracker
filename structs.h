@@ -30,6 +30,7 @@ typedef struct CollisionMap {
 
 typedef struct KeyMap {
     bool ctrl;
+    bool shift;
     bool left;
     bool right;
     bool up;
@@ -44,6 +45,11 @@ typedef struct GapBuffer {
     size_t cStart;
     size_t cEnd;
 } GapBuffer;
+
+typedef struct Selection {
+    size_t start;
+    size_t len;
+} Selection;
 
 // 5 components: gapStr, color, highlight, alignment, selectable
 typedef struct Cell {
@@ -74,7 +80,6 @@ typedef struct Button {
     State_Button state : 2;
 } Button;
 
-// screenWidth, screenHeight, cellWidth, cellHeight, fontSize, SelectionArea
 typedef struct Globals {
     float screenWidth;
     float screenHeight;
@@ -92,4 +97,5 @@ typedef struct Node {
     struct Node* prev;
 } Node;
 
+// screenWidth, screenHeight, cellWidth, cellHeight, fontSize, specials, buttons, shouldExit
 Globals GVARS;

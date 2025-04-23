@@ -5,6 +5,10 @@ Font initFont()
     const char *font_file = "C:/Windows/Fonts/trebucbd.ttf";
     int fileSize = 0;
     unsigned char *fileData = LoadFileData(font_file, &fileSize);
+    if (fileData == NULL) {
+        fprintf(stderr, "Failed to load font: %s!\n", font_file);
+        exit(1);
+    }
     Font font = {0};
     font.baseSize = GVARS.fontSize * 5;
     font.glyphCount = 95;
@@ -45,8 +49,8 @@ char **loadLevelText(int game)
     if (game == LEVELS_PD) filename = "resources/levels-pd.txt";
     FILE *file_ptr = fopen(filename, "r");
     if (file_ptr == NULL) {
-        printf("Error: Could not open file: %s\n", filename);
-        printf("%s:%d\n", __FILE__, __LINE__);
+        fprintf(stderr, "Error: Could not open file: %s\n", filename);
+        fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
         exit(1);
     }
     char **levelText = malloc(sizeof(char*) * LEVEL_COUNT);
@@ -65,8 +69,8 @@ void loadSpecialText()
 {
     FILE *file_ptr = fopen("resources/specials.txt", "r");
     if (file_ptr == NULL) {
-        printf("Error: Could not open file: %s\n", "specials.txt");
-        printf("%s:%d\n", __FILE__, __LINE__);
+        fprintf(stderr, "Error: Could not open file: %s\n", "specials.txt");
+        fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
         exit(1);
     }
     size_t specialCount = 0;
@@ -215,13 +219,13 @@ Vector2 CalcTextPos(Vector2 pos, size_t index)
     return pos;
 }
 
-void DrawCursor(Cell cell, size_t cellIndex, Font font)
+void DrawCursor(Cell *sheet, size_t cellIndex, Font font)
 {
     if (cellIndex == 0) return;
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
-    float span = MeasureTextEx(font, gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH), GVARS.fontSize, 1).x;
-    float offset = MeasureTextEx(font, cell.gapStr.str, GVARS.fontSize, 1).x;
+    float span = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH), GVARS.fontSize, 1).x;
+    float offset = MeasureTextEx(font, sheet[cellIndex].gapStr.str, GVARS.fontSize, 1).x;
     pos.x += (GVARS.cellWidth / 2) - (span / 2) + offset;
     DrawLineEx(pos, (Vector2){pos.x, pos.y + GVARS.cellHeight}, 1.0, GRAY);
 }
@@ -261,6 +265,17 @@ void DrawTextAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell
         assert(!"TODO: ALIGN_RIGHT");
         break;
     }
+}
+
+void DrawTextHighlight(Cell *sheet, size_t cellIndex, Selection selectedText, Font font)
+{
+    Vector2 pos = {0};
+    pos = CalcTextPos(pos, cellIndex);
+    float span = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH), GVARS.fontSize, 1).x;
+    float offset = MeasureTextEx(font, sheet[cellIndex].gapStr.str, GVARS.fontSize, 1).x;
+    pos.x += (GVARS.cellWidth / 2) - (span / 2);
+    // DrawLineEx(pos, (Vector2){pos.x, pos.y + GVARS.cellHeight}, 1.0, GRAY);
+    DrawRectangleRec((Rectangle){pos.x, pos.y, span, GVARS.cellHeight}, COLOR_HIGHLIGHT);
 }
 
 // Expects format: "mm:ss"
@@ -329,16 +344,16 @@ char* filterText(char* text)
     switch (cCount) {
     case 0:
         switch (textLen) {
-        case 2:
-            // TODO: text[0] == '0' // Aka 0x
+        case 1: // x
+            sprintf(filtered, "0:0%s", text);
+            break;
+        case 2: // xx
             sprintf(filtered, "0:%s", text);
             break;
-        case 3:
-            // TODO: text[0,1] == 0 // Aka 00x
+        case 3: // xxx
             sprintf(filtered, "%c:%s", text[0], text + 1);
             break;
-        case 4:
-            // TODO: text[0,1,3] == 0 // Aka 000x
+        case 4: // xxxx
             if (text[0] != '0') {
                 sprintf(filtered, "%c%c:%s", text[0], text[1], text + 2);
             } else sprintf(filtered, "%c:%s", text[1], text + 2);
@@ -350,24 +365,20 @@ char* filterText(char* text)
     case 1:
         if (text[textLen - 3] != ':') return dummy;
         switch (textLen) {
-        case 3:
-            // TODO: text[1] == 0 // Aka :0x
+        case 3: // :xx
             sprintf(filtered, "0%s", text);
             break;
-        case 4:
-            // TODO: text[2] == 0 // Aka 0:0x
+        case 4: // x:xx
             sprintf(filtered, "%s", text);
             break;
-        case 5:
-            // TODO: text[0] == 0 // Aka 0x:xx
-            // TODO: text[0,1,3] == 0 // Aka 00:0x
-            sprintf(filtered, "%s", text + 1);
+        case 5: // xx:xx
+            sprintf(filtered, "%s", text);
             break;
         default:
             return dummy;
         }
         return secsToTime(timeToSecs(filtered));
-    case 2:
+    case 2: // TODO:
         if (text[textLen - 6] != ':') return dummy;
         if (!(textLen <= 8 && textLen >= 6)) return dummy;
         sprintf(filtered, "%s", text + textLen - 5);
@@ -393,8 +404,6 @@ Int2 CompareTimes(size_t row, Cell *cells)
     if (specialL == -1) timeL = timeToSecs(cells[cellL].gapStr.str);
     if (specialR == -1) timeR = timeToSecs(cells[cellR].gapStr.str);
 
-    // printf("%lld, %lld\n", timeL, timeR);
-
     if (cells[cellL].gapStr.str[0] == 0 || cells[cellR].gapStr.str[0] == 0 || specialL == TEXT_VETO || specialR == TEXT_VETO) {
         cells[cellL].highlight = TRANSPARENT;
         cells[cellR].highlight = TRANSPARENT;
@@ -416,8 +425,8 @@ Int2 CompareTimes(size_t row, Cell *cells)
         return (Int2){0, 1};
     }
     // TODO: player gets WR as time and is highlighted GOLD (unlikely, but would like this feature) - UNTIEDS too
-    // printf("%s:%d\n", __FILE__, __LINE__);
-    assert(!"Shouldn't have reached here!");
+    // fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
+    fprintf(stderr, "Shouldn't have reached here!");
     exit(-1);
 }
 
@@ -446,14 +455,10 @@ void UpdateScores(Cell *cells)
     }
 }
 
-void UpdateRects(Rectangle *recTop, Rectangle *recBot)
+// TODO: Add save reminder dialog
+void ExitHandler()
 {
-    recTop->width = GVARS.screenWidth;
-    recTop->height = GVARS.cellHeight;
-
-    recBot->y = GVARS.cellHeight * 21;
-    recBot->width = GVARS.screenWidth;
-    recBot->height = GVARS.cellHeight;
+    GVARS.shouldExit = true;
 }
 
 void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mousePos, Vector2 windowPos)
@@ -497,7 +502,7 @@ void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mous
     if (Mouse.released && !windowDrag && !(Drag.titleBar || Drag.minimize) && !buttonLeft) {
         if (Collision.exit) {
             GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
-            GVARS.shouldExit = true;
+            ExitHandler();
         }
         if (Collision.minimize) {
             GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
@@ -554,18 +559,26 @@ void CellInputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, b
         key_char = GetCharPressed(); // Check next character in the queue
         *textChanged = true;
     }
-    if (key.ctrl) {
-        if (key.left) GapStrGotoIndex(&cellList[*cellIndex].gapStr, 0);
-        if (key.right) GapStrGotoIndex(&cellList[*cellIndex].gapStr, strlen(gapStrToStr(cellList[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
-    }
-    if (!key.ctrl) {
-        if (key.left) cursorLeft(&cellList[*cellIndex].gapStr);
-        if (key.right) cursorRight(&cellList[*cellIndex].gapStr);
-    }
-
-    if (IsKeyPressed(KEY_BACKSPACE)) {
-        deleteChar(&cellList[*cellIndex].gapStr);
-        *textChanged = true;
+    if (!key.shift) {
+        if (key.ctrl) { // TODO: do it by token
+            if (key.left) GapStrGotoIndex(&cellList[*cellIndex].gapStr, 0);
+            if (key.right) GapStrGotoIndex(&cellList[*cellIndex].gapStr, strlen(gapStrToStr(cellList[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
+        } else if (!key.ctrl) {
+            if (key.left) cursorLeft(&cellList[*cellIndex].gapStr);
+            if (key.right) cursorRight(&cellList[*cellIndex].gapStr);
+        }
+        if (IsKeyPressed(KEY_BACKSPACE)) {
+            deleteChar(&cellList[*cellIndex].gapStr);
+            *textChanged = true;
+        }
+    } else if (key.shift) {
+        // if (key.ctrl) {
+        //     if (key.left) selectLeftToken();
+        //     if (key.right) selectRightToken();
+        // } else if (!key.ctrl) {
+        //     if (key.left) selectLeftChar();
+        //     if (key.right) selectRightChar();
+        // }
     }
     if (IsKeyPressed(KEY_ENTER)) {
         if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3) {
@@ -596,9 +609,6 @@ void KeyPressHandler(KeyMap key, size_t *cellIndex, bool *selectionState)
         *cellIndex = 0;
     }
     if (key.ctrl) {
-        if (IsKeyPressed(KEY_R)) { // TODO: Remove set window size behavior
-            SetWindowSize(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT);
-        }
         // TODO: undo/redo
         // TODO: save/load
         // TODO: select all
@@ -606,12 +616,13 @@ void KeyPressHandler(KeyMap key, size_t *cellIndex, bool *selectionState)
     // TODO: shift selection
 }
 
-// This is a big function, Should I break it down?
-void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool *textChanged)
+void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool *textChanged, Selection *selectedText)
 {
     KeyMap key = {false};
 
     key.ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
+    key.shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
+
     key.left = IsKeyPressed(KEY_LEFT);
     key.right = IsKeyPressed(KEY_RIGHT);
     key.escape = IsKeyPressed(KEY_ESCAPE);

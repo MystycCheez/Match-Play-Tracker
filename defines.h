@@ -32,5 +32,7 @@
 #define COLOR_WIN        (Color){0x00, 0x4B, 0x00, 0xFF}
 #define COLOR_LOSE       (Color){0x4B, 0x03, 0x03, 0xFF}
 
+#define COLOR_HIGHLIGHT  (Color){0xFF, 0xFF, 0xFF, 0x80}
+
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))
