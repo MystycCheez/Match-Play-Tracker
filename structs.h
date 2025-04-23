@@ -48,7 +48,7 @@ typedef struct GapBuffer {
 
 typedef struct Selection {
     size_t start;
-    size_t len;
+    bool exists;
 } Selection;
 
 // 5 components: gapStr, color, highlight, alignment, selectable

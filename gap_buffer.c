@@ -52,26 +52,48 @@ void deleteChar(GapBuffer *gapStr)
     #endif
 }
 
-void cursorLeft(GapBuffer *gapStr)
+// Returns false if no movement occured
+bool cursorLeft(GapBuffer *gapStr)
 {
-    if (gapStr->cStart == 0) return;
+    if (gapStr->cStart == 0) return false;
     chrswap(gapStr->str + gapStr->cStart - 1, gapStr->str + gapStr->cEnd);
     gapStr->cStart--;
     gapStr->cEnd--;
     #ifdef GAP_DEBUG
     printf("%s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
     #endif
+    return true;
 }
 
-void cursorRight(GapBuffer *gapStr)
+// Returns false if no movement occured
+bool cursorRight(GapBuffer *gapStr)
 {
-    if (gapStr->cEnd == CELL_TEXT_LENGTH - 1) return;
+    if (gapStr->cEnd == CELL_TEXT_LENGTH - 1) return false;
     chrswap(gapStr->str + gapStr->cStart, gapStr->str + gapStr->cEnd + 1);
     gapStr->cEnd++;
     gapStr->cStart++;
     #ifdef GAP_DEBUG
     printf("%s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
     #endif
+    return true;
+}
+
+void selectChar(Selection *selection, GapBuffer *gapStr, bool dir)
+{
+    if (!selection->exists) selection->start = gapStr->cStart;
+    if (dir == DIR_LEFT) if (!cursorLeft(gapStr)) return;
+    if (dir == DIR_RIGHT) if (!cursorRight(gapStr)) return;
+    // printf("selection: %lld, cStart: %lld\n", selection->start, gapStr->cStart);
+    if (selection->exists) {
+        if (selection->start == gapStr->cStart) {
+            selection->exists = false;
+        }
+    }
+    if (!selection->exists) {
+        if (selection->start != gapStr->cStart) {
+            selection->exists = true;
+        }
+    }
 }
 
 void GapStrGotoIndex(GapBuffer *gapStr, size_t index)
@@ -98,16 +120,21 @@ GapBuffer strToGapStr(char* str, size_t cursor)
     return gapStr;
 }
 
-char* gapStrToStr(GapBuffer gapStr, size_t len)
+char* gapStrToStr(GapBuffer gapStr, size_t maxLen)
 {
-    size_t lenR = strlen(gapStr.str + gapStr.cEnd + 1);
-    if (lenR > 0) {
-        char* str = malloc(sizeof(char) * len + 1);
-        memset(str, 0, len + 1);
-        strncpy(str, gapStr.str, gapStr.cStart);
-        strncpy(str + strlen(str), gapStr.str + gapStr.cEnd + 1, lenR);
-        return str;
-    } else return gapStr.str;
+    if (maxLen == 0) return "\0";
+    size_t initLenL = strlen(gapStr.str);
+    size_t initLenR = strlen(gapStr.str + gapStr.cEnd + 1);
+    size_t len = min(maxLen, initLenL + initLenR);
+    char* str = malloc(sizeof(char) * len + 1);
+    memset(str, 0, len + 1);
+    size_t lenL = min(len, initLenL);
+    strncpy(str, gapStr.str, lenL);
+    if (initLenR > 0 && len > initLenL) {
+        size_t lenR = len - lenL;
+        strncpy(str + lenL, gapStr.str + gapStr.cEnd + 1, lenR);
+    }
+    return str;
 }
 
 GapBuffer initGapStr(size_t len)

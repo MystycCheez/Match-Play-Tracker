@@ -40,7 +40,7 @@ int main()
     bool selectionState = false;
     bool textChanged = false;
 
-    Selection selectedText = {0};
+    Selection selection = {0};
 
     Line borders[COLUMNS + ROWS] = {0};
     setBorderPositions(borders);
@@ -55,7 +55,7 @@ int main()
     
     while (!GVARS.shouldExit && !WindowShouldClose())
     {
-        InputHandler(sheet, &selectedCellIndex, &selectionState, &textChanged, &selectedText);
+        InputHandler(sheet, &selectedCellIndex, &selectionState, &textChanged, &selection);
         
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
@@ -76,8 +76,8 @@ int main()
         for (size_t i = 0; i < COLUMNS + ROWS; i++) 
             DrawLine(borders[i].x1, borders[i].y1, borders[i].x2, borders[i].y2, BORDER_COLOR);
         // Draw text highlighting
-        if (selectionState) {
-            DrawTextHighlight(sheet, selectedCellIndex, selectedText, font);
+        if (selectionState && selection.exists) {
+            DrawTextHighlight(sheet, selectedCellIndex, selection, font);
         }
         // Draw Text :)
         for (size_t i = 0; i < CELL_COUNT; i++) 

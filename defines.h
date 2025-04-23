@@ -34,5 +34,8 @@
 
 #define COLOR_HIGHLIGHT  (Color){0xFF, 0xFF, 0xFF, 0x80}
 
+#define DIR_LEFT 0
+#define DIR_RIGHT 1
+
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))

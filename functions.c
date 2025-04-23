@@ -267,14 +267,14 @@ void DrawTextAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell
     }
 }
 
-void DrawTextHighlight(Cell *sheet, size_t cellIndex, Selection selectedText, Font font)
+void DrawTextHighlight(Cell *sheet, size_t cellIndex, Selection selection, Font font)
 {
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
-    float span = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH), GVARS.fontSize, 1).x;
-    float offset = MeasureTextEx(font, sheet[cellIndex].gapStr.str, GVARS.fontSize, 1).x;
+    size_t diff = abs((int)selection.start - (int)sheet[cellIndex].gapStr.cStart);
+    float span = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, diff), GVARS.fontSize, 1).x;
+    // float offset = MeasureTextEx(font, sheet[cellIndex].gapStr.str, GVARS.fontSize, 1).x;
     pos.x += (GVARS.cellWidth / 2) - (span / 2);
-    // DrawLineEx(pos, (Vector2){pos.x, pos.y + GVARS.cellHeight}, 1.0, GRAY);
     DrawRectangleRec((Rectangle){pos.x, pos.y, span, GVARS.cellHeight}, COLOR_HIGHLIGHT);
 }
 
@@ -511,11 +511,11 @@ void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mous
     }
 }
 
-void MouseSheetHandler(CollisionMap Collision, Vector2 mousePos, Cell *cellList, size_t *cellIndex, bool *selectionState)
+void MouseSheetHandler(CollisionMap Collision, Vector2 mousePos, Cell *sheet, size_t *cellIndex, bool *selectionState)
 {
     if (Collision.sheet) {
         *cellIndex = xyToIndex(mousePos);
-        *selectionState = cellList[*cellIndex].selectable;
+        *selectionState = sheet[*cellIndex].selectable;
         cellIndex = *selectionState ? cellIndex : 0;
     } else {
         *selectionState = 0;
@@ -523,7 +523,7 @@ void MouseSheetHandler(CollisionMap Collision, Vector2 mousePos, Cell *cellList,
     }
 }
 
-void MouseHandler(Cell *cellList, size_t *cellIndex, bool *selectionState)
+void MouseHandler(Cell *sheet, size_t *cellIndex, bool *selectionState)
 {
     Vector2 mousePos = GetMousePosition();
     Vector2 windowPos = GetWindowPosition();
@@ -543,11 +543,11 @@ void MouseHandler(Cell *cellList, size_t *cellIndex, bool *selectionState)
 
     MouseTitleBarHandler(Collision, Mouse, mousePos, windowPos);
     if (Mouse.pressed) {
-        MouseSheetHandler(Collision, mousePos, cellList, cellIndex, selectionState);
+        MouseSheetHandler(Collision, mousePos, sheet, cellIndex, selectionState);
     }
 }
 
-void CellInputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool *textChanged, KeyMap key)
+void CellInputHandler(Cell *sheet, size_t *cellIndex, bool *selectionState, bool *textChanged, KeyMap key, Selection *selection)
 {
     int key_char = GetCharPressed();
     bool tmpSelectState = *selectionState;
@@ -555,36 +555,36 @@ void CellInputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, b
     // Check if more characters have been pressed on the same frame
     while (key_char > 0) {
         if ((key_char >= 32) && (key_char <= 125))
-            placeChar(&cellList[*cellIndex].gapStr, (char)key_char);
+            placeChar(&sheet[*cellIndex].gapStr, (char)key_char);
         key_char = GetCharPressed(); // Check next character in the queue
         *textChanged = true;
     }
     if (!key.shift) {
         if (key.ctrl) { // TODO: do it by token
-            if (key.left) GapStrGotoIndex(&cellList[*cellIndex].gapStr, 0);
-            if (key.right) GapStrGotoIndex(&cellList[*cellIndex].gapStr, strlen(gapStrToStr(cellList[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
+            if (key.left) GapStrGotoIndex(&sheet[*cellIndex].gapStr, 0);
+            if (key.right) GapStrGotoIndex(&sheet[*cellIndex].gapStr, strlen(gapStrToStr(sheet[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
         } else if (!key.ctrl) {
-            if (key.left) cursorLeft(&cellList[*cellIndex].gapStr);
-            if (key.right) cursorRight(&cellList[*cellIndex].gapStr);
+            if (key.left) cursorLeft(&sheet[*cellIndex].gapStr);
+            if (key.right) cursorRight(&sheet[*cellIndex].gapStr);
         }
         if (IsKeyPressed(KEY_BACKSPACE)) {
-            deleteChar(&cellList[*cellIndex].gapStr);
+            deleteChar(&sheet[*cellIndex].gapStr);
             *textChanged = true;
         }
     } else if (key.shift) {
-        // if (key.ctrl) {
-        //     if (key.left) selectLeftToken();
-        //     if (key.right) selectRightToken();
-        // } else if (!key.ctrl) {
-        //     if (key.left) selectLeftChar();
-        //     if (key.right) selectRightChar();
-        // }
+        if (key.ctrl) {
+            // if (key.left) selectLeftToken();
+            // if (key.right) selectRightToken();
+        } else if (!key.ctrl) {
+            if (key.left) selectChar(selection, &sheet[*cellIndex].gapStr, DIR_LEFT);
+            if (key.right) selectChar(selection, &sheet[*cellIndex].gapStr, DIR_RIGHT);
+        }
     }
     if (IsKeyPressed(KEY_ENTER)) {
         if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3) {
-            char *filteredText = filterText(cellList[*cellIndex].gapStr.str);
+            char *filteredText = filterText(sheet[*cellIndex].gapStr.str);
             if (*textChanged == true)
-                OverwriteStr(&cellList[*cellIndex].gapStr, filteredText, CELL_TEXT_LENGTH);
+                OverwriteStr(&sheet[*cellIndex].gapStr, filteredText, CELL_TEXT_LENGTH);
             if (*cellIndex > CELL_COUNT - 6) {
                 *cellIndex = 0;
                 tmpSelectState = false;
@@ -594,7 +594,7 @@ void CellInputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, b
             tmpSelectState = false;
         }
         if (*textChanged == true)
-            UpdateScores(cellList);
+            UpdateScores(sheet);
     }
     *selectionState = tmpSelectState;
 }
@@ -616,7 +616,7 @@ void KeyPressHandler(KeyMap key, size_t *cellIndex, bool *selectionState)
     // TODO: shift selection
 }
 
-void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool *textChanged, Selection *selectedText)
+void InputHandler(Cell *sheet, size_t *cellIndex, bool *selectionState, bool *textChanged, Selection *selection)
 {
     KeyMap key = {false};
 
@@ -627,7 +627,7 @@ void InputHandler(Cell *cellList, size_t *cellIndex, bool *selectionState, bool 
     key.right = IsKeyPressed(KEY_RIGHT);
     key.escape = IsKeyPressed(KEY_ESCAPE);
 
-    MouseHandler(cellList, cellIndex, selectionState);
+    MouseHandler(sheet, cellIndex, selectionState);
 
-    if (*selectionState) CellInputHandler(cellList, cellIndex, selectionState, textChanged, key);
+    if (*selectionState) CellInputHandler(sheet, cellIndex, selectionState, textChanged, key, selection);
 }
