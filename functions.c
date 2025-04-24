@@ -226,8 +226,8 @@ void DrawCursor(Cell *sheet, size_t cellIndex, Font font)
     pos = CalcTextPos(pos, cellIndex);
     float span = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH), GVARS.fontSize, 1).x;
     float offset = MeasureTextEx(font, sheet[cellIndex].gapStr.str, GVARS.fontSize, 1).x;
-    pos.x += (GVARS.cellWidth / 2) - (span / 2) + offset;
-    DrawLineEx(pos, (Vector2){pos.x, pos.y + GVARS.cellHeight}, 1.0, GRAY);
+    pos.x += (GVARS.cellWidth / 2) - (span / 2) + offset + 1;
+    DrawLineEx(pos, (Vector2){pos.x, pos.y + GVARS.cellHeight}, 1.0, RED);
 }
 
 void DrawTextCentered(Font font, Vector2 pos, float fontSize, float spacing, Cell cell)
@@ -272,13 +272,15 @@ void DrawTextHighlight(Cell *sheet, size_t cellIndex, Selection selection, Font 
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
     size_t selectionLen = selection.end - selection.start;
-    float cellTextSpan = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH), GVARS.fontSize, 1).x;
     char *selectedText = gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH) + selection.start;
     selectedText[selectionLen] = 0;
     float selectionSpan = MeasureTextEx(font, selectedText, GVARS.fontSize, 1).x;
+    
+    float cellTextSpan = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH), GVARS.fontSize, 1).x;
     float offset = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, selection.start), GVARS.fontSize, 1).x;
+
     pos.x += (GVARS.cellWidth / 2) - (cellTextSpan / 2) + offset;
-    DrawRectangleRec((Rectangle){pos.x, pos.y, selectionSpan, GVARS.cellHeight}, COLOR_HIGHLIGHT);
+    DrawRectangleRec((Rectangle){pos.x, pos.y, selectionSpan + 2, GVARS.cellHeight}, COLOR_HIGHLIGHT);
 }
 
 // Expects format: "mm:ss"
@@ -566,10 +568,10 @@ void CellInputHandler(Cell *sheet, size_t *cellIndex, bool *selectionState, bool
         if (key.ctrl) { // TODO: do it by token
             if (key.left) GapStrGotoIndex(&sheet[*cellIndex].gapStr, 0);
             if (key.right) GapStrGotoIndex(&sheet[*cellIndex].gapStr, strlen(gapStrToStr(sheet[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
-            Unselect(selection);
+            Deselect(selection);
         } else if (!key.ctrl) {
-            if (key.left) if (cursorLeft(&sheet[*cellIndex].gapStr)) Unselect(selection);
-            if (key.right) if (cursorRight(&sheet[*cellIndex].gapStr)) Unselect(selection);
+            if (key.left) if (cursorLeft(&sheet[*cellIndex].gapStr)) Deselect(selection);
+            if (key.right) if (cursorRight(&sheet[*cellIndex].gapStr)) Deselect(selection);
         }
         if (IsKeyPressed(KEY_BACKSPACE)) {
             deleteChar(&sheet[*cellIndex].gapStr);

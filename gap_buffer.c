@@ -87,13 +87,13 @@ void selectChar(Selection *selection, GapBuffer *gapStr, bool dir)
     }
     if (dir == DIR_LEFT) {
         if (!cursorLeft(gapStr)) return;
-        if (gapStr->cStart <= selection->start) {
+        if (gapStr->cStart <= selection->start && gapStr->cStart < selection->start) {
             selection->start--;
         } else selection->end--;
     }
     if (dir == DIR_RIGHT) {
         if (!cursorRight(gapStr)) return;
-        if (gapStr->cStart >= selection->start) {
+        if (gapStr->cStart >= selection->start && gapStr->cStart > selection->end) {
             selection->end++;
         } else selection->start++;
     }
@@ -101,7 +101,7 @@ void selectChar(Selection *selection, GapBuffer *gapStr, bool dir)
     // printf("selection: %lld, cStart: %lld\n", selection->start, gapStr->cStart);
 }
 
-void Unselect(Selection *selection) {
+void Deselect(Selection *selection) {
     selection->exists = false;
     // Do I need to adjust the start/end?
 }
