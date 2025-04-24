@@ -271,11 +271,14 @@ void DrawTextHighlight(Cell *sheet, size_t cellIndex, Selection selection, Font 
 {
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
-    size_t diff = abs((int)selection.start - (int)sheet[cellIndex].gapStr.cStart);
-    float span = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, diff), GVARS.fontSize, 1).x;
-    // float offset = MeasureTextEx(font, sheet[cellIndex].gapStr.str, GVARS.fontSize, 1).x;
-    pos.x += (GVARS.cellWidth / 2) - (span / 2);
-    DrawRectangleRec((Rectangle){pos.x, pos.y, span, GVARS.cellHeight}, COLOR_HIGHLIGHT);
+    size_t selectionLen = selection.end - selection.start;
+    float cellTextSpan = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH), GVARS.fontSize, 1).x;
+    char *selectedText = gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH) + selection.start;
+    selectedText[selectionLen] = 0;
+    float selectionSpan = MeasureTextEx(font, selectedText, GVARS.fontSize, 1).x;
+    float offset = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, selection.start), GVARS.fontSize, 1).x;
+    pos.x += (GVARS.cellWidth / 2) - (cellTextSpan / 2) + offset;
+    DrawRectangleRec((Rectangle){pos.x, pos.y, selectionSpan, GVARS.cellHeight}, COLOR_HIGHLIGHT);
 }
 
 // Expects format: "mm:ss"
@@ -563,9 +566,10 @@ void CellInputHandler(Cell *sheet, size_t *cellIndex, bool *selectionState, bool
         if (key.ctrl) { // TODO: do it by token
             if (key.left) GapStrGotoIndex(&sheet[*cellIndex].gapStr, 0);
             if (key.right) GapStrGotoIndex(&sheet[*cellIndex].gapStr, strlen(gapStrToStr(sheet[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
+            Unselect(selection);
         } else if (!key.ctrl) {
-            if (key.left) cursorLeft(&sheet[*cellIndex].gapStr);
-            if (key.right) cursorRight(&sheet[*cellIndex].gapStr);
+            if (key.left) if (cursorLeft(&sheet[*cellIndex].gapStr)) Unselect(selection);
+            if (key.right) if (cursorRight(&sheet[*cellIndex].gapStr)) Unselect(selection);
         }
         if (IsKeyPressed(KEY_BACKSPACE)) {
             deleteChar(&sheet[*cellIndex].gapStr);

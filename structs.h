@@ -48,6 +48,7 @@ typedef struct GapBuffer {
 
 typedef struct Selection {
     size_t start;
+    size_t end;
     bool exists;
 } Selection;
 
