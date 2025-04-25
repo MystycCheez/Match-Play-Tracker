@@ -227,7 +227,8 @@ void DrawCursor(Cell *sheet, size_t cellIndex, Font font)
     float span = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH), GVARS.fontSize, 1).x;
     float offset = MeasureTextEx(font, sheet[cellIndex].gapStr.str, GVARS.fontSize, 1).x;
     pos.x += (GVARS.cellWidth / 2) - (span / 2) + offset + 1;
-    DrawLineEx(pos, (Vector2){pos.x, pos.y + GVARS.cellHeight}, 1.0, RED);
+    pos.y += 2;
+    DrawLineEx(pos, (Vector2){pos.x, pos.y + GVARS.cellHeight - 6}, 1.0, LIGHTGRAY);
 }
 
 void DrawTextCentered(Font font, Vector2 pos, float fontSize, float spacing, Cell cell)
@@ -267,17 +268,17 @@ void DrawTextAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell
     }
 }
 
-void DrawTextHighlight(Cell *sheet, size_t cellIndex, Selection selection, Font font)
+void DrawTextHighlight(Cell *sheet, size_t cellIndex, Font font)
 {
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
-    size_t selectionLen = selection.end - selection.start;
-    char *selectedText = gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH) + selection.start;
+    size_t selectionLen = GVARS.selection.end - GVARS.selection.start;
+    char *selectedText = gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH) + GVARS.selection.start;
     selectedText[selectionLen] = 0;
     float selectionSpan = MeasureTextEx(font, selectedText, GVARS.fontSize, 1).x;
     
     float cellTextSpan = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH), GVARS.fontSize, 1).x;
-    float offset = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, selection.start), GVARS.fontSize, 1).x;
+    float offset = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, GVARS.selection.start), GVARS.fontSize, 1).x;
 
     pos.x += (GVARS.cellWidth / 2) - (cellTextSpan / 2) + offset;
     DrawRectangleRec((Rectangle){pos.x, pos.y, selectionSpan + 2, GVARS.cellHeight}, COLOR_HIGHLIGHT);
@@ -516,19 +517,23 @@ void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mous
     }
 }
 
-void MouseSheetHandler(CollisionMap Collision, Vector2 mousePos, Cell *sheet, size_t *cellIndex, bool *selectionState)
+void MouseSheetHandler(CollisionMap Collision, Vector2 mousePos, Cell *sheet, size_t *cellIndex)
 {
     if (Collision.sheet) {
-        *cellIndex = xyToIndex(mousePos);
-        *selectionState = sheet[*cellIndex].selectable;
-        cellIndex = *selectionState ? cellIndex : 0;
+        if (xyToIndex(mousePos) == *cellIndex) {
+        GVARS.scope = SCOPE_TEXT;    
+        } else {
+            *cellIndex = xyToIndex(mousePos);
+            GVARS.scope = sheet[*cellIndex].selectable ? SCOPE_CELL : SCOPE_NONE; 
+            cellIndex = GVARS.scope > SCOPE_NONE ? cellIndex : 0; 
+        }
     } else {
-        *selectionState = 0;
+        GVARS.scope = SCOPE_NONE; 
         cellIndex = 0;
     }
 }
 
-void MouseHandler(Cell *sheet, size_t *cellIndex, bool *selectionState)
+void MouseHandler(Cell *sheet, size_t *cellIndex)
 {
     Vector2 mousePos = GetMousePosition();
     Vector2 windowPos = GetWindowPosition();
@@ -548,14 +553,13 @@ void MouseHandler(Cell *sheet, size_t *cellIndex, bool *selectionState)
 
     MouseTitleBarHandler(Collision, Mouse, mousePos, windowPos);
     if (Mouse.pressed) {
-        MouseSheetHandler(Collision, mousePos, sheet, cellIndex, selectionState);
+        MouseSheetHandler(Collision, mousePos, sheet, cellIndex);
     }
 }
 
-void CellInputHandler(Cell *sheet, size_t *cellIndex, bool *selectionState, bool *textChanged, KeyMap key, Selection *selection)
+void CellInputHandler(Cell *sheet, size_t *cellIndex, bool *textChanged, KeyMap key)
 {
     int key_char = GetCharPressed();
-    bool tmpSelectState = *selectionState;
 
     // Check if more characters have been pressed on the same frame
     while (key_char > 0) {
@@ -566,24 +570,40 @@ void CellInputHandler(Cell *sheet, size_t *cellIndex, bool *selectionState, bool
     }
     if (!key.shift) {
         if (key.ctrl) { // TODO: do it by token
-            if (key.left) GapStrGotoIndex(&sheet[*cellIndex].gapStr, 0);
-            if (key.right) GapStrGotoIndex(&sheet[*cellIndex].gapStr, strlen(gapStrToStr(sheet[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
-            Deselect(selection);
+            if (key.left) {
+                GapStrGotoIndex(&sheet[*cellIndex].gapStr, 0);
+                Deselect();
+                return;
+            }
+            if (key.right) {
+                GapStrGotoIndex(&sheet[*cellIndex].gapStr, strlen(gapStrToStr(sheet[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
+                Deselect();
+                return;
+            }
         } else if (!key.ctrl) {
-            if (key.left) if (cursorLeft(&sheet[*cellIndex].gapStr)) Deselect(selection);
-            if (key.right) if (cursorRight(&sheet[*cellIndex].gapStr)) Deselect(selection);
+            if (key.left) {
+                if (cursorLeft(&sheet[*cellIndex].gapStr)) Deselect();
+                Deselect();
+                return;
+            }
+            if (key.right) {
+                if (cursorRight(&sheet[*cellIndex].gapStr)) Deselect();
+                Deselect();
+                return;
+            }
         }
         if (IsKeyPressed(KEY_BACKSPACE)) {
             deleteChar(&sheet[*cellIndex].gapStr);
             *textChanged = true;
+            Deselect();
         }
     } else if (key.shift) {
         if (key.ctrl) {
             // if (key.left) selectLeftToken();
             // if (key.right) selectRightToken();
         } else if (!key.ctrl) {
-            if (key.left) selectChar(selection, &sheet[*cellIndex].gapStr, DIR_LEFT);
-            if (key.right) selectChar(selection, &sheet[*cellIndex].gapStr, DIR_RIGHT);
+            if (key.left) selectChar(&sheet[*cellIndex].gapStr, DIR_LEFT);
+            if (key.right) selectChar(&sheet[*cellIndex].gapStr, DIR_RIGHT);
         }
     }
     if (IsKeyPressed(KEY_ENTER)) {
@@ -593,25 +613,22 @@ void CellInputHandler(Cell *sheet, size_t *cellIndex, bool *selectionState, bool
                 OverwriteStr(&sheet[*cellIndex].gapStr, filteredText, CELL_TEXT_LENGTH);
             if (*cellIndex > CELL_COUNT - 6) {
                 *cellIndex = 0;
-                tmpSelectState = false;
             } else *cellIndex = *cellIndex + 3;
         } else {
             *cellIndex = 0;
-            tmpSelectState = false;
         }
         if (*textChanged == true)
             UpdateScores(sheet);
     }
-    *selectionState = tmpSelectState;
 }
 
-void KeyPressHandler(KeyMap key, size_t *cellIndex, bool *selectionState)
+void KeyPressHandler(KeyMap key, size_t *cellIndex)
 {
     // TODO: escape should have multiple purposes
     // The case here is one, but there are more
     // If text is selected, escape should deselect // TODO: Text Selection
     if (key.escape) {
-        *selectionState = false;
+        GVARS.scope = max(0, (int)GVARS.scope - 1);
         *cellIndex = 0;
     }
     if (key.ctrl) {
@@ -622,7 +639,7 @@ void KeyPressHandler(KeyMap key, size_t *cellIndex, bool *selectionState)
     // TODO: shift selection
 }
 
-void InputHandler(Cell *sheet, size_t *cellIndex, bool *selectionState, bool *textChanged, Selection *selection)
+void InputHandler(Cell *sheet, size_t *cellIndex, bool *textChanged)
 {
     KeyMap key = {false};
 
@@ -633,7 +650,9 @@ void InputHandler(Cell *sheet, size_t *cellIndex, bool *selectionState, bool *te
     key.right = IsKeyPressed(KEY_RIGHT);
     key.escape = IsKeyPressed(KEY_ESCAPE);
 
-    MouseHandler(sheet, cellIndex, selectionState);
+    MouseHandler(sheet, cellIndex);
 
-    if (*selectionState) CellInputHandler(sheet, cellIndex, selectionState, textChanged, key, selection);
+    if (GVARS.scope == SCOPE_TEXT) {
+        CellInputHandler(sheet, cellIndex, textChanged, key);
+    } else GVARS.selection.exists = false;
 }

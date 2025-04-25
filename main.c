@@ -12,6 +12,7 @@ int main()
     GVARS.cellWidth = DEFAULT_CELL_WIDTH;
     GVARS.fontSize = DEFAULT_FONT_SIZE;
     GVARS.shouldExit = false;
+    GVARS.scope = SCOPE_NONE;
     loadSpecialText();
     
     SetConfigFlags(FLAG_WINDOW_UNDECORATED);
@@ -37,10 +38,7 @@ int main()
     int cursorTimer = 0;
 
     size_t selectedCellIndex = 0;
-    bool selectionState = false;
     bool textChanged = false;
-
-    Selection selection = {0};
 
     Line borders[COLUMNS + ROWS] = {0};
     setBorderPositions(borders);
@@ -55,7 +53,7 @@ int main()
     
     while (!GVARS.shouldExit && !WindowShouldClose())
     {
-        InputHandler(sheet, &selectedCellIndex, &selectionState, &textChanged, &selection);
+        InputHandler(sheet, &selectedCellIndex, &textChanged);
         
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
@@ -76,18 +74,21 @@ int main()
         for (size_t i = 0; i < COLUMNS + ROWS; i++) 
             DrawLine(borders[i].x1, borders[i].y1, borders[i].x2, borders[i].y2, BORDER_COLOR);
         // Draw text highlighting
-        if (selectionState && selection.exists) {
-            DrawTextHighlight(sheet, selectedCellIndex, selection, font);
+        if (GVARS.scope == SCOPE_TEXT && GVARS.selection.exists) {
+            DrawTextHighlight(sheet, selectedCellIndex, font);
         }
         // Draw Text :)
         for (size_t i = 0; i < CELL_COUNT; i++) 
             DrawTextAligned(font, TextPos, GVARS.fontSize, 1, sheet[i], i);
 
-        if (selectionState) {
+        if (GVARS.scope >= SCOPE_CELL) {
+            DrawCellBorders(selectedCellIndex);
+        }
+
+        if (GVARS.scope == SCOPE_TEXT) {
             if (cursorTimer % RefreshRate < RefreshRate / 2) {
                 DrawCursor(sheet, selectedCellIndex, font);
             }
-            DrawCellBorders(selectedCellIndex);
         }
         
         EndDrawing();

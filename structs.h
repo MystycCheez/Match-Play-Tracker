@@ -90,6 +90,8 @@ typedef struct Globals {
     Specials specials;
     Button *buttons;
     bool shouldExit;
+    Selection selection;
+    Scope_Level scope;
 } Globals;
 
 typedef struct Node {

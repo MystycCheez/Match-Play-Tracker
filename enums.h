@@ -40,3 +40,9 @@ typedef enum {
     LEVELS_GE = 0,
     LEVELS_PD = 1,
 } Game_Levels;
+
+typedef enum {
+    SCOPE_NONE = 0,
+    SCOPE_CELL = 1,
+    SCOPE_TEXT = 2,
+} Scope_Level;

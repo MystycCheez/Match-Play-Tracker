@@ -78,31 +78,37 @@ bool cursorRight(GapBuffer *gapStr)
     return true;
 }
 
-void selectChar(Selection *selection, GapBuffer *gapStr, bool dir)
+void selectChar(GapBuffer *gapStr, bool dir)
 {
-    if (!selection->exists) {
-        selection->start = gapStr->cStart;
-        selection->end = gapStr->cStart;
-        selection->exists = true;
+    if (!GVARS.selection.exists) {
+        GVARS.selection.start = gapStr->cStart;
+        GVARS.selection.end = gapStr->cStart;
+        GVARS.selection.exists = true;
     }
     if (dir == DIR_LEFT) {
-        if (!cursorLeft(gapStr)) return;
-        if (gapStr->cStart <= selection->start && gapStr->cStart < selection->start) {
-            selection->start--;
-        } else selection->end--;
+        if (!cursorLeft(gapStr)) {
+            if (GVARS.selection.start == GVARS.selection.end) {GVARS.selection.exists = false;}
+            return;
+        }
+        if (gapStr->cStart <= GVARS.selection.start && gapStr->cStart < GVARS.selection.start) {
+            GVARS.selection.start--;
+        } else GVARS.selection.end--;
     }
     if (dir == DIR_RIGHT) {
-        if (!cursorRight(gapStr)) return;
-        if (gapStr->cStart >= selection->start && gapStr->cStart > selection->end) {
-            selection->end++;
-        } else selection->start++;
+        if (!cursorRight(gapStr)) {
+            if (GVARS.selection.start == GVARS.selection.end) {GVARS.selection.exists = false;}
+            return;
+        }
+        if (gapStr->cStart >= GVARS.selection.start && gapStr->cStart > GVARS.selection.end) {
+            GVARS.selection.end++;
+        } else GVARS.selection.start++;
     }
-    if (selection->start == selection->end) selection->exists = false;
-    // printf("selection: %lld, cStart: %lld\n", selection->start, gapStr->cStart);
+    if (GVARS.selection.start == GVARS.selection.end) GVARS.selection.exists = false;
+    // printf("start: %lld, end: %lld\n", GVARS.selection.start, GVARS.selection.end);
 }
 
-void Deselect(Selection *selection) {
-    selection->exists = false;
+void Deselect() {
+    GVARS.selection.exists = false;
     // Do I need to adjust the start/end?
 }
 
