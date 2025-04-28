@@ -12,7 +12,7 @@ int main()
     GVARS.cellWidth = DEFAULT_CELL_WIDTH;
     GVARS.fontSize = DEFAULT_FONT_SIZE;
     GVARS.shouldExit = false;
-    GVARS.scope = SCOPE_NONE;
+    GVARS.scope = SCOPE_SHEET;
     loadSpecialText();
     
     SetConfigFlags(FLAG_WINDOW_UNDECORATED);
@@ -74,18 +74,18 @@ int main()
         for (size_t i = 0; i < COLUMNS + ROWS; i++) 
             DrawLine(borders[i].x1, borders[i].y1, borders[i].x2, borders[i].y2, BORDER_COLOR);
         // Draw text highlighting
-        if (GVARS.scope == SCOPE_TEXT && GVARS.selection.exists) {
+        if (GVARS.scope == SCOPE_CELL && GVARS.selection.exists) {
             DrawTextHighlight(sheet, selectedCellIndex, font);
         }
         // Draw Text :)
         for (size_t i = 0; i < CELL_COUNT; i++) 
             DrawTextAligned(font, TextPos, GVARS.fontSize, 1, sheet[i], i);
 
-        if (GVARS.scope >= SCOPE_CELL) {
+        if (GVARS.scope >= SCOPE_SHEET) {
             DrawCellBorders(selectedCellIndex);
         }
 
-        if (GVARS.scope == SCOPE_TEXT) {
+        if (GVARS.scope == SCOPE_CELL) {
             if (cursorTimer % RefreshRate < RefreshRate / 2) {
                 DrawCursor(sheet, selectedCellIndex, font);
             }

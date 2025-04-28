@@ -42,7 +42,7 @@ typedef enum {
 } Game_Levels;
 
 typedef enum {
-    SCOPE_NONE = 0,
-    SCOPE_CELL = 1,
-    SCOPE_TEXT = 2,
+    SCOPE_OVERVIEW = 0,
+    SCOPE_SHEET = 1,
+    SCOPE_CELL = 2,
 } Scope_Level;

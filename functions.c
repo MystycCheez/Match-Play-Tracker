@@ -432,7 +432,7 @@ Int2 CompareTimes(size_t row, Cell *cells)
     }
     // TODO: player gets WR as time and is highlighted GOLD (unlikely, but would like this feature) - UNTIEDS too
     // fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
-    fprintf(stderr, "Shouldn't have reached here!");
+    fprintf(stderr, "Shouldn't have reached here!\n");
     exit(-1);
 }
 
@@ -440,8 +440,8 @@ Int2 CompareTimes(size_t row, Cell *cells)
 void UpdateScores(Cell *cells)
 {
     size_t tieCounter = 0;
-    OverwriteStr(&cells[CELL_COUNT - 2].gapStr, "0", CELL_TEXT_LENGTH);
-    OverwriteStr(&cells[CELL_COUNT - 1].gapStr, "0", CELL_TEXT_LENGTH);
+    OverwriteStr(&cells[CELL_COUNT - 2].gapStr, "0", 0, CELL_TEXT_LENGTH);
+    OverwriteStr(&cells[CELL_COUNT - 1].gapStr, "0", 0, CELL_TEXT_LENGTH);
     Int2 *wins = malloc(sizeof(Int2) * LEVEL_COUNT);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
         wins[i] = CompareTimes(i + 1, cells);
@@ -449,14 +449,14 @@ void UpdateScores(Cell *cells)
             tieCounter++;
         }
         if (wins[i].a > 0 && tieCounter > 0) {
-            OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(cells[CELL_COUNT - 2].gapStr.str) + tieCounter), CELL_TEXT_LENGTH);
+            OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(cells[CELL_COUNT - 2].gapStr.str) + tieCounter), 0, CELL_TEXT_LENGTH);
             tieCounter = 0;
         } else if (wins[i].b > 0 && tieCounter > 0) {
-            OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(cells[CELL_COUNT - 1].gapStr.str) + tieCounter), CELL_TEXT_LENGTH);
+            OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(cells[CELL_COUNT - 1].gapStr.str) + tieCounter), 0, CELL_TEXT_LENGTH);
             tieCounter = 0;
         } else if (wins[i].a > 0 || wins[i].b > 0){
-            OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(cells[CELL_COUNT - 2].gapStr.str)), CELL_TEXT_LENGTH);
-            OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(cells[CELL_COUNT - 1].gapStr.str)), CELL_TEXT_LENGTH);
+            OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(cells[CELL_COUNT - 2].gapStr.str)), 0, CELL_TEXT_LENGTH);
+            OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(cells[CELL_COUNT - 1].gapStr.str)), 0, CELL_TEXT_LENGTH);
         }
     }
 }
@@ -469,6 +469,10 @@ void ExitHandler()
 
 void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mousePos, Vector2 windowPos)
 {
+    // if (!Collision.titleBar) return;
+    // if (!Mouse.down) return;
+    // GVARS.scope = SCOPE_OVERVIEW;
+
     static bool buttonLeft = false;
     static bool windowDrag = false;
     static CollisionMap Drag = {false};
@@ -517,18 +521,19 @@ void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mous
     }
 }
 
-void MouseSheetHandler(CollisionMap Collision, Vector2 mousePos, Cell *sheet, size_t *cellIndex)
+void MouseSheetHandler(CollisionMap Collision, MouseState Mouse, Vector2 mousePos, Cell *sheet, size_t *cellIndex)
 {
+    if (!Mouse.pressed) return;
     if (Collision.sheet) {
         if (xyToIndex(mousePos) == *cellIndex) {
-        GVARS.scope = SCOPE_TEXT;    
+            GVARS.scope = SCOPE_CELL;
         } else {
             *cellIndex = xyToIndex(mousePos);
-            GVARS.scope = sheet[*cellIndex].selectable ? SCOPE_CELL : SCOPE_NONE; 
-            cellIndex = GVARS.scope > SCOPE_NONE ? cellIndex : 0; 
+            GVARS.scope = sheet[*cellIndex].selectable ? SCOPE_SHEET : SCOPE_OVERVIEW; 
+            cellIndex = GVARS.scope > SCOPE_OVERVIEW ? cellIndex : 0; 
         }
     } else {
-        GVARS.scope = SCOPE_NONE; 
+        GVARS.scope = SCOPE_OVERVIEW; 
         cellIndex = 0;
     }
 }
@@ -552,23 +557,68 @@ void MouseHandler(Cell *sheet, size_t *cellIndex)
     };
 
     MouseTitleBarHandler(Collision, Mouse, mousePos, windowPos);
-    if (Mouse.pressed) {
-        MouseSheetHandler(Collision, mousePos, sheet, cellIndex);
+    MouseSheetHandler(Collision, Mouse, mousePos, sheet, cellIndex);
+}
+
+void EnterNavigationHandler(size_t *cellIndex)
+{
+    if (*cellIndex > CELL_COUNT - 5) {
+        *cellIndex = 0;
+    } else {
+        if (*cellIndex % 3 == 2) {
+            *cellIndex = *cellIndex + 2;
+        } else if (*cellIndex % 3 == 1) {
+            *cellIndex = *cellIndex + 1;
+        }
     }
 }
 
-void CellInputHandler(Cell *sheet, size_t *cellIndex, bool *textChanged, KeyMap key)
+void CellOverwriteHandler(Cell *sheet, size_t *cellIndex, bool *textChanged)
 {
+    if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3) {
+        char *filteredText = filterText(sheet[*cellIndex].gapStr.str);
+        if (*textChanged == true) {
+            OverwriteStr(&sheet[*cellIndex].gapStr, filteredText, 0, CELL_TEXT_LENGTH);
+        }
+        EnterNavigationHandler(cellIndex);
+    } else {
+        *cellIndex = 0;
+    }
+    if (*textChanged == true)
+        UpdateScores(sheet);
+}
+
+void CellInputHandler(Cell *sheet, size_t *cellIndex, bool *textChanged)
+{
+    if (GVARS.scope == SCOPE_OVERVIEW) return;
+    if (*cellIndex == 0) return;
     int key_char = GetCharPressed();
 
-    // Check if more characters have been pressed on the same frame
     while (key_char > 0) {
-        if ((key_char >= 32) && (key_char <= 125))
-            placeChar(&sheet[*cellIndex].gapStr, (char)key_char);
-        key_char = GetCharPressed(); // Check next character in the queue
+        if ((key_char >= 32) && (key_char <= 125)) {
+            if (GVARS.scope == SCOPE_CELL) {
+                if (GVARS.selection.exists) {
+                    replaceChar(&sheet[*cellIndex].gapStr, (char)key_char);
+                    Deselect();
+                } else placeChar(&sheet[*cellIndex].gapStr, (char)key_char);
+            } else {
+                Deselect();
+                GVARS.scope = SCOPE_CELL;
+                placeChar(&sheet[*cellIndex].gapStr, (char)key_char);
+            }
+        }
+        key_char = GetCharPressed();
         *textChanged = true;
     }
-    if (!key.shift) {
+}
+
+void CellKeyPressHandler(Cell *sheet, size_t *cellIndex, bool *textChanged, KeyMap key)
+{
+    if (GVARS.scope != SCOPE_CELL) return;
+    if (key.enter) {
+        CellOverwriteHandler(sheet, cellIndex, textChanged);
+    }
+    if (!key.shift) { // TODO: Clean this up/ make it more concise
         if (key.ctrl) { // TODO: do it by token
             if (key.left) {
                 GapStrGotoIndex(&sheet[*cellIndex].gapStr, 0);
@@ -606,37 +656,51 @@ void CellInputHandler(Cell *sheet, size_t *cellIndex, bool *textChanged, KeyMap 
             if (key.right) selectChar(&sheet[*cellIndex].gapStr, DIR_RIGHT);
         }
     }
-    if (IsKeyPressed(KEY_ENTER)) {
-        if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3) {
-            char *filteredText = filterText(sheet[*cellIndex].gapStr.str);
-            if (*textChanged == true)
-                OverwriteStr(&sheet[*cellIndex].gapStr, filteredText, CELL_TEXT_LENGTH);
-            if (*cellIndex > CELL_COUNT - 6) {
-                *cellIndex = 0;
-            } else *cellIndex = *cellIndex + 3;
-        } else {
-            *cellIndex = 0;
-        }
-        if (*textChanged == true)
-            UpdateScores(sheet);
-    }
 }
 
-void KeyPressHandler(KeyMap key, size_t *cellIndex)
+void GenericKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex, bool *textChanged)
 {
     // TODO: escape should have multiple purposes
     // The case here is one, but there are more
     // If text is selected, escape should deselect // TODO: Text Selection
     if (key.escape) {
         GVARS.scope = max(0, (int)GVARS.scope - 1);
-        *cellIndex = 0;
+        if (GVARS.scope == SCOPE_OVERVIEW) *cellIndex = 0;
     }
     if (key.ctrl) {
         // TODO: undo/redo
         // TODO: save/load
         // TODO: select all
     }
-    // TODO: shift selection
+}
+
+void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex, bool *textChanged)
+{
+    if (GVARS.scope != SCOPE_SHEET) return;
+    if (*cellIndex == 0) return;
+    if (key.enter) {
+        EnterNavigationHandler(cellIndex);
+    }
+    if (key.left) {
+        if (*cellIndex % 3 == 2) {
+            *cellIndex = *cellIndex - 1;
+        }
+    }
+    if (key.right) {
+        if (*cellIndex % 3 == 1) {
+            *cellIndex = *cellIndex + 1;
+        }
+    }
+    if (key.down) {
+        if (*cellIndex > CELL_COUNT - 6) {
+            return;
+        }
+        *cellIndex = *cellIndex + 3;
+    }
+    if (key.up) {
+        if (*cellIndex < 3) return;
+        *cellIndex = *cellIndex - 3;
+    }
 }
 
 void InputHandler(Cell *sheet, size_t *cellIndex, bool *textChanged)
@@ -646,13 +710,17 @@ void InputHandler(Cell *sheet, size_t *cellIndex, bool *textChanged)
     key.ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
     key.shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
 
+    key.escape = IsKeyPressed(KEY_ESCAPE);
+    key.enter = IsKeyPressed(KEY_ENTER);
+
     key.left = IsKeyPressed(KEY_LEFT);
     key.right = IsKeyPressed(KEY_RIGHT);
-    key.escape = IsKeyPressed(KEY_ESCAPE);
+    key.up = IsKeyPressed(KEY_UP);
+    key.down = IsKeyPressed(KEY_DOWN);
 
     MouseHandler(sheet, cellIndex);
-
-    if (GVARS.scope == SCOPE_TEXT) {
-        CellInputHandler(sheet, cellIndex, textChanged, key);
-    } else GVARS.selection.exists = false;
+    CellInputHandler(sheet, cellIndex, textChanged);
+    CellKeyPressHandler(sheet, cellIndex, textChanged, key);
+    SheetKeyPressHandler(sheet, key, cellIndex, textChanged);
+    GenericKeyPressHandler(sheet, key, cellIndex, textChanged);
 }

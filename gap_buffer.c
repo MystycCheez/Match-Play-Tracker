@@ -15,6 +15,31 @@ char* i_toStr(int num)
     return str;
 }
 
+size_t rawIndexToGapIndex(size_t index, GapBuffer gapStr)
+{
+    size_t a = 0;
+    size_t b = 0;
+    while (gapStr.str[a] != 0) {
+        if (a == index) return a;
+        a++;
+    }
+    while (gapStr.str[gapStr.cEnd - 1 + b] != 0) {
+        if (b == index) return a + b;
+        b++;
+    }
+    fprintf(stderr, "ERROR: Provided index longer than gapStrLen!\n");
+    exit(1);
+}
+
+size_t gapStrLen(GapBuffer gapStr)
+{
+    size_t a = 0;
+    size_t b = 0;
+    while (gapStr.str[a++] != 0) {}
+    while (gapStr.str[gapStr.cEnd - 1 + b++] != 0) {}
+    return a + b;
+}
+
 void placeChar(GapBuffer *gapStr, char c)
 {
     if (gapStr->cStart == gapStr->cEnd) return;
@@ -31,11 +56,11 @@ void placeString(GapBuffer *gapStr, const char *str)
     }
 }
 
-void OverwriteStr(GapBuffer *gapStr, const char *str, size_t len)
+void OverwriteStr(GapBuffer *gapStr, const char *str, size_t start, size_t len)
 {
     if (gapStr->str[0] == 0) return;
-    memset(gapStr->str, 0, len + 1);
-    gapStr->cStart = 0;
+    memset(gapStr->str + start, 0, len + 1);
+    gapStr->cStart = start;
     gapStr->cEnd = len - 1;
     placeString(gapStr, str);
     #ifdef GAP_DEBUG
@@ -151,6 +176,16 @@ char* gapStrToStr(GapBuffer gapStr, size_t maxLen)
         strncpy(str + lenL, gapStr.str + gapStr.cEnd + 1, lenR);
     }
     return str;
+}
+
+void replaceChar(GapBuffer *gapStr, char c)
+{
+    char* tmp = gapStrToStr(*gapStr, CELL_TEXT_LENGTH);
+    char* tmp2 = malloc(sizeof(char) * CELL_TEXT_LENGTH); 
+    tmp2 = strcpy(tmp2, &tmp[GVARS.selection.start]);
+    free(tmp);
+    tmp2[0] = c;
+    OverwriteStr(gapStr, tmp2, 0, CELL_TEXT_LENGTH);
 }
 
 GapBuffer initGapStr(size_t len)
