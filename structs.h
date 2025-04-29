@@ -37,6 +37,8 @@ typedef struct KeyMap {
     bool down;
     bool enter;
     bool escape;
+    bool delete;
+    bool backspace;
 } KeyMap;
 
 // 3 components: str, cStart, cEnd
@@ -46,6 +48,7 @@ typedef struct GapBuffer {
     size_t cEnd;
 } GapBuffer;
 
+// start, end, exists
 typedef struct Selection {
     size_t start;
     size_t end;

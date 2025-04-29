@@ -583,11 +583,7 @@ void CellOverwriteHandler(Cell *sheet, size_t *cellIndex)
     if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3) {
         char *filteredText = filterText(sheet[*cellIndex].gapStr.str);
         OverwriteStr(&sheet[*cellIndex].gapStr, filteredText, 0, CELL_TEXT_LENGTH);
-        EnterNavigationHandler(sheet, cellIndex);
-    } else {
-        *cellIndex = 0;
     }
-    UpdateScores(sheet);
 }
 
 void CellInputHandler(Cell *sheet, size_t *cellIndex)
@@ -617,8 +613,23 @@ void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
 {
     if (GVARS.scope != SCOPE_SHEET) return;
     if (*cellIndex == 0) return;
+    if (key.escape) {
+        GVARS.scope = SCOPE_OVERVIEW;
+        return;
+    }
     if (key.enter) {
         CellOverwriteHandler(sheet, cellIndex);
+        EnterNavigationHandler(sheet, cellIndex);
+        UpdateScores(sheet);
+        if (*cellIndex == 0) GVARS.scope = SCOPE_OVERVIEW;
+        return;
+    }
+    if (key.delete) {
+        OverwriteStr(&sheet[*cellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
+    }
+    if (key.backspace) {
+        OverwriteStr(&sheet[*cellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
+        GVARS.scope = SCOPE_CELL;
         return;
     }
     if (key.left) {
@@ -646,9 +657,23 @@ void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
 void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
 {
     if (GVARS.scope != SCOPE_CELL) return;
+    if (key.escape) {
+        if (GVARS.selection.exists) {
+            Deselect();
+        } else {
+            GVARS.scope = SCOPE_SHEET;
+            OverwriteStr(&sheet[*cellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
+            // TODO: Undo action
+        }
+        return;
+    }
     if (key.enter) {
         CellOverwriteHandler(sheet, cellIndex);
-        GVARS.scope = SCOPE_SHEET;
+        EnterNavigationHandler(sheet, cellIndex);
+        UpdateScores(sheet);
+        if (*cellIndex == 0) {
+            GVARS.scope = SCOPE_OVERVIEW;
+        } else GVARS.scope = SCOPE_SHEET;
         return;
     }
     if (!key.shift) { // TODO: Clean this up/ make it more concise
@@ -690,25 +715,14 @@ void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
     }
 }
 
-void GenericKeyPressHandler(KeyMap key, size_t *cellIndex)
-{
-    // TODO: escape should have multiple purposes
-    // The case here is one, but there are more
-    // If text is selected, escape should deselect // TODO: Text Selection
-    if (key.escape) {
-        if (!GVARS.selection.exists) {
-            GVARS.scope = max(0, (int)GVARS.scope - 1);
-            if (GVARS.scope == SCOPE_OVERVIEW) *cellIndex = 0;
-        } else {
-            Deselect();
-        }
-    }
-    if (key.ctrl) {
-        // TODO: undo/redo
-        // TODO: save/load
-        // TODO: select all
-    }
-}
+// void GenericKeyPressHandler(KeyMap key, size_t *cellIndex)
+// {
+//     if (key.ctrl) {
+//         // TODO: undo/redo
+//         // TODO: save/load
+//         // TODO: select all
+//     }
+// }
 
 void InputHandler(Cell *sheet, size_t *cellIndex)
 {
@@ -719,6 +733,8 @@ void InputHandler(Cell *sheet, size_t *cellIndex)
 
     key.escape = IsKeyPressed(KEY_ESCAPE);
     key.enter = IsKeyPressed(KEY_ENTER);
+    key.delete = IsKeyPressed(KEY_DELETE);
+    key.backspace = IsKeyPressed(KEY_BACKSPACE);
 
     key.left = IsKeyPressed(KEY_LEFT);
     key.right = IsKeyPressed(KEY_RIGHT);
@@ -729,5 +745,5 @@ void InputHandler(Cell *sheet, size_t *cellIndex)
     CellInputHandler(sheet, cellIndex);
     SheetKeyPressHandler(sheet, key, cellIndex);
     CellKeyPressHandler(sheet, key, cellIndex);
-    GenericKeyPressHandler(key, cellIndex);
+    // GenericKeyPressHandler(key, cellIndex);
 }
