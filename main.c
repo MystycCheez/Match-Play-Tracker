@@ -38,7 +38,6 @@ int main()
     int cursorTimer = 0;
 
     size_t selectedCellIndex = 0;
-    bool textChanged = false;
 
     Line borders[COLUMNS + ROWS] = {0};
     setBorderPositions(borders);
@@ -53,7 +52,7 @@ int main()
     
     while (!GVARS.shouldExit && !WindowShouldClose())
     {
-        InputHandler(sheet, &selectedCellIndex, &textChanged);
+        InputHandler(sheet, &selectedCellIndex);
         
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);

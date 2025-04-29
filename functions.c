@@ -560,36 +560,37 @@ void MouseHandler(Cell *sheet, size_t *cellIndex)
     MouseSheetHandler(Collision, Mouse, mousePos, sheet, cellIndex);
 }
 
-void EnterNavigationHandler(size_t *cellIndex)
+void EnterNavigationHandler(Cell *sheet, size_t *cellIndex)
 {
     if (*cellIndex > CELL_COUNT - 5) {
         *cellIndex = 0;
         GVARS.scope = SCOPE_OVERVIEW;
     } else {
         if (*cellIndex % 3 == 2) {
-            *cellIndex = *cellIndex + 2;
+            if (sheet[*cellIndex - 1].gapStr.str[0] == 0) {
+                *cellIndex = *cellIndex - 1;
+            } else *cellIndex = *cellIndex + 2;
         } else if (*cellIndex % 3 == 1) {
-            *cellIndex = *cellIndex + 1;
+            if (sheet[*cellIndex + 1].gapStr.str[0] == 0) {
+                *cellIndex = *cellIndex + 1;
+            } else *cellIndex = *cellIndex + 3;
         }
     }
 }
 
-void CellOverwriteHandler(Cell *sheet, size_t *cellIndex, bool *textChanged)
+void CellOverwriteHandler(Cell *sheet, size_t *cellIndex)
 {
     if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3) {
         char *filteredText = filterText(sheet[*cellIndex].gapStr.str);
-        if (*textChanged == true) {
-            OverwriteStr(&sheet[*cellIndex].gapStr, filteredText, 0, CELL_TEXT_LENGTH);
-        }
-        EnterNavigationHandler(cellIndex);
+        OverwriteStr(&sheet[*cellIndex].gapStr, filteredText, 0, CELL_TEXT_LENGTH);
+        EnterNavigationHandler(sheet, cellIndex);
     } else {
         *cellIndex = 0;
     }
-    if (*textChanged == true)
-        UpdateScores(sheet);
+    UpdateScores(sheet);
 }
 
-void CellInputHandler(Cell *sheet, size_t *cellIndex, bool *textChanged)
+void CellInputHandler(Cell *sheet, size_t *cellIndex)
 {
     if (GVARS.scope == SCOPE_OVERVIEW) return;
     if (*cellIndex == 0) return;
@@ -609,16 +610,15 @@ void CellInputHandler(Cell *sheet, size_t *cellIndex, bool *textChanged)
             }
         }
         key_char = GetCharPressed();
-        *textChanged = true;
     }
 }
 
-void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex, bool *textChanged)
+void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
 {
     if (GVARS.scope != SCOPE_SHEET) return;
     if (*cellIndex == 0) return;
     if (key.enter) {
-        CellOverwriteHandler(sheet, cellIndex, textChanged);
+        CellOverwriteHandler(sheet, cellIndex);
         return;
     }
     if (key.left) {
@@ -643,11 +643,11 @@ void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex, bool *text
     }
 }
 
-void CellKeyPressHandler(Cell *sheet, size_t *cellIndex, bool *textChanged, KeyMap key)
+void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
 {
     if (GVARS.scope != SCOPE_CELL) return;
     if (key.enter) {
-        CellOverwriteHandler(sheet, cellIndex, textChanged);
+        CellOverwriteHandler(sheet, cellIndex);
         GVARS.scope = SCOPE_SHEET;
         return;
     }
@@ -677,7 +677,6 @@ void CellKeyPressHandler(Cell *sheet, size_t *cellIndex, bool *textChanged, KeyM
         }
         if (IsKeyPressed(KEY_BACKSPACE)) {
             deleteChar(&sheet[*cellIndex].gapStr);
-            *textChanged = true;
             Deselect();
         }
     } else if (key.shift) {
@@ -691,7 +690,7 @@ void CellKeyPressHandler(Cell *sheet, size_t *cellIndex, bool *textChanged, KeyM
     }
 }
 
-void GenericKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex, bool *textChanged)
+void GenericKeyPressHandler(KeyMap key, size_t *cellIndex)
 {
     // TODO: escape should have multiple purposes
     // The case here is one, but there are more
@@ -711,7 +710,7 @@ void GenericKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex, bool *te
     }
 }
 
-void InputHandler(Cell *sheet, size_t *cellIndex, bool *textChanged)
+void InputHandler(Cell *sheet, size_t *cellIndex)
 {
     KeyMap key = {false};
 
@@ -727,8 +726,8 @@ void InputHandler(Cell *sheet, size_t *cellIndex, bool *textChanged)
     key.down = IsKeyPressed(KEY_DOWN);
 
     MouseHandler(sheet, cellIndex);
-    CellInputHandler(sheet, cellIndex, textChanged);
-    SheetKeyPressHandler(sheet, key, cellIndex, textChanged);
-    CellKeyPressHandler(sheet, cellIndex, textChanged, key);
-    GenericKeyPressHandler(sheet, key, cellIndex, textChanged);
+    CellInputHandler(sheet, cellIndex);
+    SheetKeyPressHandler(sheet, key, cellIndex);
+    CellKeyPressHandler(sheet, key, cellIndex);
+    GenericKeyPressHandler(key, cellIndex);
 }
