@@ -564,6 +564,7 @@ void EnterNavigationHandler(size_t *cellIndex)
 {
     if (*cellIndex > CELL_COUNT - 5) {
         *cellIndex = 0;
+        GVARS.scope = SCOPE_OVERVIEW;
     } else {
         if (*cellIndex % 3 == 2) {
             *cellIndex = *cellIndex + 2;
@@ -612,11 +613,43 @@ void CellInputHandler(Cell *sheet, size_t *cellIndex, bool *textChanged)
     }
 }
 
+void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex, bool *textChanged)
+{
+    if (GVARS.scope != SCOPE_SHEET) return;
+    if (*cellIndex == 0) return;
+    if (key.enter) {
+        CellOverwriteHandler(sheet, cellIndex, textChanged);
+        return;
+    }
+    if (key.left) {
+        if (*cellIndex % 3 == 2) {
+            *cellIndex = *cellIndex - 1;
+        }
+    }
+    if (key.right) {
+        if (*cellIndex % 3 == 1) {
+            *cellIndex = *cellIndex + 1;
+        }
+    }
+    if (key.down) {
+        if (*cellIndex > CELL_COUNT - 6) {
+            return;
+        }
+        *cellIndex = *cellIndex + 3;
+    }
+    if (key.up) {
+        if (*cellIndex < 3) return;
+        *cellIndex = *cellIndex - 3;
+    }
+}
+
 void CellKeyPressHandler(Cell *sheet, size_t *cellIndex, bool *textChanged, KeyMap key)
 {
     if (GVARS.scope != SCOPE_CELL) return;
     if (key.enter) {
         CellOverwriteHandler(sheet, cellIndex, textChanged);
+        GVARS.scope = SCOPE_SHEET;
+        return;
     }
     if (!key.shift) { // TODO: Clean this up/ make it more concise
         if (key.ctrl) { // TODO: do it by token
@@ -664,42 +697,17 @@ void GenericKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex, bool *te
     // The case here is one, but there are more
     // If text is selected, escape should deselect // TODO: Text Selection
     if (key.escape) {
-        GVARS.scope = max(0, (int)GVARS.scope - 1);
-        if (GVARS.scope == SCOPE_OVERVIEW) *cellIndex = 0;
+        if (!GVARS.selection.exists) {
+            GVARS.scope = max(0, (int)GVARS.scope - 1);
+            if (GVARS.scope == SCOPE_OVERVIEW) *cellIndex = 0;
+        } else {
+            Deselect();
+        }
     }
     if (key.ctrl) {
         // TODO: undo/redo
         // TODO: save/load
         // TODO: select all
-    }
-}
-
-void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex, bool *textChanged)
-{
-    if (GVARS.scope != SCOPE_SHEET) return;
-    if (*cellIndex == 0) return;
-    if (key.enter) {
-        EnterNavigationHandler(cellIndex);
-    }
-    if (key.left) {
-        if (*cellIndex % 3 == 2) {
-            *cellIndex = *cellIndex - 1;
-        }
-    }
-    if (key.right) {
-        if (*cellIndex % 3 == 1) {
-            *cellIndex = *cellIndex + 1;
-        }
-    }
-    if (key.down) {
-        if (*cellIndex > CELL_COUNT - 6) {
-            return;
-        }
-        *cellIndex = *cellIndex + 3;
-    }
-    if (key.up) {
-        if (*cellIndex < 3) return;
-        *cellIndex = *cellIndex - 3;
     }
 }
 
@@ -720,7 +728,7 @@ void InputHandler(Cell *sheet, size_t *cellIndex, bool *textChanged)
 
     MouseHandler(sheet, cellIndex);
     CellInputHandler(sheet, cellIndex, textChanged);
-    CellKeyPressHandler(sheet, cellIndex, textChanged, key);
     SheetKeyPressHandler(sheet, key, cellIndex, textChanged);
+    CellKeyPressHandler(sheet, cellIndex, textChanged, key);
     GenericKeyPressHandler(sheet, key, cellIndex, textChanged);
 }

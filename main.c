@@ -90,7 +90,7 @@ int main()
                 DrawCursor(sheet, selectedCellIndex, font);
             }
         }
-        
+
         EndDrawing();
         cursorTimer++;
     }
