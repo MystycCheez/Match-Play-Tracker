@@ -39,6 +39,9 @@ typedef struct KeyMap {
     bool escape;
     bool delete;
     bool backspace;
+    bool c;
+    bool x;
+    bool v;
 } KeyMap;
 
 // 3 components: str, cStart, cEnd

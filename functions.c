@@ -154,19 +154,19 @@ void initSheetText(Cell *sheet, Players players, int game)
 {
     char **levelText = loadLevelText(game);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
-        placeString(&sheet[(i * 3) + 3].gapStr, levelText[i]);
+        placeString(&sheet[(i * 3) + 3].gapStr, levelText[i], CELL_TEXT_LENGTH);
     }
     free(levelText);
     char *s1 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     char *s2 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     sprintf(s1, "%lld", players.s1);
     sprintf(s2, "%lld", players.s2);
-    placeString(&sheet[0].gapStr, "Stage");
-    placeString(&sheet[CELL_COUNT - 3].gapStr, "Points");
-    placeString(&sheet[1].gapStr, players.p1);
-    placeString(&sheet[2].gapStr, players.p2);
-    placeString(&sheet[CELL_COUNT - 2].gapStr, s1);
-    placeString(&sheet[CELL_COUNT - 1].gapStr, s2);
+    placeString(&sheet[0].gapStr, "Stage", CELL_TEXT_LENGTH);
+    placeString(&sheet[CELL_COUNT - 3].gapStr, "Points", CELL_TEXT_LENGTH);
+    placeString(&sheet[1].gapStr, players.p1, CELL_TEXT_LENGTH);
+    placeString(&sheet[2].gapStr, players.p2, CELL_TEXT_LENGTH);
+    placeString(&sheet[CELL_COUNT - 2].gapStr, s1, CELL_TEXT_LENGTH);
+    placeString(&sheet[CELL_COUNT - 1].gapStr, s2, CELL_TEXT_LENGTH);
 }
 
 Cell* initSheet(Players players, int game)
@@ -632,6 +632,11 @@ void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
         GVARS.scope = SCOPE_CELL;
         return;
     }
+    if (key.v) {
+        placeString(&sheet[*cellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
+        GVARS.scope = SCOPE_CELL;
+        return;
+    }
     if (key.left) {
         if (*cellIndex % 3 == 2) {
             *cellIndex = *cellIndex - 1;
@@ -688,6 +693,9 @@ void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
                 Deselect();
                 return;
             }
+            if (key.v) {
+                placeString(&sheet[*cellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
+            }
         } else if (!key.ctrl) {
             if (key.left) {
                 if (cursorLeft(&sheet[*cellIndex].gapStr)) Deselect();
@@ -740,6 +748,10 @@ void InputHandler(Cell *sheet, size_t *cellIndex)
     key.right = IsKeyPressed(KEY_RIGHT);
     key.up = IsKeyPressed(KEY_UP);
     key.down = IsKeyPressed(KEY_DOWN);
+
+    key.c = IsKeyPressed(KEY_C);
+    key.x = IsKeyPressed(KEY_X);
+    key.v = IsKeyPressed(KEY_V);
 
     MouseHandler(sheet, cellIndex);
     CellInputHandler(sheet, cellIndex);

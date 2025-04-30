@@ -45,26 +45,28 @@ void placeChar(GapBuffer *gapStr, char c)
     if (gapStr->cStart == gapStr->cEnd) return;
     gapStr->str[gapStr->cStart++] = c;
     #ifdef GAP_DEBUG
-    printf("%s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd);
+    printf("placeChar: %s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd);
     #endif
 }
 
-void placeString(GapBuffer *gapStr, const char *str)
+void placeString(GapBuffer *gapStr, const char *str, size_t len)
 {
-    for (size_t i = 0; i < strlen(str); i++) {
+    for (size_t i = 0; i < strlen(str) && i < len; i++) {
         placeChar(gapStr, str[i]);
     }
+    #ifdef GAP_DEBUB
+    printf("placeString: %s\n", gapStr->str);
+    #endif
 }
 
 void OverwriteStr(GapBuffer *gapStr, const char *str, size_t start, size_t len)
 {
-    if (gapStr->str[0] == 0) return;
     memset(gapStr->str + start, 0, len + 1);
     gapStr->cStart = start;
     gapStr->cEnd = len - 1;
-    placeString(gapStr, str);
+    placeString(gapStr, str, len);
     #ifdef GAP_DEBUG
-    printf("%s\n", str);
+    printf("OverwriteStr: %s\n", gapStr->str);
     #endif
 }
 
@@ -73,7 +75,7 @@ void deleteChar(GapBuffer *gapStr)
     if (gapStr->cStart == 0) return;
     gapStr->str[--gapStr->cStart] = 0;
     #ifdef GAP_DEBUG
-    printf("%s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
+    printf("deleteChar: %s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
     #endif
 }
 
@@ -85,7 +87,7 @@ bool cursorLeft(GapBuffer *gapStr)
     gapStr->cStart--;
     gapStr->cEnd--;
     #ifdef GAP_DEBUG
-    printf("%s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
+    printf("cursorLeft: %s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
     #endif
     return true;
 }
@@ -98,7 +100,7 @@ bool cursorRight(GapBuffer *gapStr)
     gapStr->cEnd++;
     gapStr->cStart++;
     #ifdef GAP_DEBUG
-    printf("%s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
+    printf("cursorRight: %s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
     #endif
     return true;
 }
