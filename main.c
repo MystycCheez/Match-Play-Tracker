@@ -11,8 +11,8 @@ int main()
     GVARS.cellHeight = DEFAULT_CELL_HEIGHT;
     GVARS.cellWidth = DEFAULT_CELL_WIDTH;
     GVARS.fontSize = DEFAULT_FONT_SIZE;
-    GVARS.shouldExit = false;
     GVARS.scope = SCOPE_SHEET;
+    GVARS.shouldExit = false;
     loadSpecialText();
     
     SetConfigFlags(FLAG_WINDOW_UNDECORATED);

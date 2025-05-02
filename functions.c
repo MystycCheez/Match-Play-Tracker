@@ -613,6 +613,7 @@ void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
 {
     if (GVARS.scope != SCOPE_SHEET) return;
     if (*cellIndex == 0) return;
+    CellInputHandler(sheet, cellIndex);
     if (key.escape) {
         GVARS.scope = SCOPE_OVERVIEW;
         return;
@@ -662,12 +663,12 @@ void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
 void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
 {
     if (GVARS.scope != SCOPE_CELL) return;
+    CellInputHandler(sheet, cellIndex);
     if (key.escape) {
         if (GVARS.selection.exists) {
             Deselect();
         } else {
             GVARS.scope = SCOPE_SHEET;
-            OverwriteStr(&sheet[*cellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
             // TODO: Undo action
         }
         return;
@@ -691,6 +692,16 @@ void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
             if (key.right) {
                 GapStrGotoIndex(&sheet[*cellIndex].gapStr, strlen(gapStrToStr(sheet[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
                 Deselect();
+                return;
+            }
+            if (key.c) {
+                char *copy = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+                char *tmp = gapStrToStr(sheet[*cellIndex].gapStr, CELL_TEXT_LENGTH); 
+                memset(copy, 0, CELL_TEXT_LENGTH);
+                strncpy(copy, tmp + GVARS.selection.start, GVARS.selection.end);
+                SetClipboardText(copy);
+                free(tmp);
+                free(copy);
                 return;
             }
             if (key.v) {
@@ -754,7 +765,6 @@ void InputHandler(Cell *sheet, size_t *cellIndex)
     key.v = IsKeyPressed(KEY_V);
 
     MouseHandler(sheet, cellIndex);
-    CellInputHandler(sheet, cellIndex);
     SheetKeyPressHandler(sheet, key, cellIndex);
     CellKeyPressHandler(sheet, key, cellIndex);
     // GenericKeyPressHandler(key, cellIndex);

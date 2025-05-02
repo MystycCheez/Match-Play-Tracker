@@ -95,9 +95,9 @@ typedef struct Globals {
     float fontSize;
     Specials specials;
     Button *buttons;
-    bool shouldExit;
     Selection selection;
     Scope_Level scope;
+    bool shouldExit;
 } Globals;
 
 typedef struct Node {

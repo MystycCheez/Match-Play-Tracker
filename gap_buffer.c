@@ -40,13 +40,15 @@ size_t gapStrLen(GapBuffer gapStr)
     return a + b;
 }
 
-void placeChar(GapBuffer *gapStr, char c)
+// Returns false if no room for another char
+bool placeChar(GapBuffer *gapStr, char c)
 {
-    if (gapStr->cStart == gapStr->cEnd) return;
+    if (gapStr->cStart == gapStr->cEnd) return false;
     gapStr->str[gapStr->cStart++] = c;
     #ifdef GAP_DEBUG
     printf("placeChar: %s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd);
     #endif
+    return true;
 }
 
 void placeString(GapBuffer *gapStr, const char *str, size_t len)
