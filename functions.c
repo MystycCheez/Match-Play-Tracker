@@ -586,6 +586,29 @@ void CellOverwriteHandler(Cell *sheet, size_t *cellIndex)
     }
 }
 
+void CopyText(GapBuffer gapStr)
+{
+    char *copy = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    char *tmp = gapStrToStr(gapStr, CELL_TEXT_LENGTH); 
+    memset(copy, 0, CELL_TEXT_LENGTH);
+    strncpy(copy, tmp + GVARS.selection.start, GVARS.selection.end);
+    SetClipboardText(copy);
+    free(tmp);
+    free(copy);
+}
+
+// TODO: deleting a selection is not yet implemented
+void CutText(GapBuffer *gapStr)
+{
+    char *copy = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    char *tmp = gapStrToStr(*gapStr, CELL_TEXT_LENGTH); 
+    memset(copy, 0, CELL_TEXT_LENGTH);
+    strncpy(copy, tmp + GVARS.selection.start, GVARS.selection.end);
+    SetClipboardText(copy);
+    free(tmp);
+    free(copy);
+}
+
 void CellInputHandler(Cell *sheet, size_t *cellIndex)
 {
     if (GVARS.scope == SCOPE_OVERVIEW) return;
@@ -685,27 +708,27 @@ void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
     if (!key.shift) { // TODO: Clean this up/ make it more concise
         if (key.ctrl) { // TODO: do it by token
             if (key.left) {
-                GapStrGotoIndex(&sheet[*cellIndex].gapStr, 0);
+                MoveCursorToIndex(&sheet[*cellIndex].gapStr, 0);
                 Deselect();
                 return;
             }
             if (key.right) {
-                GapStrGotoIndex(&sheet[*cellIndex].gapStr, strlen(gapStrToStr(sheet[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
+                MoveCursorToIndex(&sheet[*cellIndex].gapStr, strlen(gapStrToStr(sheet[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
                 Deselect();
                 return;
             }
             if (key.c) {
-                char *copy = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-                char *tmp = gapStrToStr(sheet[*cellIndex].gapStr, CELL_TEXT_LENGTH); 
-                memset(copy, 0, CELL_TEXT_LENGTH);
-                strncpy(copy, tmp + GVARS.selection.start, GVARS.selection.end);
-                SetClipboardText(copy);
-                free(tmp);
-                free(copy);
+                CopyText(sheet[*cellIndex].gapStr);
+                return;
+            }
+            if (key.x) {
+                CopyText(sheet[*cellIndex].gapStr);
+                DeleteSelection(&sheet[*cellIndex].gapStr);
                 return;
             }
             if (key.v) {
                 placeString(&sheet[*cellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
+                return;
             }
         } else if (!key.ctrl) {
             if (key.left) {
@@ -720,8 +743,9 @@ void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
             }
         }
         if (IsKeyPressed(KEY_BACKSPACE)) {
-            deleteChar(&sheet[*cellIndex].gapStr);
+            deleteCharAtCursor(&sheet[*cellIndex].gapStr);
             Deselect();
+            return;
         }
     } else if (key.shift) {
         if (key.ctrl) {

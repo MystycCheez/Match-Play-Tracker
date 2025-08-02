@@ -15,6 +15,7 @@ char* i_toStr(int num)
     return str;
 }
 
+// Does this code work?
 size_t rawIndexToGapIndex(size_t index, GapBuffer gapStr)
 {
     size_t a = 0;
@@ -24,6 +25,9 @@ size_t rawIndexToGapIndex(size_t index, GapBuffer gapStr)
         a++;
     }
     while (gapStr.str[gapStr.cEnd - 1 + b] != 0) {
+        // is there any reason why this shouldn't just be:
+        // return b;
+        // ???
         if (b == index) return a + b;
         b++;
     }
@@ -72,14 +76,49 @@ void OverwriteStr(GapBuffer *gapStr, const char *str, size_t start, size_t len)
     #endif
 }
 
-void deleteChar(GapBuffer *gapStr)
+// TODO // TODO What?
+GapBuffer strToGapStr(char* str, size_t cursor)
+{
+    GapBuffer gapStr = {0};
+    size_t len = strlen(str);
+    gapStr.str = malloc(sizeof(char) * len);
+    memset(gapStr.str, 0, len);
+    snprintf(gapStr.str, cursor, str);
+    gapStr.cStart = 0;
+    gapStr.cEnd = cursor;
+    return gapStr;
+}
+
+char* gapStrToStr(GapBuffer gapStr, size_t maxLen)
+{
+    if (maxLen == 0) return "\0";
+    size_t initLenL = strlen(gapStr.str);
+    size_t initLenR = strlen(gapStr.str + gapStr.cEnd + 1);
+    size_t len = min(maxLen, initLenL + initLenR);
+    char* str = malloc(sizeof(char) * len + 1);
+    memset(str, 0, len + 1);
+    size_t lenL = min(len, initLenL);
+    strncpy(str, gapStr.str, lenL);
+    if (initLenR > 0 && len > initLenL) {
+        size_t lenR = len - lenL;
+        strncpy(str + lenL, gapStr.str + gapStr.cEnd + 1, lenR);
+    }
+    return str;
+}
+
+void deleteCharAtCursor(GapBuffer *gapStr)
 {
     if (gapStr->cStart == 0) return;
     gapStr->str[--gapStr->cStart] = 0;
     #ifdef GAP_DEBUG
-    printf("deleteChar: %s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
+    printf("deleteCharAtCursor: %s|%s\n", gapStr->str, gapStr->str + gapStr->cEnd + 1);
     #endif
 }
+
+// void deleteCharAtPos(GapBuffer *gapStr, size_t pos)
+// {
+//     gapStr->str[pos] = 0;
+// }
 
 // Returns false if no movement occured
 bool cursorLeft(GapBuffer *gapStr)
@@ -141,7 +180,7 @@ void Deselect() {
     // Do I need to adjust the start/end?
 }
 
-void GapStrGotoIndex(GapBuffer *gapStr, size_t index)
+void MoveCursorToIndex(GapBuffer *gapStr, size_t index)
 {
     while (gapStr->cStart > index) {
         cursorLeft(gapStr);
@@ -152,34 +191,12 @@ void GapStrGotoIndex(GapBuffer *gapStr, size_t index)
     }
 }
 
-// TODO // TODO What?
-GapBuffer strToGapStr(char* str, size_t cursor)
-{
-    GapBuffer gapStr = {0};
-    size_t len = strlen(str);
-    gapStr.str = malloc(sizeof(char) * len);
-    memset(gapStr.str, 0, len);
-    snprintf(gapStr.str, cursor, str);
-    gapStr.cStart = 0;
-    gapStr.cEnd = cursor;
-    return gapStr;
-}
-
-char* gapStrToStr(GapBuffer gapStr, size_t maxLen)
-{
-    if (maxLen == 0) return "\0";
-    size_t initLenL = strlen(gapStr.str);
-    size_t initLenR = strlen(gapStr.str + gapStr.cEnd + 1);
-    size_t len = min(maxLen, initLenL + initLenR);
-    char* str = malloc(sizeof(char) * len + 1);
-    memset(str, 0, len + 1);
-    size_t lenL = min(len, initLenL);
-    strncpy(str, gapStr.str, lenL);
-    if (initLenR > 0 && len > initLenL) {
-        size_t lenR = len - lenL;
-        strncpy(str + lenL, gapStr.str + gapStr.cEnd + 1, lenR);
+void DeleteSelection(GapBuffer *gapStr) {
+    MoveCursorToIndex(gapStr, GVARS.selection.end);
+    while (gapStr->cStart > GVARS.selection.start) {
+        deleteCharAtCursor(gapStr);
     }
-    return str;
+    GVARS.selection.exists = false;
 }
 
 void replaceChar(GapBuffer *gapStr, char c)
