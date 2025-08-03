@@ -44,7 +44,7 @@ void initButtons()
 
 char **loadLevelText(int game)
 {
-    char* filename;
+    char *filename;
     if (game == LEVELS_GE) filename = "resources/levels-ge.txt";
     if (game == LEVELS_PD) filename = "resources/levels-pd.txt";
     FILE *file_ptr = fopen(filename, "r");
@@ -53,7 +53,7 @@ char **loadLevelText(int game)
         fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
         exit(1);
     }
-    char **levelText = malloc(sizeof(char*) * LEVEL_COUNT);
+    char **levelText = malloc(sizeof(char *) * LEVEL_COUNT);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
         levelText[i] = malloc(sizeof(char) * CELL_TEXT_LENGTH);
         fgets(levelText[i], CELL_TEXT_LENGTH, file_ptr);
@@ -74,11 +74,12 @@ void loadSpecialText()
         exit(1);
     }
     size_t specialCount = 0;
-    char* tmp = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-    while (fgets(tmp, CELL_TEXT_LENGTH, file_ptr) != NULL) specialCount++;
+    char *tmp = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    while (fgets(tmp, CELL_TEXT_LENGTH, file_ptr) != NULL) 
+        specialCount++;
     free(tmp);
     rewind(file_ptr);
-    char **specialText = malloc(sizeof(char*) * specialCount);
+    char **specialText = malloc(sizeof(char *) * specialCount);
     for (size_t i = 0; i < specialCount; i++) {
         specialText[i] = malloc(sizeof(char) * CELL_TEXT_LENGTH);
         fgets(specialText[i], CELL_TEXT_LENGTH, file_ptr);
@@ -90,21 +91,27 @@ void loadSpecialText()
 
 Color getStateColor(State_Button state)
 {
-    if (state == STATE_BTN_PRESSED) return GRAY;
-    if (state == STATE_BTN_HIGHLIGHTED) return LIGHTGRAY;
+    if (state == STATE_BTN_PRESSED)
+        return GRAY;
+    if (state == STATE_BTN_HIGHLIGHTED)
+        return LIGHTGRAY;
     return WHITE;
 }
 
 // Returns TEXT_VETO or TEXT_DNF if found
 // Returns TEXT_NA if special text not found
-Text_Type CompareSpecialText(char* text)
+Text_Type CompareSpecialText(char *text)
 {
     Text_Type returnVal = TEXT_NA;
     for (size_t i = 0; i < GVARS.specials.count; i++) {
         if (strcmp(text, GVARS.specials.text[i]) == 0) {
-            if (i < 4) returnVal = TEXT_VETO;
-            if (i > 3)           returnVal = TEXT_DNF;
-        } else if (strcmp(text, GVARS.specials.text[i]) == 0) return returnVal;
+            if (i < 4)
+                returnVal = TEXT_VETO;
+            if (i > 3)
+                returnVal = TEXT_DNF;
+        }
+        else if (strcmp(text, GVARS.specials.text[i]) == 0)
+            return returnVal;
     }
     return returnVal;
 }
@@ -169,7 +176,7 @@ void initSheetText(Cell *sheet, Players players, int game)
     placeString(&sheet[CELL_COUNT - 1].gapStr, s2, CELL_TEXT_LENGTH);
 }
 
-Cell* initSheet(Players players, int game)
+Cell *initSheet(Players players, int game)
 {
     Cell *sheet = malloc(sizeof(Cell) * CELL_COUNT);
     for (size_t i = 0; i < CELL_COUNT; i++) {
@@ -276,7 +283,7 @@ void DrawTextHighlight(Cell *sheet, size_t cellIndex, Font font)
     char *selectedText = gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH) + GVARS.selection.start;
     selectedText[selectionLen] = 0;
     float selectionSpan = MeasureTextEx(font, selectedText, GVARS.fontSize, 1).x;
-    
+
     float cellTextSpan = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH), GVARS.fontSize, 1).x;
     float offset = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, GVARS.selection.start), GVARS.fontSize, 1).x;
 
@@ -291,7 +298,8 @@ size_t timeToSecs(char *time)
     assert(timeLen < 6 && "use filterCellText");
     if (timeLen < 3) {
         return atoi(time);
-    } else {
+    }
+    else {
         char *a = malloc(sizeof(char) * timeLen - 2);
         char *b = malloc(sizeof(char) * 2);
         strncpy(a, time, timeLen - 2);
@@ -328,25 +336,27 @@ size_t countChars(char *text, char c, size_t len)
 }
 
 // Filters string to be converted into time / Outputs "mm:ss" or "m:ss"
-char* filterText(char* text)
+char *filterText(char *text)
 {
     // Do these need to be static?
-    static char* dummy = "\0";
-    static char* text_veto = "Veto";
-    static char* text_dnf = "DNF";
+    static char *dummy = "\0";
+    static char *text_veto = "Veto";
+    static char *text_dnf = "DNF";
 
     char *filtered = malloc(sizeof(char) * 5);
 
     int special = CompareSpecialText(text);
     if (special == TEXT_VETO) return text_veto;
-    if (special == TEXT_DNF)  return text_dnf;
-    
+    if (special == TEXT_DNF) return text_dnf;
+
     size_t textLen = strlen(text);
 
-    if (strpbrk(text, ":1234567890") == NULL) return dummy;
+    if (strpbrk(text, ":1234567890") == NULL)
+        return dummy;
 
     size_t cCount = countChars(text, ':', textLen);
-    if (cCount > 2) return dummy;
+    if (cCount > 2)
+        return dummy;
     switch (cCount) {
     case 0:
         switch (textLen) {
@@ -362,7 +372,9 @@ char* filterText(char* text)
         case 4: // xxxx
             if (text[0] != '0') {
                 sprintf(filtered, "%c%c:%s", text[0], text[1], text + 2);
-            } else sprintf(filtered, "%c:%s", text[1], text + 2);
+            }
+            else
+                sprintf(filtered, "%c:%s", text[1], text + 2);
             break;
         default:
             return dummy;
@@ -385,14 +397,16 @@ char* filterText(char* text)
         }
         return secsToTime(timeToSecs(filtered));
     case 2: // TODO:
-        if (text[textLen - 6] != ':') return dummy;
-        if (!(textLen <= 8 && textLen >= 6)) return dummy;
+        if (text[textLen - 6] != ':')
+            return dummy;
+        if (!(textLen <= 8 && textLen >= 6))
+            return dummy;
         sprintf(filtered, "%s", text + textLen - 5);
         // TODO: Is this a memory leak?
         return filterText(filtered);
     default:
         return dummy;
-    }    
+    }
 }
 
 // Compares two cells in a row and returns a pair of ints representing who won or lost
@@ -401,7 +415,7 @@ Int2 CompareTimes(size_t row, Cell *cells)
 {
     size_t cellL = crToIndex((Vector2){1, (float)row});
     size_t cellR = crToIndex((Vector2){2, (float)row});
-    
+
     Text_Type specialL = CompareSpecialText(cells[cellL].gapStr.str);
     Text_Type specialR = CompareSpecialText(cells[cellR].gapStr.str);
 
@@ -419,7 +433,7 @@ Int2 CompareTimes(size_t row, Cell *cells)
         cells[cellL].highlight = TRANSPARENT;
         cells[cellR].highlight = TRANSPARENT;
         return (Int2){0, 0}; // Indicates Tie
-    } 
+    }
     if ((timeL < timeR) || (specialR == TEXT_DNF)) { // Why doesn't this work????
         cells[cellL].highlight = COLOR_WIN;
         cells[cellR].highlight = COLOR_LOSE;
@@ -451,10 +465,12 @@ void UpdateScores(Cell *cells)
         if (wins[i].a > 0 && tieCounter > 0) {
             OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(cells[CELL_COUNT - 2].gapStr.str) + tieCounter), 0, CELL_TEXT_LENGTH);
             tieCounter = 0;
-        } else if (wins[i].b > 0 && tieCounter > 0) {
+        }
+        else if (wins[i].b > 0 && tieCounter > 0) {
             OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(cells[CELL_COUNT - 1].gapStr.str) + tieCounter), 0, CELL_TEXT_LENGTH);
             tieCounter = 0;
-        } else if (wins[i].a > 0 || wins[i].b > 0){
+        }
+        else if (wins[i].a > 0 || wins[i].b > 0) {
             OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(cells[CELL_COUNT - 2].gapStr.str)), 0, CELL_TEXT_LENGTH);
             OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(cells[CELL_COUNT - 1].gapStr.str)), 0, CELL_TEXT_LENGTH);
         }
@@ -478,43 +494,61 @@ void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mous
     static CollisionMap Drag = {false};
     static Vector2 dragOffset = {0};
 
-    for (size_t i = 0; i < 2; i++) {
-        GVARS.buttons[i].state = ((bool*)(&Collision))[i] ? STATE_BTN_HIGHLIGHTED : STATE_BTN_UNHIGHLIGHTED;
+    for (size_t i = 0; i < 2; i++)
+    {
+        GVARS.buttons[i].state = ((bool *)(&Collision))[i] ? STATE_BTN_HIGHLIGHTED : STATE_BTN_UNHIGHLIGHTED;
     }
-    if (Mouse.down) {
-        if (Collision.exit && !Drag.titleBar) {
+    if (Mouse.down)
+    {
+        if (Collision.exit && !Drag.titleBar)
+        {
             Drag.titleBar = true;
             GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
         }
-        if (Collision.minimize && !Drag.minimize) {
+        if (Collision.minimize && !Drag.minimize)
+        {
             Drag.minimize = true;
             GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
         }
-        if (!(Collision.exit || Collision.minimize) && (Drag.titleBar || Drag.minimize)) {
+        if (!(Collision.exit || Collision.minimize) && (Drag.titleBar || Drag.minimize))
+        {
             buttonLeft = true;
-        } else buttonLeft = false;
-    } else {
+        }
+        else
+            buttonLeft = false;
+    }
+    else
+    {
         Drag.titleBar = Drag.minimize = false;
     }
 
-    if (Mouse.down && !windowDrag && !(Drag.titleBar || Drag.minimize)) {
-        if (Collision.titleBar && !(Collision.exit || Collision.minimize)) {
+    if (Mouse.down && !windowDrag && !(Drag.titleBar || Drag.minimize))
+    {
+        if (Collision.titleBar && !(Collision.exit || Collision.minimize))
+        {
             windowDrag = true;
             dragOffset = mousePos;
-        } else windowDrag = false;
+        }
+        else
+            windowDrag = false;
     }
-    if (windowDrag) {
+    if (windowDrag)
+    {
         windowPos.x += mousePos.x - dragOffset.x;
         windowPos.y += mousePos.y - dragOffset.y;
         SetWindowPosition(windowPos.x, windowPos.y);
-        if (!Mouse.down) windowDrag = false;
+        if (!Mouse.down)
+            windowDrag = false;
     }
-    if (Mouse.released && !windowDrag && !(Drag.titleBar || Drag.minimize) && !buttonLeft) {
-        if (Collision.exit) {
+    if (Mouse.released && !windowDrag && !(Drag.titleBar || Drag.minimize) && !buttonLeft)
+    {
+        if (Collision.exit)
+        {
             GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
             ExitHandler();
         }
-        if (Collision.minimize) {
+        if (Collision.minimize)
+        {
             GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
             MinimizeWindow();
         }
@@ -523,17 +557,24 @@ void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mous
 
 void MouseSheetHandler(CollisionMap Collision, MouseState Mouse, Vector2 mousePos, Cell *sheet, size_t *cellIndex)
 {
-    if (!Mouse.pressed) return;
-    if (Collision.sheet) {
-        if (xyToIndex(mousePos) == *cellIndex) {
+    if (!Mouse.pressed)
+        return;
+    if (Collision.sheet)
+    {
+        if (xyToIndex(mousePos) == *cellIndex)
+        {
             GVARS.scope = SCOPE_CELL;
-        } else {
-            *cellIndex = xyToIndex(mousePos);
-            GVARS.scope = sheet[*cellIndex].selectable ? SCOPE_SHEET : SCOPE_OVERVIEW; 
-            cellIndex = GVARS.scope > SCOPE_OVERVIEW ? cellIndex : 0; 
         }
-    } else {
-        GVARS.scope = SCOPE_OVERVIEW; 
+        else
+        {
+            *cellIndex = xyToIndex(mousePos);
+            GVARS.scope = sheet[*cellIndex].selectable ? SCOPE_SHEET : SCOPE_OVERVIEW;
+            cellIndex = GVARS.scope > SCOPE_OVERVIEW ? cellIndex : 0;
+        }
+    }
+    else
+    {
+        GVARS.scope = SCOPE_OVERVIEW;
         cellIndex = 0;
     }
 }
@@ -546,15 +587,13 @@ void MouseHandler(Cell *sheet, size_t *cellIndex)
     MouseState Mouse = {
         IsMouseButtonDown(MOUSE_BUTTON_LEFT),
         IsMouseButtonPressed(MOUSE_BUTTON_LEFT),
-        IsMouseButtonReleased(MOUSE_BUTTON_LEFT)
-    };
+        IsMouseButtonReleased(MOUSE_BUTTON_LEFT)};
 
     CollisionMap Collision = {
         CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_EXIT])),
         CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_MINIMIZE])),
         CheckCollisionPointRec(mousePos, (Rectangle){0, 0, GVARS.screenWidth, TOP_BAR_HEIGHT}),
-        CheckCollisionPointRec(mousePos, (Rectangle){0, TOP_BAR_HEIGHT, GVARS.screenWidth, DEFAULT_SHEET_HEIGHT})
-    };
+        CheckCollisionPointRec(mousePos, (Rectangle){0, TOP_BAR_HEIGHT, GVARS.screenWidth, DEFAULT_SHEET_HEIGHT})};
 
     MouseTitleBarHandler(Collision, Mouse, mousePos, windowPos);
     MouseSheetHandler(Collision, Mouse, mousePos, sheet, cellIndex);
@@ -562,25 +601,38 @@ void MouseHandler(Cell *sheet, size_t *cellIndex)
 
 void EnterNavigationHandler(Cell *sheet, size_t *cellIndex)
 {
-    if (*cellIndex > CELL_COUNT - 5) {
+    if (*cellIndex > CELL_COUNT - 5)
+    {
         *cellIndex = 0;
         GVARS.scope = SCOPE_OVERVIEW;
-    } else {
-        if (*cellIndex % 3 == 2) {
-            if (sheet[*cellIndex - 1].gapStr.str[0] == 0) {
+    }
+    else
+    {
+        if (*cellIndex % 3 == 2)
+        {
+            if (sheet[*cellIndex - 1].gapStr.str[0] == 0)
+            {
                 *cellIndex = *cellIndex - 1;
-            } else *cellIndex = *cellIndex + 2;
-        } else if (*cellIndex % 3 == 1) {
-            if (sheet[*cellIndex + 1].gapStr.str[0] == 0) {
+            }
+            else
+                *cellIndex = *cellIndex + 2;
+        }
+        else if (*cellIndex % 3 == 1)
+        {
+            if (sheet[*cellIndex + 1].gapStr.str[0] == 0)
+            {
                 *cellIndex = *cellIndex + 1;
-            } else *cellIndex = *cellIndex + 3;
+            }
+            else
+                *cellIndex = *cellIndex + 3;
         }
     }
 }
 
 void CellOverwriteHandler(Cell *sheet, size_t *cellIndex)
 {
-    if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3) {
+    if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3)
+    {
         char *filteredText = filterText(sheet[*cellIndex].gapStr.str);
         OverwriteStr(&sheet[*cellIndex].gapStr, filteredText, 0, CELL_TEXT_LENGTH);
     }
@@ -589,7 +641,7 @@ void CellOverwriteHandler(Cell *sheet, size_t *cellIndex)
 void CopyText(GapBuffer gapStr)
 {
     char *copy = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-    char *tmp = gapStrToStr(gapStr, CELL_TEXT_LENGTH); 
+    char *tmp = gapStrToStr(gapStr, CELL_TEXT_LENGTH);
     memset(copy, 0, CELL_TEXT_LENGTH);
     strncpy(copy, tmp + GVARS.selection.start, GVARS.selection.end);
     SetClipboardText(copy);
@@ -601,7 +653,7 @@ void CopyText(GapBuffer gapStr)
 void CutText(GapBuffer *gapStr)
 {
     char *copy = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-    char *tmp = gapStrToStr(*gapStr, CELL_TEXT_LENGTH); 
+    char *tmp = gapStrToStr(*gapStr, CELL_TEXT_LENGTH);
     memset(copy, 0, CELL_TEXT_LENGTH);
     strncpy(copy, tmp + GVARS.selection.start, GVARS.selection.end);
     SetClipboardText(copy);
@@ -621,8 +673,10 @@ void CellInputHandler(Cell *sheet, size_t *cellIndex)
                 if (GVARS.selection.exists) {
                     replaceChar(&sheet[*cellIndex].gapStr, (char)key_char);
                     Deselect();
-                } else placeChar(&sheet[*cellIndex].gapStr, (char)key_char);
-            } else {
+                }
+                else placeChar(&sheet[*cellIndex].gapStr, (char)key_char);
+            }
+            else {
                 Deselect();
                 GVARS.scope = SCOPE_CELL;
                 placeChar(&sheet[*cellIndex].gapStr, (char)key_char);
@@ -678,82 +732,113 @@ void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
         *cellIndex = *cellIndex + 3;
     }
     if (key.up) {
-        if (*cellIndex < 3) return;
+        if (*cellIndex < 3)
+            return;
         *cellIndex = *cellIndex - 3;
     }
 }
 
 void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
 {
-    if (GVARS.scope != SCOPE_CELL) return;
+    if (GVARS.scope != SCOPE_CELL)
+        return;
     CellInputHandler(sheet, cellIndex);
-    if (key.escape) {
-        if (GVARS.selection.exists) {
+    if (key.escape)
+    {
+        if (GVARS.selection.exists)
+        {
             Deselect();
-        } else {
+        }
+        else
+        {
             GVARS.scope = SCOPE_SHEET;
             // TODO: Undo action
         }
         return;
     }
-    if (key.enter) {
+    if (key.enter)
+    {
         CellOverwriteHandler(sheet, cellIndex);
         EnterNavigationHandler(sheet, cellIndex);
         UpdateScores(sheet);
-        if (*cellIndex == 0) {
+        if (*cellIndex == 0)
+        {
             GVARS.scope = SCOPE_OVERVIEW;
-        } else GVARS.scope = SCOPE_SHEET;
+        }
+        else
+            GVARS.scope = SCOPE_SHEET;
         return;
     }
-    if (!key.shift) { // TODO: Clean this up/ make it more concise
-        if (key.ctrl) { // TODO: do it by token
-            if (key.left) {
+    if (!key.shift)
+    { // TODO: Clean this up/ make it more concise
+        if (key.ctrl)
+        { // TODO: do it by token
+            if (key.left)
+            {
                 MoveCursorToIndex(&sheet[*cellIndex].gapStr, 0);
                 Deselect();
                 return;
             }
-            if (key.right) {
+            if (key.right)
+            {
                 MoveCursorToIndex(&sheet[*cellIndex].gapStr, strlen(gapStrToStr(sheet[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
                 Deselect();
                 return;
             }
-            if (key.c) {
+            if (key.c)
+            {
                 CopyText(sheet[*cellIndex].gapStr);
                 return;
             }
-            if (key.x) {
+            if (key.x)
+            {
                 CopyText(sheet[*cellIndex].gapStr);
                 DeleteSelection(&sheet[*cellIndex].gapStr);
                 return;
             }
-            if (key.v) {
+            if (key.v)
+            {
                 placeString(&sheet[*cellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
                 return;
             }
-        } else if (!key.ctrl) {
-            if (key.left) {
-                if (cursorLeft(&sheet[*cellIndex].gapStr)) Deselect();
+        }
+        else if (!key.ctrl)
+        {
+            if (key.left)
+            {
+                if (cursorLeft(&sheet[*cellIndex].gapStr))
+                    Deselect();
                 Deselect();
                 return;
             }
-            if (key.right) {
-                if (cursorRight(&sheet[*cellIndex].gapStr)) Deselect();
+            if (key.right)
+            {
+                if (cursorRight(&sheet[*cellIndex].gapStr))
+                    Deselect();
                 Deselect();
                 return;
             }
         }
-        if (IsKeyPressed(KEY_BACKSPACE)) {
+        if (IsKeyPressed(KEY_BACKSPACE))
+        {
             deleteCharAtCursor(&sheet[*cellIndex].gapStr);
             Deselect();
             return;
         }
-    } else if (key.shift) {
-        if (key.ctrl) {
+    }
+    else if (key.shift)
+    {
+        if (key.ctrl)
+        {
             // if (key.left) selectLeftToken();
             // if (key.right) selectRightToken();
-        } else if (!key.ctrl) {
-            if (key.left) selectChar(&sheet[*cellIndex].gapStr, DIR_LEFT);
-            if (key.right) selectChar(&sheet[*cellIndex].gapStr, DIR_RIGHT);
+        }
+        else if (!key.ctrl)
+        {
+            if (key.left)
+                selectChar(&sheet[*cellIndex].gapStr, DIR_LEFT);
+            if (key.right)
+                selectChar(&sheet[*cellIndex].gapStr, DIR_RIGHT);
         }
     }
 }

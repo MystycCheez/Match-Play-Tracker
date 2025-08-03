@@ -93,6 +93,8 @@ int main()
         EndDrawing();
         cursorTimer++;
     }
+
+    ExportToBBCode(sheet);
     
     UnloadFont(font);
     

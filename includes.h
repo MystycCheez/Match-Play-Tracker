@@ -13,9 +13,10 @@
 #include "defines.h"
 #include "structs.h"
 
-#include "linked_list.c"
+// #include "linked_list.c"
 
 #include "gap_buffer.c"
 #include "functions.c"
+#include "export.c"
 
 #endif

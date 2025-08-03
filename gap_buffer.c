@@ -58,7 +58,7 @@ bool placeChar(GapBuffer *gapStr, char c)
 void placeString(GapBuffer *gapStr, const char *str, size_t len)
 {
     for (size_t i = 0; i < strlen(str) && i < len; i++) {
-        placeChar(gapStr, str[i]);
+        if (placeChar(gapStr, str[i]) == false) return;
     }
     #ifdef GAP_DEBUB
     printf("placeString: %s\n", gapStr->str);
@@ -175,6 +175,7 @@ void selectChar(GapBuffer *gapStr, bool dir)
     // printf("start: %lld, end: %lld\n", GVARS.selection.start, GVARS.selection.end);
 }
 
+// This function exists because it might need to do more in the future
 void Deselect() {
     GVARS.selection.exists = false;
     // Do I need to adjust the start/end?
@@ -196,7 +197,7 @@ void DeleteSelection(GapBuffer *gapStr) {
     while (gapStr->cStart > GVARS.selection.start) {
         deleteCharAtCursor(gapStr);
     }
-    GVARS.selection.exists = false;
+    Deselect();
 }
 
 void replaceChar(GapBuffer *gapStr, char c)
