@@ -36,12 +36,11 @@ void loadTimes(Cell* sheet)
 
     int c = 0;
     
-    for (size_t i = 4; i < CELL_COUNT - 3; i++) {
+    for (size_t i = 1; i < CELL_COUNT - 3; i++) {
         if ((i % 3 == 2) || (i % 3 == 1)) {
             while (c != EOF) {
                 c = fgetc(file_ptr);
                 if (c == '\n') break;
-                // printf("test\n");
                 placeChar(&sheet[i].gapStr, (char)c);
             }
         }
@@ -109,7 +108,7 @@ void saveTimes(Cell* sheet)
     }
 
     // Putting the string "-" indicates no time inputted
-    for (size_t i = 4; i < CELL_COUNT - 3; i++) {
+    for (size_t i = 1; i < CELL_COUNT - 3; i++) {
         if ((i % 3 == 2) || (i % 3 == 1)) {
             if (strlen(sheet[i].gapStr.str) > 0) {
                 fprintf(file_ptr, "%s\n", gapStrToStr(sheet[i].gapStr, CELL_TEXT_LENGTH));

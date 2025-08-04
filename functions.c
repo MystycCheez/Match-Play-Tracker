@@ -81,7 +81,7 @@ void setBorderPositions(Line *borders)
 
 void ClearTimes(Cell* sheet)
 {
-    for (size_t i = 4; i < CELL_COUNT - 3; i++) {
+    for (size_t i = 1; i < CELL_COUNT - 3; i++) {
         if ((i % 3 == 2) || (i % 3 == 1)) {
             OverwriteStr(&sheet[i].gapStr, "", 0, CELL_TEXT_LENGTH);
             CellOverwriteHandler(sheet, i);
