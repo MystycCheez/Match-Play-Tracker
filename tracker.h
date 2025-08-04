@@ -67,7 +67,7 @@ void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mous
 void MouseSheetHandler(CollisionMap Collision, MouseState Mouse, Vector2 mousePos, Cell *sheet, size_t *cellIndex);
 void MouseHandler(Cell *sheet, size_t *cellIndex);
 void EnterNavigationHandler(Cell *sheet, size_t *cellIndex);
-void CellOverwriteHandler(Cell *sheet, size_t *cellIndex);
+void CellOverwriteHandler(Cell *sheet, size_t cellIndex);
 void CellInputHandler(Cell *sheet, size_t *cellIndex);
 void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex);
 void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex);

@@ -128,12 +128,11 @@ void EnterNavigationHandler(Cell *sheet, size_t *cellIndex)
     }
 }
 
-void CellOverwriteHandler(Cell *sheet, size_t *cellIndex)
+void CellOverwriteHandler(Cell *sheet, size_t cellIndex)
 {
-    if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3)
-    {
-        char *filteredText = filterText(sheet[*cellIndex].gapStr.str);
-        OverwriteStr(&sheet[*cellIndex].gapStr, filteredText, 0, CELL_TEXT_LENGTH);
+    if (cellIndex > 2 && cellIndex < CELL_COUNT - 3) {
+        char *filteredText = filterText(sheet[cellIndex].gapStr.str);
+        OverwriteStr(&sheet[cellIndex].gapStr, filteredText, 0, CELL_TEXT_LENGTH);
     }
 }
 
@@ -172,7 +171,7 @@ void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
         return;
     }
     if (key.enter) {
-        CellOverwriteHandler(sheet, cellIndex);
+        CellOverwriteHandler(sheet, *cellIndex);
         EnterNavigationHandler(sheet, cellIndex);
         UpdateScores(sheet);
         if (*cellIndex == 0) GVARS.scope = SCOPE_OVERVIEW;
@@ -227,6 +226,11 @@ void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
             ExportToBBCode(sheet);
             printf("Exported to BBCode\n");
         }
+        if (key.delete) {
+            ClearTimes(sheet);
+            UpdateScores(sheet);
+            printf("Sheet Cleared\n");
+        }
     }
 }
 
@@ -243,7 +247,7 @@ void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
         return;
     }
     if (key.enter) {
-        CellOverwriteHandler(sheet, cellIndex);
+        CellOverwriteHandler(sheet, *cellIndex);
         EnterNavigationHandler(sheet, cellIndex);
         UpdateScores(sheet);
         if (*cellIndex == 0) GVARS.scope = SCOPE_OVERVIEW;
