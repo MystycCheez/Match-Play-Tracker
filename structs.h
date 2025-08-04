@@ -1,3 +1,6 @@
+#ifndef STRUCTS_H
+#define STRUCTS_H
+
 #include "includes.h"
 
 // 4 components: x1, y1, x2, y2
@@ -42,6 +45,9 @@ typedef struct KeyMap {
     bool c;
     bool x;
     bool v;
+    bool l;
+    bool s;
+    bool b;
 } KeyMap;
 
 // 3 components: str, cStart, cEnd
@@ -108,3 +114,5 @@ typedef struct Node {
 
 // screenWidth, screenHeight, cellWidth, cellHeight, fontSize, specials, buttons, shouldExit
 Globals GVARS;
+
+#endif

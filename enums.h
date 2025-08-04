@@ -1,3 +1,6 @@
+#ifndef ENUMS_H
+#define ENUMS_H
+
 #include "includes.h"
 
 typedef enum {
@@ -46,3 +49,5 @@ typedef enum {
     SCOPE_SHEET = 1,
     SCOPE_CELL = 2,
 } Scope_Level;
+
+#endif

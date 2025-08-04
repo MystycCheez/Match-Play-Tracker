@@ -30,7 +30,7 @@ int main()
     initButtons();
 
     SetExitKey(KEY_NULL);
-    Font font = initFont();
+    Font font = loadFont();
     Players players = {"Player 1", "Player 2", 0, 0};
     Vector2 TextPos = {0}; 
 
@@ -94,7 +94,8 @@ int main()
         cursorTimer++;
     }
 
-    ExportToBBCode(sheet);
+    // ExportToBBCode(sheet);
+    // saveTimes(sheet);
     
     UnloadFont(font);
     

@@ -1,18 +1,16 @@
+#ifndef GAP_BUFFER_C
+#define GAP_BUFFER_C
+
 #include "includes.h"
 
-void chrswap(char* ptr1, char* ptr2)
+GapBuffer initGapStr(size_t len)
 {
-    char tmp = *ptr2;
-    *ptr2 = *ptr1;
-    *ptr1 = tmp;
-}
-
-char* i_toStr(int num)
-{
-    // TODO: make more portable or just use itoa in place of this
-    char* str = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-    sprintf(str, "%d", num);
-    return str;
+    GapBuffer gapStr = {0};
+    gapStr.str = malloc(sizeof(char) * len + 1);
+    memset(gapStr.str, 0, len + 1);
+    gapStr.cStart = 0;
+    gapStr.cEnd = len - 1;
+    return gapStr;
 }
 
 // Does this code work?
@@ -115,11 +113,6 @@ void deleteCharAtCursor(GapBuffer *gapStr)
     #endif
 }
 
-// void deleteCharAtPos(GapBuffer *gapStr, size_t pos)
-// {
-//     gapStr->str[pos] = 0;
-// }
-
 // Returns false if no movement occured
 bool cursorLeft(GapBuffer *gapStr)
 {
@@ -176,7 +169,8 @@ void selectChar(GapBuffer *gapStr, bool dir)
 }
 
 // This function exists because it might need to do more in the future
-void Deselect() {
+void Deselect()
+{
     GVARS.selection.exists = false;
     // Do I need to adjust the start/end?
 }
@@ -192,7 +186,8 @@ void MoveCursorToIndex(GapBuffer *gapStr, size_t index)
     }
 }
 
-void DeleteSelection(GapBuffer *gapStr) {
+void DeleteSelection(GapBuffer *gapStr)
+{
     MoveCursorToIndex(gapStr, GVARS.selection.end);
     while (gapStr->cStart > GVARS.selection.start) {
         deleteCharAtCursor(gapStr);
@@ -210,12 +205,15 @@ void replaceChar(GapBuffer *gapStr, char c)
     OverwriteStr(gapStr, tmp2, 0, CELL_TEXT_LENGTH);
 }
 
-GapBuffer initGapStr(size_t len)
+void CopyText(GapBuffer gapStr)
 {
-    GapBuffer gapStr = {0};
-    gapStr.str = malloc(sizeof(char) * len + 1);
-    memset(gapStr.str, 0, len + 1);
-    gapStr.cStart = 0;
-    gapStr.cEnd = len - 1;
-    return gapStr;
+    char *copy = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    char *tmp = gapStrToStr(gapStr, CELL_TEXT_LENGTH);
+    memset(copy, 0, CELL_TEXT_LENGTH);
+    strncpy(copy, tmp + GVARS.selection.start, GVARS.selection.end);
+    SetClipboardText(copy);
+    free(tmp);
+    free(copy);
 }
+
+#endif

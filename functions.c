@@ -1,24 +1,7 @@
-#include "includes.h"
+#ifndef FUNCTIONS_C
+#define FUNCTIONS_C
 
-Font initFont()
-{
-    const char *font_file = "C:/Windows/Fonts/trebucbd.ttf";
-    int fileSize = 0;
-    unsigned char *fileData = LoadFileData(font_file, &fileSize);
-    if (fileData == NULL) {
-        fprintf(stderr, "Failed to load font: %s!\n", font_file);
-        exit(1);
-    }
-    Font font = {0};
-    font.baseSize = GVARS.fontSize * 5;
-    font.glyphCount = 95;
-    font.glyphs = LoadFontData(fileData, fileSize, GVARS.fontSize * 5, 0, 0, FONT_SDF);
-    Image atlas = GenImageFontAtlas(font.glyphs, &font.recs, font.glyphCount, GVARS.fontSize * 5, 0, 1);
-    font.texture = LoadTextureFromImage(atlas);
-    UnloadImage(atlas);
-    // SetTextureFilter(font.texture, TEXTURE_FILTER_POINT); // Will I need this?
-    return font;
-}
+#include "includes.h"
 
 void reInitGVARS()
 {
@@ -40,121 +23,6 @@ void initButtons()
     GVARS.buttons[BTN_MINIMIZE].texture = LoadTextureFromImage(LoadImage("resources/minimize.png"));
     GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_UNHIGHLIGHTED;
     SetTextureFilter(GVARS.buttons[BTN_MINIMIZE].texture, TEXTURE_FILTER_BILINEAR);
-}
-
-char **loadLevelText(int game)
-{
-    char *filename;
-    if (game == LEVELS_GE) filename = "resources/levels-ge.txt";
-    if (game == LEVELS_PD) filename = "resources/levels-pd.txt";
-    FILE *file_ptr = fopen(filename, "r");
-    if (file_ptr == NULL) {
-        fprintf(stderr, "Error: Could not open file: %s\n", filename);
-        fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
-        exit(1);
-    }
-    char **levelText = malloc(sizeof(char *) * LEVEL_COUNT);
-    for (size_t i = 0; i < LEVEL_COUNT; i++) {
-        levelText[i] = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-        fgets(levelText[i], CELL_TEXT_LENGTH, file_ptr);
-        memset(strchr(levelText[i], '\n'), 0, 1);
-    }
-
-    fclose(file_ptr);
-    return levelText;
-}
-
-// Loads dnf/veto variations
-void loadSpecialText()
-{
-    FILE *file_ptr = fopen("resources/specials.txt", "r");
-    if (file_ptr == NULL) {
-        fprintf(stderr, "Error: Could not open file: %s\n", "specials.txt");
-        fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
-        exit(1);
-    }
-    size_t specialCount = 0;
-    char *tmp = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-    while (fgets(tmp, CELL_TEXT_LENGTH, file_ptr) != NULL) 
-        specialCount++;
-    free(tmp);
-    rewind(file_ptr);
-    char **specialText = malloc(sizeof(char *) * specialCount);
-    for (size_t i = 0; i < specialCount; i++) {
-        specialText[i] = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-        fgets(specialText[i], CELL_TEXT_LENGTH, file_ptr);
-        memset(strchr(specialText[i], '\n'), 0, 1);
-    }
-    GVARS.specials.text = specialText;
-    GVARS.specials.count = specialCount;
-}
-
-Color getStateColor(State_Button state)
-{
-    if (state == STATE_BTN_PRESSED)
-        return GRAY;
-    if (state == STATE_BTN_HIGHLIGHTED)
-        return LIGHTGRAY;
-    return WHITE;
-}
-
-// Returns TEXT_VETO or TEXT_DNF if found
-// Returns TEXT_NA if special text not found
-Text_Type CompareSpecialText(char *text)
-{
-    Text_Type returnVal = TEXT_NA;
-    for (size_t i = 0; i < GVARS.specials.count; i++) {
-        if (strcmp(text, GVARS.specials.text[i]) == 0) {
-            if (i < 4)
-                returnVal = TEXT_VETO;
-            if (i > 3)
-                returnVal = TEXT_DNF;
-        }
-        else if (strcmp(text, GVARS.specials.text[i]) == 0)
-            return returnVal;
-    }
-    return returnVal;
-}
-
-// XY being the top left corner of the cell index
-Vector2 indexToXY(size_t index)
-{
-    Vector2 xy = {0};
-    xy.x = (index % COLUMNS) * GVARS.cellWidth;
-    xy.y = (index / COLUMNS) * GVARS.cellHeight + TOP_BAR_HEIGHT;
-    return xy;
-}
-
-// CR being column/row
-Vector2 indexToCR(size_t index)
-{
-    Vector2 cr = {0};
-    cr.x = index % COLUMNS;
-    cr.y = index / COLUMNS;
-    return cr;
-}
-
-// XY being anywhere within a cell
-size_t xyToIndex(Vector2 xy)
-{
-    size_t index = 0;
-    xy.y = xy.y - TOP_BAR_HEIGHT;
-    Vector2 rounded = {xy.x - fmodf(xy.x, GVARS.cellWidth), xy.y - fmodf(xy.y, GVARS.cellHeight)};
-    rounded.x = rounded.x / GVARS.cellWidth;
-    rounded.y = rounded.y / GVARS.cellHeight;
-    index = rounded.x + (rounded.y * COLUMNS);
-    return index;
-}
-
-// CR being column/row
-size_t crToIndex(Vector2 cr)
-{
-    return (size_t)(cr.x + (cr.y * COLUMNS));
-}
-
-Rectangle getButtonRect(Button button)
-{
-    return (Rectangle){button.pos.x, button.pos.y, BUTTON_SIZE, BUTTON_SIZE};
 }
 
 void initSheetText(Cell *sheet, Players players, int game)
@@ -211,11 +79,45 @@ void setBorderPositions(Line *borders)
     }
 }
 
-void DrawCellBorders(size_t cellIndex)
+void ClearTimes(Cell* sheet)
 {
-    if (cellIndex == 0) return;
-    Vector2 cellOrigin = indexToXY(cellIndex);
-    DrawRectangleLinesEx((Rectangle){cellOrigin.x, cellOrigin.y, GVARS.cellWidth, GVARS.cellHeight}, 3.0, RAYWHITE);
+    for (size_t i = 4; i < CELL_COUNT - 4; i++) {
+        if ((i % 3 == 2) || (i % 3 == 1)) {
+            OverwriteStr(&sheet[i].gapStr, "", 0, CELL_TEXT_LENGTH);
+        }
+    }
+}
+
+Color getStateColor(State_Button state)
+{
+    if (state == STATE_BTN_PRESSED)
+        return GRAY;
+    if (state == STATE_BTN_HIGHLIGHTED)
+        return LIGHTGRAY;
+    return WHITE;
+}
+
+Rectangle getButtonRect(Button button)
+{
+    return (Rectangle){button.pos.x, button.pos.y, BUTTON_SIZE, BUTTON_SIZE};
+}
+
+// Returns TEXT_VETO or TEXT_DNF if found
+// Returns TEXT_NA if special text not found
+Text_Type CompareSpecialText(char *text)
+{
+    Text_Type returnVal = TEXT_NA;
+    for (size_t i = 0; i < GVARS.specials.count; i++) {
+        if (strcmp(text, GVARS.specials.text[i]) == 0) {
+            if (i < 4)
+                returnVal = TEXT_VETO;
+            if (i > 3)
+                returnVal = TEXT_DNF;
+        }
+        else if (strcmp(text, GVARS.specials.text[i]) == 0)
+            return returnVal;
+    }
+    return returnVal;
 }
 
 // TODO: check if this can utilize xy/cr functions
@@ -224,71 +126,6 @@ Vector2 CalcTextPos(Vector2 pos, size_t index)
     pos.x = pos.x + (GVARS.cellWidth * (index % 3));
     pos.y = 1 + pos.y + (GVARS.cellHeight * (index / 3) + TOP_BAR_HEIGHT);
     return pos;
-}
-
-void DrawCursor(Cell *sheet, size_t cellIndex, Font font)
-{
-    if (cellIndex == 0) return;
-    Vector2 pos = {0};
-    pos = CalcTextPos(pos, cellIndex);
-    float span = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH), GVARS.fontSize, 1).x;
-    float offset = MeasureTextEx(font, sheet[cellIndex].gapStr.str, GVARS.fontSize, 1).x;
-    pos.x += (GVARS.cellWidth / 2) - (span / 2) + offset + 1;
-    pos.y += 2;
-    DrawLineEx(pos, (Vector2){pos.x, pos.y + GVARS.cellHeight - 6}, 1.0, LIGHTGRAY);
-}
-
-void DrawTextCentered(Font font, Vector2 pos, float fontSize, float spacing, Cell cell)
-{
-    char *text = gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH);
-    Vector2 size = MeasureTextEx(font, text, fontSize, spacing);
-
-    pos.x = pos.x + (GVARS.cellWidth / 2) - (size.x / 2);
-    pos.y = pos.y + (GVARS.cellHeight / 2) - (size.y / 2);
-
-    DrawTextEx(font, text, pos, fontSize, spacing, cell.color);
-}
-
-void DrawTextLeftAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell cell)
-{
-    char *text = gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH);
-    Vector2 size = MeasureTextEx(font, text, fontSize, spacing);
-
-    pos.x = pos.x + fontSize / 2;
-    pos.y = pos.y + (GVARS.cellHeight / 2) - (size.y / 2);
-
-    DrawTextEx(font, text, pos, fontSize, spacing, cell.color);
-}
-
-void DrawTextAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell cell, size_t i)
-{
-    switch (cell.alignment) {
-    case ALIGN_LEFT:
-        DrawTextLeftAligned(font, CalcTextPos(pos, i), fontSize, spacing, cell);
-        break;
-    case ALIGN_CENTER:
-        DrawTextCentered(font, CalcTextPos(pos, i), fontSize, spacing, cell);
-        break;
-    case ALIGN_RIGHT:
-        assert(!"TODO: ALIGN_RIGHT");
-        break;
-    }
-}
-
-void DrawTextHighlight(Cell *sheet, size_t cellIndex, Font font)
-{
-    Vector2 pos = {0};
-    pos = CalcTextPos(pos, cellIndex);
-    size_t selectionLen = GVARS.selection.end - GVARS.selection.start;
-    char *selectedText = gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH) + GVARS.selection.start;
-    selectedText[selectionLen] = 0;
-    float selectionSpan = MeasureTextEx(font, selectedText, GVARS.fontSize, 1).x;
-
-    float cellTextSpan = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH), GVARS.fontSize, 1).x;
-    float offset = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, GVARS.selection.start), GVARS.fontSize, 1).x;
-
-    pos.x += (GVARS.cellWidth / 2) - (cellTextSpan / 2) + offset;
-    DrawRectangleRec((Rectangle){pos.x, pos.y, selectionSpan + 2, GVARS.cellHeight}, COLOR_HIGHLIGHT);
 }
 
 // Expects format: "mm:ss"
@@ -477,404 +314,4 @@ void UpdateScores(Cell *cells)
     }
 }
 
-// TODO: Add save reminder dialog
-void ExitHandler()
-{
-    GVARS.shouldExit = true;
-}
-
-void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mousePos, Vector2 windowPos)
-{
-    // if (!Collision.titleBar) return;
-    // if (!Mouse.down) return;
-    // GVARS.scope = SCOPE_OVERVIEW;
-
-    static bool buttonLeft = false;
-    static bool windowDrag = false;
-    static CollisionMap Drag = {false};
-    static Vector2 dragOffset = {0};
-
-    for (size_t i = 0; i < 2; i++)
-    {
-        GVARS.buttons[i].state = ((bool *)(&Collision))[i] ? STATE_BTN_HIGHLIGHTED : STATE_BTN_UNHIGHLIGHTED;
-    }
-    if (Mouse.down)
-    {
-        if (Collision.exit && !Drag.titleBar)
-        {
-            Drag.titleBar = true;
-            GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
-        }
-        if (Collision.minimize && !Drag.minimize)
-        {
-            Drag.minimize = true;
-            GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
-        }
-        if (!(Collision.exit || Collision.minimize) && (Drag.titleBar || Drag.minimize))
-        {
-            buttonLeft = true;
-        }
-        else
-            buttonLeft = false;
-    }
-    else
-    {
-        Drag.titleBar = Drag.minimize = false;
-    }
-
-    if (Mouse.down && !windowDrag && !(Drag.titleBar || Drag.minimize))
-    {
-        if (Collision.titleBar && !(Collision.exit || Collision.minimize))
-        {
-            windowDrag = true;
-            dragOffset = mousePos;
-        }
-        else
-            windowDrag = false;
-    }
-    if (windowDrag)
-    {
-        windowPos.x += mousePos.x - dragOffset.x;
-        windowPos.y += mousePos.y - dragOffset.y;
-        SetWindowPosition(windowPos.x, windowPos.y);
-        if (!Mouse.down)
-            windowDrag = false;
-    }
-    if (Mouse.released && !windowDrag && !(Drag.titleBar || Drag.minimize) && !buttonLeft)
-    {
-        if (Collision.exit)
-        {
-            GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
-            ExitHandler();
-        }
-        if (Collision.minimize)
-        {
-            GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
-            MinimizeWindow();
-        }
-    }
-}
-
-void MouseSheetHandler(CollisionMap Collision, MouseState Mouse, Vector2 mousePos, Cell *sheet, size_t *cellIndex)
-{
-    if (!Mouse.pressed)
-        return;
-    if (Collision.sheet)
-    {
-        if (xyToIndex(mousePos) == *cellIndex)
-        {
-            GVARS.scope = SCOPE_CELL;
-        }
-        else
-        {
-            *cellIndex = xyToIndex(mousePos);
-            GVARS.scope = sheet[*cellIndex].selectable ? SCOPE_SHEET : SCOPE_OVERVIEW;
-            cellIndex = GVARS.scope > SCOPE_OVERVIEW ? cellIndex : 0;
-        }
-    }
-    else
-    {
-        GVARS.scope = SCOPE_OVERVIEW;
-        cellIndex = 0;
-    }
-}
-
-void MouseHandler(Cell *sheet, size_t *cellIndex)
-{
-    Vector2 mousePos = GetMousePosition();
-    Vector2 windowPos = GetWindowPosition();
-
-    MouseState Mouse = {
-        IsMouseButtonDown(MOUSE_BUTTON_LEFT),
-        IsMouseButtonPressed(MOUSE_BUTTON_LEFT),
-        IsMouseButtonReleased(MOUSE_BUTTON_LEFT)};
-
-    CollisionMap Collision = {
-        CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_EXIT])),
-        CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_MINIMIZE])),
-        CheckCollisionPointRec(mousePos, (Rectangle){0, 0, GVARS.screenWidth, TOP_BAR_HEIGHT}),
-        CheckCollisionPointRec(mousePos, (Rectangle){0, TOP_BAR_HEIGHT, GVARS.screenWidth, DEFAULT_SHEET_HEIGHT})};
-
-    MouseTitleBarHandler(Collision, Mouse, mousePos, windowPos);
-    MouseSheetHandler(Collision, Mouse, mousePos, sheet, cellIndex);
-}
-
-void EnterNavigationHandler(Cell *sheet, size_t *cellIndex)
-{
-    if (*cellIndex > CELL_COUNT - 5)
-    {
-        *cellIndex = 0;
-        GVARS.scope = SCOPE_OVERVIEW;
-    }
-    else
-    {
-        if (*cellIndex % 3 == 2)
-        {
-            if (sheet[*cellIndex - 1].gapStr.str[0] == 0)
-            {
-                *cellIndex = *cellIndex - 1;
-            }
-            else
-                *cellIndex = *cellIndex + 2;
-        }
-        else if (*cellIndex % 3 == 1)
-        {
-            if (sheet[*cellIndex + 1].gapStr.str[0] == 0)
-            {
-                *cellIndex = *cellIndex + 1;
-            }
-            else
-                *cellIndex = *cellIndex + 3;
-        }
-    }
-}
-
-void CellOverwriteHandler(Cell *sheet, size_t *cellIndex)
-{
-    if (*cellIndex > 2 && *cellIndex < CELL_COUNT - 3)
-    {
-        char *filteredText = filterText(sheet[*cellIndex].gapStr.str);
-        OverwriteStr(&sheet[*cellIndex].gapStr, filteredText, 0, CELL_TEXT_LENGTH);
-    }
-}
-
-void CopyText(GapBuffer gapStr)
-{
-    char *copy = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-    char *tmp = gapStrToStr(gapStr, CELL_TEXT_LENGTH);
-    memset(copy, 0, CELL_TEXT_LENGTH);
-    strncpy(copy, tmp + GVARS.selection.start, GVARS.selection.end);
-    SetClipboardText(copy);
-    free(tmp);
-    free(copy);
-}
-
-// TODO: deleting a selection is not yet implemented
-void CutText(GapBuffer *gapStr)
-{
-    char *copy = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-    char *tmp = gapStrToStr(*gapStr, CELL_TEXT_LENGTH);
-    memset(copy, 0, CELL_TEXT_LENGTH);
-    strncpy(copy, tmp + GVARS.selection.start, GVARS.selection.end);
-    SetClipboardText(copy);
-    free(tmp);
-    free(copy);
-}
-
-void CellInputHandler(Cell *sheet, size_t *cellIndex)
-{
-    if (GVARS.scope == SCOPE_OVERVIEW) return;
-    if (*cellIndex == 0) return;
-    int key_char = GetCharPressed();
-
-    while (key_char > 0) {
-        if ((key_char >= 32) && (key_char <= 125)) {
-            if (GVARS.scope == SCOPE_CELL) {
-                if (GVARS.selection.exists) {
-                    replaceChar(&sheet[*cellIndex].gapStr, (char)key_char);
-                    Deselect();
-                }
-                else placeChar(&sheet[*cellIndex].gapStr, (char)key_char);
-            }
-            else {
-                Deselect();
-                GVARS.scope = SCOPE_CELL;
-                placeChar(&sheet[*cellIndex].gapStr, (char)key_char);
-            }
-        }
-        key_char = GetCharPressed();
-    }
-}
-
-void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
-{
-    if (GVARS.scope != SCOPE_SHEET) return;
-    if (*cellIndex == 0) return;
-    CellInputHandler(sheet, cellIndex);
-    if (key.escape) {
-        GVARS.scope = SCOPE_OVERVIEW;
-        return;
-    }
-    if (key.enter) {
-        CellOverwriteHandler(sheet, cellIndex);
-        EnterNavigationHandler(sheet, cellIndex);
-        UpdateScores(sheet);
-        if (*cellIndex == 0) GVARS.scope = SCOPE_OVERVIEW;
-        return;
-    }
-    if (key.delete) {
-        OverwriteStr(&sheet[*cellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
-    }
-    if (key.backspace) {
-        OverwriteStr(&sheet[*cellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
-        GVARS.scope = SCOPE_CELL;
-        return;
-    }
-    if (key.v) {
-        placeString(&sheet[*cellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
-        GVARS.scope = SCOPE_CELL;
-        return;
-    }
-    if (key.left) {
-        if (*cellIndex % 3 == 2) {
-            *cellIndex = *cellIndex - 1;
-        }
-    }
-    if (key.right) {
-        if (*cellIndex % 3 == 1) {
-            *cellIndex = *cellIndex + 1;
-        }
-    }
-    if (key.down) {
-        if (*cellIndex > CELL_COUNT - 6) {
-            return;
-        }
-        *cellIndex = *cellIndex + 3;
-    }
-    if (key.up) {
-        if (*cellIndex < 3)
-            return;
-        *cellIndex = *cellIndex - 3;
-    }
-}
-
-void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
-{
-    if (GVARS.scope != SCOPE_CELL)
-        return;
-    CellInputHandler(sheet, cellIndex);
-    if (key.escape)
-    {
-        if (GVARS.selection.exists)
-        {
-            Deselect();
-        }
-        else
-        {
-            GVARS.scope = SCOPE_SHEET;
-            // TODO: Undo action
-        }
-        return;
-    }
-    if (key.enter)
-    {
-        CellOverwriteHandler(sheet, cellIndex);
-        EnterNavigationHandler(sheet, cellIndex);
-        UpdateScores(sheet);
-        if (*cellIndex == 0)
-        {
-            GVARS.scope = SCOPE_OVERVIEW;
-        }
-        else
-            GVARS.scope = SCOPE_SHEET;
-        return;
-    }
-    if (!key.shift)
-    { // TODO: Clean this up/ make it more concise
-        if (key.ctrl)
-        { // TODO: do it by token
-            if (key.left)
-            {
-                MoveCursorToIndex(&sheet[*cellIndex].gapStr, 0);
-                Deselect();
-                return;
-            }
-            if (key.right)
-            {
-                MoveCursorToIndex(&sheet[*cellIndex].gapStr, strlen(gapStrToStr(sheet[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
-                Deselect();
-                return;
-            }
-            if (key.c)
-            {
-                CopyText(sheet[*cellIndex].gapStr);
-                return;
-            }
-            if (key.x)
-            {
-                CopyText(sheet[*cellIndex].gapStr);
-                DeleteSelection(&sheet[*cellIndex].gapStr);
-                return;
-            }
-            if (key.v)
-            {
-                placeString(&sheet[*cellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
-                return;
-            }
-        }
-        else if (!key.ctrl)
-        {
-            if (key.left)
-            {
-                if (cursorLeft(&sheet[*cellIndex].gapStr))
-                    Deselect();
-                Deselect();
-                return;
-            }
-            if (key.right)
-            {
-                if (cursorRight(&sheet[*cellIndex].gapStr))
-                    Deselect();
-                Deselect();
-                return;
-            }
-        }
-        if (IsKeyPressed(KEY_BACKSPACE))
-        {
-            deleteCharAtCursor(&sheet[*cellIndex].gapStr);
-            Deselect();
-            return;
-        }
-    }
-    else if (key.shift)
-    {
-        if (key.ctrl)
-        {
-            // if (key.left) selectLeftToken();
-            // if (key.right) selectRightToken();
-        }
-        else if (!key.ctrl)
-        {
-            if (key.left)
-                selectChar(&sheet[*cellIndex].gapStr, DIR_LEFT);
-            if (key.right)
-                selectChar(&sheet[*cellIndex].gapStr, DIR_RIGHT);
-        }
-    }
-}
-
-// void GenericKeyPressHandler(KeyMap key, size_t *cellIndex)
-// {
-//     if (key.ctrl) {
-//         // TODO: undo/redo
-//         // TODO: save/load
-//         // TODO: select all
-//     }
-// }
-
-void InputHandler(Cell *sheet, size_t *cellIndex)
-{
-    KeyMap key = {false};
-
-    key.ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
-    key.shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
-
-    key.escape = IsKeyPressed(KEY_ESCAPE);
-    key.enter = IsKeyPressed(KEY_ENTER);
-    key.delete = IsKeyPressed(KEY_DELETE);
-    key.backspace = IsKeyPressed(KEY_BACKSPACE);
-
-    key.left = IsKeyPressed(KEY_LEFT);
-    key.right = IsKeyPressed(KEY_RIGHT);
-    key.up = IsKeyPressed(KEY_UP);
-    key.down = IsKeyPressed(KEY_DOWN);
-
-    key.c = IsKeyPressed(KEY_C);
-    key.x = IsKeyPressed(KEY_X);
-    key.v = IsKeyPressed(KEY_V);
-
-    MouseHandler(sheet, cellIndex);
-    SheetKeyPressHandler(sheet, key, cellIndex);
-    CellKeyPressHandler(sheet, key, cellIndex);
-    // GenericKeyPressHandler(key, cellIndex);
-}
+#endif
