@@ -2,6 +2,6 @@ tracker.exe
 linked_list.c
 resources/logo-transparent-42.png
 resources/elite-logo-full-no_slogan.png
-resources/template.bbcode
-TestFile.txt
-out.bbcode
+*.txt
+*.bbcode
+times/

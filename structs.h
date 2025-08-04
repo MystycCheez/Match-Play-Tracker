@@ -104,6 +104,7 @@ typedef struct Globals {
     Selection selection;
     Scope_Level scope;
     bool shouldExit;
+    char* level_win;
 } Globals;
 
 typedef struct Node {

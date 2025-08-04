@@ -25,7 +25,7 @@ Font loadFont()
 
 void loadTimes(Cell* sheet)
 {
-    char* filename = "save/times.txt";
+    char* filename = "times/times.txt";
     
     FILE* file_ptr = fopen(filename, "r");
     if (file_ptr == NULL) {
@@ -97,7 +97,7 @@ void loadSpecialText()
 
 void saveTimes(Cell* sheet)
 {
-    MakeDirectory("save");
+    MakeDirectory("times");
     char* filename = "save/times.txt";
 
     FILE* file_ptr = fopen(filename, "w");
@@ -122,17 +122,10 @@ void saveTimes(Cell* sheet)
 
 void ExportToBBCode(Cell* sheet)
 {
-    char* testFileName = "TestFile.txt";
-    char* bbFileName = "out.bbcode";
+    MakeDirectory("times");
+    char* bbFileName = "times/results.bbcode";
 
-    FILE *TestFile = fopen(testFileName, "w");
     FILE *out_bb = fopen(bbFileName, "w");
-
-    if (TestFile == NULL) {
-        fprintf(stderr, "Error: Could not open file: %s\n", testFileName);
-        fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
-        exit(1);
-    }
     if (bbFileName == NULL) {
         fprintf(stderr, "Error: Could not open file: %s\n", bbFileName);
         fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
@@ -156,11 +149,6 @@ void ExportToBBCode(Cell* sheet)
             } else {
                 colorText[i] = "white";
             }
-        }
-        fprintf(TestFile, "Cell Text: %s\n", cellText[i]);
-        fprintf(TestFile, "Color Text: %s\n", colorText[i]);
-        if (i % 3 == 2) {
-            fprintf(TestFile, "\n");
         }
     }
 
@@ -256,10 +244,10 @@ void ExportToBBCode(Cell* sheet)
         "[/table]\n"
     );
     fprintf(out_bb, // Results
-        "[size=14pt][b]%s - %s[/b][/size] Win at %s",
-        cellText[CELL_COUNT - 1],
+        "[size=14pt][b]%s - %s[/b][/size] Win at %s\n\n",
         cellText[CELL_COUNT - 2],
-        "Who Knows?\n\n"
+        cellText[CELL_COUNT - 1],
+        GVARS.level_win
     );
     fprintf(out_bb,
         "Put Twitch link here\n"
@@ -268,7 +256,6 @@ void ExportToBBCode(Cell* sheet)
         "[/spoiler]"
     );
 
-    fclose(TestFile);
     fclose(out_bb);
 }
 

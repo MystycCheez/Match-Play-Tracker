@@ -12,6 +12,7 @@ int main()
     GVARS.cellWidth = DEFAULT_CELL_WIDTH;
     GVARS.fontSize = DEFAULT_FONT_SIZE;
     GVARS.scope = SCOPE_SHEET;
+    GVARS.level_win = NULL;
     GVARS.shouldExit = false;
     loadSpecialText();
     

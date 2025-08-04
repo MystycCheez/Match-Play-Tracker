@@ -5,6 +5,7 @@
 #include "enums.h"
 #include "structs.h"
 
+// functions.c
 void reInitGVARS();
 void initButtons();
 void initSheetText(Cell *sheet, Players players, int game);
@@ -22,6 +23,7 @@ char *filterText(char *text);
 Int2 CompareTimes(size_t row, Cell *cells);
 void UpdateScores(Cell *cells);
 
+// gap_buffer.c
 GapBuffer initGapStr(size_t len);
 size_t rawIndexToGapIndex(size_t index, GapBuffer gapStr);
 size_t gapStrLen(GapBuffer gapStr);
@@ -40,6 +42,7 @@ void DeleteSelection(GapBuffer *gapStr);
 void replaceChar(GapBuffer *gapStr, char c);
 void CopyText(GapBuffer gapStr);
 
+// misc.c
 Vector2 indexToXY(size_t index);
 Vector2 indexToCR(size_t index);
 size_t xyToIndex(Vector2 xy);
@@ -48,6 +51,7 @@ char* ColorToHexText(Color color);
 void chrswap(char* ptr1, char* ptr2);
 char* i_toStr(int num);
 
+// io.c
 Font loadFont();
 void loadTimes(Cell* sheet);
 char **loadLevelText(int game);
@@ -55,6 +59,7 @@ void loadSpecialText();
 void saveTimes(Cell* sheet);
 void ExportToBBCode(Cell* sheet);
 
+// draw.c
 void DrawCellBorders(size_t cellIndex);
 void DrawCursor(Cell *sheet, size_t cellIndex, Font font);
 void DrawTextCentered(Font font, Vector2 pos, float fontSize, float spacing, Cell cell);
@@ -62,6 +67,7 @@ void DrawTextLeftAligned(Font font, Vector2 pos, float fontSize, float spacing, 
 void DrawTextAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell cell, size_t i);
 void DrawTextHighlight(Cell *sheet, size_t cellIndex, Font font);
 
+// handler.c
 void ExitHandler();
 void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mousePos, Vector2 windowPos);
 void MouseSheetHandler(CollisionMap Collision, MouseState Mouse, Vector2 mousePos, Cell *sheet, size_t *cellIndex);

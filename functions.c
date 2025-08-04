@@ -292,6 +292,7 @@ Int2 CompareTimes(size_t row, Cell *cells)
 void UpdateScores(Cell *cells)
 {
     size_t tieCounter = 0;
+    bool win_set = false;
     OverwriteStr(&cells[CELL_COUNT - 2].gapStr, "0", 0, CELL_TEXT_LENGTH);
     OverwriteStr(&cells[CELL_COUNT - 1].gapStr, "0", 0, CELL_TEXT_LENGTH);
     Int2 *wins = malloc(sizeof(Int2) * LEVEL_COUNT);
@@ -311,6 +312,13 @@ void UpdateScores(Cell *cells)
         else if (wins[i].a > 0 || wins[i].b > 0) {
             OverwriteStr(&cells[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(cells[CELL_COUNT - 2].gapStr.str)), 0, CELL_TEXT_LENGTH);
             OverwriteStr(&cells[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(cells[CELL_COUNT - 1].gapStr.str)), 0, CELL_TEXT_LENGTH);
+        }
+        if (!win_set) {
+            if ((atoi(gapStrToStr(cells[CELL_COUNT - 1].gapStr, CELL_TEXT_LENGTH)) >= 9) || (atoi(gapStrToStr(cells[CELL_COUNT - 2].gapStr, CELL_TEXT_LENGTH)) >= 9)) {
+                // printf("%s", gapStrToStr(cells[crToIndex((Vector2){0, i + 1})].gapStr, CELL_TEXT_LENGTH));
+                GVARS.level_win = gapStrToStr(cells[crToIndex((Vector2){0, i + 1})].gapStr, CELL_TEXT_LENGTH);
+                win_set = true;
+            }
         }
     }
 }
