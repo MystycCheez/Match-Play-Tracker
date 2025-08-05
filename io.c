@@ -23,16 +23,18 @@ Font loadFont()
     return font;
 }
 
-void loadTimes(Cell* sheet)
+// Returns true if succesfully loaded
+bool loadTimes(Cell* sheet)
 {
     char* filename = "times/times.txt";
     
     FILE* file_ptr = fopen(filename, "r");
     if (file_ptr == NULL) {
-        fprintf(stderr, "Error: Could not open file: %s\n", filename);
-        fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
-        exit(1);
+        printf("Error: Could not open file: %s\n", filename);
+        return false;
     }
+
+    ClearTimes(sheet);
 
     int c = 0;
     
@@ -46,6 +48,7 @@ void loadTimes(Cell* sheet)
         }
     }
     fclose(file_ptr);
+    return true;
 }
 
 char **loadLevelText(int game)
@@ -98,7 +101,7 @@ void loadSpecialText()
 void saveTimes(Cell* sheet)
 {
     MakeDirectory("times");
-    char* filename = "save/times.txt";
+    char* filename = "times/times.txt";
 
     FILE* file_ptr = fopen(filename, "w");
     if (file_ptr == NULL) {
@@ -107,13 +110,12 @@ void saveTimes(Cell* sheet)
         exit(1);
     }
 
-    // Putting the string "-" indicates no time inputted
     for (size_t i = 1; i < CELL_COUNT - 3; i++) {
         if ((i % 3 == 2) || (i % 3 == 1)) {
             if (strlen(sheet[i].gapStr.str) > 0) {
                 fprintf(file_ptr, "%s\n", gapStrToStr(sheet[i].gapStr, CELL_TEXT_LENGTH));
             } else {
-                fprintf(file_ptr, "-\n");
+                fprintf(file_ptr, "\n");
             }
         }
     }

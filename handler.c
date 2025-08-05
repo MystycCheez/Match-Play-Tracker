@@ -213,14 +213,14 @@ void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
             return;
         }
         if (key.l) {
-            ClearTimes(sheet);
-            loadTimes(sheet);
-            UpdateScores(sheet);
-            printf("Loaded times from save/times.txt\n");
+            if (loadTimes(sheet)) {
+                UpdateScores(sheet);
+                printf("Loaded times from times/times.txt\n");
+            }
         }
         if (key.s) {
             saveTimes(sheet);
-            printf("Saved times to save/times.txt\n");
+            printf("Saved times to times/times.txt\n");
         }
         if (key.b) {
             ExportToBBCode(sheet);

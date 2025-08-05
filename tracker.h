@@ -53,7 +53,7 @@ char* i_toStr(int num);
 
 // io.c
 Font loadFont();
-void loadTimes(Cell* sheet);
+bool loadTimes(Cell* sheet);
 char **loadLevelText(int game);
 void loadSpecialText();
 void saveTimes(Cell* sheet);
