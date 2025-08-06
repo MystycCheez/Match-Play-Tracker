@@ -1,4 +1,4 @@
-#define GAP_DEBUG
+// #define GAP_DEBUG
 
 #include "includes.h"
 
@@ -12,8 +12,9 @@ int main()
     GVARS.cellWidth = DEFAULT_CELL_WIDTH;
     GVARS.fontSize = DEFAULT_FONT_SIZE;
     GVARS.scope = SCOPE_SHEET;
-    GVARS.level_win = NULL;
     GVARS.shouldExit = false;
+    GVARS.level_win = NULL;
+
     loadSpecialText();
     
     SetConfigFlags(FLAG_WINDOW_UNDECORATED);
@@ -58,7 +59,6 @@ int main()
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
 
-        // TODO: Draw custom title bar
         DrawTextureNPatch(TitleBarTexture, TitleBarNPatch, TitleBarRec, (Vector2){0, 0}, 0, WHITE);
         DrawTextureEx(GVARS.buttons[BTN_EXIT].texture, GVARS.buttons[BTN_EXIT].pos, 0, 2, getStateColor(GVARS.buttons[BTN_EXIT].state));
         DrawTextureEx(GVARS.buttons[BTN_MINIMIZE].texture, GVARS.buttons[BTN_MINIMIZE].pos, 0, 2, getStateColor(GVARS.buttons[BTN_MINIMIZE].state));
@@ -80,7 +80,6 @@ int main()
         // Draw Text :)
         for (size_t i = 0; i < CELL_COUNT; i++) 
             DrawTextAligned(font, TextPos, GVARS.fontSize, 1, sheet[i], i);
-
         if (GVARS.scope >= SCOPE_SHEET) {
             DrawCellBorders(selectedCellIndex);
         }

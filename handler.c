@@ -106,24 +106,21 @@ void MouseHandler(Cell *sheet, size_t *cellIndex)
     MouseSheetHandler(Collision, Mouse, mousePos, sheet, cellIndex);
 }
 
+// TODO: Fix this for the Egypt row
 void EnterNavigationHandler(Cell *sheet, size_t *cellIndex)
 {
-    if (*cellIndex > CELL_COUNT - 5) {
+    if (*cellIndex > CELL_COUNT - 6) {
         *cellIndex = 0;
         GVARS.scope = SCOPE_OVERVIEW;
-    }
-    else {
+    } else {
         if (*cellIndex % 3 == 2) {
             if (sheet[*cellIndex - 1].gapStr.str[0] == 0) {
                 *cellIndex = *cellIndex - 1;
-            }
-            else *cellIndex = *cellIndex + 2;
-        }
-        else if (*cellIndex % 3 == 1) {
+            } else *cellIndex = *cellIndex + 2;
+        } else if (*cellIndex % 3 == 1) {
             if (sheet[*cellIndex + 1].gapStr.str[0] == 0) {
                 *cellIndex = *cellIndex + 1;
-            }
-            else *cellIndex = *cellIndex + 3;
+            } else *cellIndex = *cellIndex + 3;
         }
     }
 }
@@ -234,6 +231,31 @@ void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
     }
 }
 
+void OverviewInputHandler(Cell* sheet, KeyMap key)
+{
+    if (GVARS.scope != SCOPE_OVERVIEW) return;
+
+    if (key.l) {
+        if (loadTimes(sheet)) {
+            UpdateScores(sheet);
+            printf("Loaded times from times/times.txt\n");
+        }
+    }
+    if (key.s) {
+        saveTimes(sheet);
+        printf("Saved times to times/times.txt\n");
+    }
+    if (key.b) {
+        ExportToBBCode(sheet);
+        printf("Exported to BBCode\n");
+    }
+    if (key.delete) {
+        ClearTimes(sheet);
+        UpdateScores(sheet);
+        printf("Sheet Cleared\n");
+    }
+}
+
 void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
 {
     if (GVARS.scope != SCOPE_CELL) return;
@@ -254,7 +276,7 @@ void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
         else GVARS.scope = SCOPE_SHEET;
         return;
     }
-    if (!key.shift) { // TODO: Clean this up/ make it more concise
+    if (!key.shift) { // TODO: Clean this up / make it more concise
         if (key.ctrl) { // TODO: do it by token
             if (key.left) {
                 MoveCursorToIndex(&sheet[*cellIndex].gapStr, 0);
@@ -282,6 +304,7 @@ void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
         }
         else if (!key.ctrl) {
             // Redundant Deselect() here, but I'm not sure if I should always deselect if keypress
+            // TODO
             if (key.left) {
                 if (cursorLeft(&sheet[*cellIndex].gapStr)) Deselect();
                 Deselect();
@@ -339,6 +362,7 @@ void InputHandler(Cell *sheet, size_t *cellIndex)
     key.b = IsKeyPressed(KEY_B);
 
     MouseHandler(sheet, cellIndex);
+    OverviewInputHandler(sheet, key);
     SheetKeyPressHandler(sheet, key, cellIndex);
     CellKeyPressHandler(sheet, key, cellIndex);
     // GenericKeyPressHandler(key, cellIndex);

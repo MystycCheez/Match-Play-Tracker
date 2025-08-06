@@ -74,7 +74,8 @@ void OverwriteStr(GapBuffer *gapStr, const char *str, size_t start, size_t len)
     #endif
 }
 
-// TODO // TODO What?
+// I'm not using this function, do I need it?
+// If so, check if it works
 GapBuffer strToGapStr(char* str, size_t cursor)
 {
     GapBuffer gapStr = {0};

@@ -76,6 +76,7 @@ void EnterNavigationHandler(Cell *sheet, size_t *cellIndex);
 void CellOverwriteHandler(Cell *sheet, size_t cellIndex);
 void CellInputHandler(Cell *sheet, size_t *cellIndex);
 void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex);
+void OverviewInputHandler(Cell* sheet, KeyMap key);
 void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex);
 void InputHandler(Cell *sheet, size_t *cellIndex);
 

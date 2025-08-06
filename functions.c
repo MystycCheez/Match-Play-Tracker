@@ -315,7 +315,6 @@ void UpdateScores(Cell *cells)
         }
         if (!win_set) {
             if ((atoi(gapStrToStr(cells[CELL_COUNT - 1].gapStr, CELL_TEXT_LENGTH)) >= 9) || (atoi(gapStrToStr(cells[CELL_COUNT - 2].gapStr, CELL_TEXT_LENGTH)) >= 9)) {
-                // printf("%s", gapStrToStr(cells[crToIndex((Vector2){0, i + 1})].gapStr, CELL_TEXT_LENGTH));
                 GVARS.level_win = gapStrToStr(cells[crToIndex((Vector2){0, i + 1})].gapStr, CELL_TEXT_LENGTH);
                 win_set = true;
             }
