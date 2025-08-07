@@ -7,6 +7,7 @@
 
 // init.c
 void initGlobals();
+void initWindow();
 void initButtons();
 void initSheetText(Cell *sheet, Players players, int game);
 Cell *initSheet(Players players, int game);
@@ -62,7 +63,7 @@ void saveTimes(Cell* sheet);
 void ExportToBBCode(Cell* sheet);
 
 // draw.c
-void DrawCellBorders(size_t cellIndex);
+void DrawSelectionBorders(size_t cellIndex);
 void DrawCursor(Cell *sheet, size_t cellIndex);
 void DrawTextCentered(Vector2 pos, Cell cell);
 void DrawTextLeftAligned(Vector2 pos, Cell cell);

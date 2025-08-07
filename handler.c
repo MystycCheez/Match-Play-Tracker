@@ -95,7 +95,13 @@ void MouseHandler(Cell *sheet, size_t *cellIndex)
         CheckCollisionPointRec(mousePos, getButtonRect(UI.buttons[BTN_EXIT])),
         CheckCollisionPointRec(mousePos, getButtonRect(UI.buttons[BTN_MINIMIZE])),
         CheckCollisionPointRec(mousePos, (Rectangle){0, 0, Window.Width, TOP_BAR_HEIGHT}),
-        CheckCollisionPointRec(mousePos, (Rectangle){0, TOP_BAR_HEIGHT, Window.Width, SHEET_HEIGHT})
+        CheckCollisionPointRec(mousePos, 
+            (Rectangle){
+                UI.cellWidth, 
+                TOP_BAR_HEIGHT, 
+                UI.cellWidth * 2, 
+                Window.Height - TOP_BAR_HEIGHT
+            })
     };
     MouseTitleBarHandler(Collision, Mouse, mousePos, windowPos);
     MouseSheetHandler(Collision, Mouse, mousePos, sheet, cellIndex);

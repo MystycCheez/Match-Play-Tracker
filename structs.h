@@ -89,11 +89,13 @@ typedef struct Specials {
 
 typedef struct Button {
     Vector2 pos;
+    Vector2 size;
     Texture2D texture;
     State_Button state : 2;
 } Button;
 
 typedef struct Globals {
+    Vector2 scaleDPI;
     Specials specials;
     Selection selection;
     Scope_Level scope;

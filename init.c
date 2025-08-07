@@ -4,6 +4,21 @@
 #include "includes.h"
 #include "GLFW/glfw3.h"
 
+void initGlobals()
+{
+    GVARS.scaleDPI = GetWindowScaleDPI();    
+
+    UI.cellWidth = BASE_CELL_WIDTH * GVARS.scaleDPI.x;
+    UI.cellHeight = BASE_CELL_HEIGHT * GVARS.scaleDPI.y;
+    UI.fontSize = BASE_FONT_SIZE * GVARS.scaleDPI.x;
+
+    printf("%f, %f\n", UI.cellWidth, UI.cellHeight);
+
+    GVARS.scope = SCOPE_SHEET;
+    GVARS.shouldExit = false;
+    GVARS.level_win = NULL;
+}
+
 void initWindow()
 {
     SetConfigFlags(FLAG_WINDOW_UNDECORATED);
@@ -13,12 +28,11 @@ void initWindow()
     SetTextureFilter(Window.IconTexture, TEXTURE_FILTER_BILINEAR);
     SetWindowIcon(Window.Icon);
 
-    Vector2 scaleDPI = GetWindowScaleDPI();
+    GVARS.scaleDPI = GetWindowScaleDPI();
 
-    Window.Width = Window.Width * scaleDPI.x;
-    Window.Height = Window.Height * scaleDPI.y;
+    Window.Width = SHEET_WIDTH * GVARS.scaleDPI.x;
+    Window.Height = (SHEET_HEIGHT * GVARS.scaleDPI.y) + TOP_BAR_HEIGHT;
 
-    // TODO: Find a way to account for the taskbar
     int currentMonitor = GetCurrentMonitor();
     int monitorCount = 0;
     int monitorWorkareaX = 0;
@@ -47,21 +61,13 @@ void initWindow()
     TitleBar.Rec = (Rectangle){0, 0, Window.Width, TOP_BAR_HEIGHT};
 }
 
-void initGlobals()
-{
-    Window.Height = SCREEN_HEIGHT;
-    Window.Width = SCREEN_WIDTH;
-    UI.cellHeight = BASE_CELL_HEIGHT;
-    UI.cellWidth = BASE_CELL_WIDTH;
-    UI.fontSize = BASE_FONT_SIZE;
-    GVARS.scope = SCOPE_SHEET;
-    GVARS.shouldExit = false;
-    GVARS.level_win = NULL;
-}
-
 void initButtons()
 {
     UI.buttons = malloc(sizeof(Button) * 2);
+    for (size_t i = 0; i < 2; i++) {
+        UI.buttons[i].size.x = BASE_BUTTON_SIZE;
+        UI.buttons[i].size.y = BASE_BUTTON_SIZE;
+    }
     UI.buttons[BTN_EXIT].pos = (Vector2){Window.Width - BASE_BUTTON_SIZE - (BASE_BUTTON_SIZE / 2), (TOP_BAR_HEIGHT / 2) - 13};
     UI.buttons[BTN_EXIT].texture = LoadTextureFromImage(LoadImage("resources/x.png"));
     UI.buttons[BTN_EXIT].state = STATE_BTN_UNHIGHLIGHTED;

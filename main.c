@@ -7,8 +7,8 @@ int main()
     SetTraceLogLevel(LOG_NONE);
     SetExitKey(KEY_NULL);
 
-    initGlobals();
     initWindow();
+    initGlobals();
     initButtons();
     
     loadSpecialText();
@@ -45,7 +45,7 @@ int main()
         DrawTextureEx(UI.buttons[BTN_MINIMIZE].texture, UI.buttons[BTN_MINIMIZE].pos, 0, 2, getStateColor(UI.buttons[BTN_MINIMIZE].state));
         DrawTexturePro(Window.IconTexture, (Rectangle){0, 0, 352, 352}, (Rectangle){3, 3, 44, 44}, (Vector2){0, 0}, 0, WHITE);
         
-        // The following function is documented incorrectly - TODO: Make PR/Issue
+        // DrawRectangleGradientEx() is documented incorrectly - TODO: Make PR/Issue
         DrawRectangleGradientEx(gradTop, GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
         DrawRectangleGradientEx(gradBot, GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
         // Draw Cell Highlights for win/loss
@@ -65,7 +65,7 @@ int main()
         }
         EndShaderMode();
         if (GVARS.scope >= SCOPE_SHEET) {
-            DrawCellBorders(selectedCellIndex);
+            DrawSelectionBorders(selectedCellIndex);
         }
 
         if (GVARS.scope == SCOPE_CELL) {

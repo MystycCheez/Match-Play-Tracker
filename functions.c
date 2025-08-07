@@ -24,7 +24,7 @@ Color getStateColor(State_Button state)
 
 Rectangle getButtonRect(Button button)
 {
-    return (Rectangle){button.pos.x, button.pos.y, BASE_BUTTON_SIZE, BASE_BUTTON_SIZE};
+    return (Rectangle){button.pos.x, button.pos.y, button.size.x, button.size.y};
 }
 
 // Returns TEXT_VETO or TEXT_DNF if found

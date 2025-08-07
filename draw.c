@@ -3,7 +3,7 @@
 
 #include "includes.h"
 
-void DrawCellBorders(size_t cellIndex)
+void DrawSelectionBorders(size_t cellIndex)
 {
     if (cellIndex == 0) return;
     Vector2 cellOrigin = indexToXY(cellIndex);
