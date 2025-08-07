@@ -64,23 +64,18 @@ void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mous
 
 void MouseSheetHandler(CollisionMap Collision, MouseState Mouse, Vector2 mousePos, Cell *sheet, size_t *cellIndex)
 {
-    if (!Mouse.pressed)
-        return;
-    if (Collision.sheet)
-    {
-        if (xyToIndex(mousePos) == *cellIndex)
-        {
+    if (!Mouse.pressed) return;
+    if (Collision.sheet) {
+        if (xyToIndex(mousePos) == *cellIndex) {
             GVARS.scope = SCOPE_CELL;
         }
-        else
-        {
+        else {
             *cellIndex = xyToIndex(mousePos);
             GVARS.scope = sheet[*cellIndex].selectable ? SCOPE_SHEET : SCOPE_OVERVIEW;
             cellIndex = GVARS.scope > SCOPE_OVERVIEW ? cellIndex : 0;
         }
     }
-    else
-    {
+    else {
         GVARS.scope = SCOPE_OVERVIEW;
         cellIndex = 0;
     }
@@ -94,14 +89,14 @@ void MouseHandler(Cell *sheet, size_t *cellIndex)
     MouseState Mouse = {
         IsMouseButtonDown(MOUSE_BUTTON_LEFT),
         IsMouseButtonPressed(MOUSE_BUTTON_LEFT),
-        IsMouseButtonReleased(MOUSE_BUTTON_LEFT)};
-
+        IsMouseButtonReleased(MOUSE_BUTTON_LEFT)
+    };
     CollisionMap Collision = {
         CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_EXIT])),
         CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_MINIMIZE])),
-        CheckCollisionPointRec(mousePos, (Rectangle){0, 0, GVARS.screenWidth, TOP_BAR_HEIGHT}),
-        CheckCollisionPointRec(mousePos, (Rectangle){0, TOP_BAR_HEIGHT, GVARS.screenWidth, DEFAULT_SHEET_HEIGHT})};
-
+        CheckCollisionPointRec(mousePos, (Rectangle){0, 0, UI.windowWidth, TOP_BAR_HEIGHT}),
+        CheckCollisionPointRec(mousePos, (Rectangle){0, TOP_BAR_HEIGHT, UI.windowWidth, SHEET_HEIGHT})
+    };
     MouseTitleBarHandler(Collision, Mouse, mousePos, windowPos);
     MouseSheetHandler(Collision, Mouse, mousePos, sheet, cellIndex);
 }
@@ -128,7 +123,7 @@ void EnterNavigationHandler(Cell *sheet, size_t *cellIndex)
 void CellOverwriteHandler(Cell *sheet, size_t cellIndex)
 {
     if (cellIndex > 2 && cellIndex < CELL_COUNT - 3) {
-        char *filteredText = filterText(sheet[cellIndex].gapStr.str);
+        char *filteredText = filterCellText(sheet[cellIndex].gapStr.str);
         OverwriteStr(&sheet[cellIndex].gapStr, filteredText, 0, CELL_TEXT_LENGTH);
     }
 }

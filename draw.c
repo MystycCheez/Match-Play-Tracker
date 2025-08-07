@@ -7,72 +7,76 @@ void DrawCellBorders(size_t cellIndex)
 {
     if (cellIndex == 0) return;
     Vector2 cellOrigin = indexToXY(cellIndex);
-    DrawRectangleLinesEx((Rectangle){cellOrigin.x, cellOrigin.y, GVARS.cellWidth, GVARS.cellHeight}, 3.0, RAYWHITE);
+    DrawRectangleLinesEx((Rectangle){cellOrigin.x, cellOrigin.y + 1, UI.cellWidth - 1, UI.cellHeight - 1}, 2.0, RAYWHITE);
 }
 
-void DrawCursor(Cell *sheet, size_t cellIndex, Font font)
+void DrawCursor(Cell *sheet, size_t cellIndex)
 {
     if (cellIndex == 0) return;
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
-    float span = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH), GVARS.fontSize, 1).x;
-    float offset = MeasureTextEx(font, sheet[cellIndex].gapStr.str, GVARS.fontSize, 1).x;
-    pos.x += (GVARS.cellWidth / 2) - (span / 2) + offset + 1;
+    float span = MeasureTextEx(UI.font, gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH), UI.fontSize, 1).x;
+    float offset = MeasureTextEx(UI.font, sheet[cellIndex].gapStr.str, UI.fontSize, 1).x;
+    pos.x += (UI.cellWidth / 2) - (span / 2) + offset + 1;
     pos.y += 2;
-    DrawLineEx(pos, (Vector2){pos.x, pos.y + GVARS.cellHeight - 6}, 1.0, LIGHTGRAY);
+    DrawLineEx(pos, (Vector2){pos.x, pos.y + UI.cellHeight - 6}, 1.0, LIGHTGRAY);
 }
 
-void DrawTextCentered(Font font, Vector2 pos, float fontSize, float spacing, Cell cell)
+void DrawTextCentered(Vector2 pos, Cell cell)
 {
     char *text = gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH);
-    Vector2 size = MeasureTextEx(font, text, fontSize, spacing);
+    Vector2 size = MeasureTextEx(UI.font, text, UI.fontSize, 1);
 
-    pos.x = pos.x + (GVARS.cellWidth / 2) - (size.x / 2);
-    pos.y = pos.y + (GVARS.cellHeight / 2) - (size.y / 2);
+    pos.x = pos.x + (UI.cellWidth / 2) - (size.x / 2);
+    pos.y = pos.y + (UI.cellHeight / 2) - (size.y / 2);
 
-    DrawTextEx(font, text, pos, fontSize, spacing, cell.color);
+    DrawTextEx(UI.font, text, pos, UI.fontSize, 1, cell.color);
 }
 
-void DrawTextLeftAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell cell)
+void DrawTextLeftAligned(Vector2 pos, Cell cell)
 {
     char *text = gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH);
-    Vector2 size = MeasureTextEx(font, text, fontSize, spacing);
+    Vector2 size = MeasureTextEx(UI.font, text, UI.fontSize, 1);
 
-    pos.x = pos.x + fontSize / 2;
-    pos.y = pos.y + (GVARS.cellHeight / 2) - (size.y / 2);
+    pos.x = pos.x + UI.fontSize / 2;
+    pos.y = pos.y + (UI.cellHeight / 2) - (size.y / 2);
 
-    DrawTextEx(font, text, pos, fontSize, spacing, cell.color);
+    DrawTextEx(UI.font, text, pos, UI.fontSize, 1, cell.color);
 }
 
-void DrawTextAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell cell, size_t i)
+void DrawTextAligned(Vector2 pos, Cell cell, size_t cellIndex)
 {
     switch (cell.alignment) {
     case ALIGN_LEFT:
-        DrawTextLeftAligned(font, CalcTextPos(pos, i), fontSize, spacing, cell);
+        DrawTextLeftAligned(CalcTextPos(pos, cellIndex), cell);
         break;
     case ALIGN_CENTER:
-        DrawTextCentered(font, CalcTextPos(pos, i), fontSize, spacing, cell);
+        DrawTextCentered(CalcTextPos(pos, cellIndex), cell);
         break;
     case ALIGN_RIGHT:
         assert(!"TODO: ALIGN_RIGHT");
         break;
+    default:
+        assert(!"Value of cell.alignment is not valid!\n");
+        exit(-1);
     }
+
 }
 
-void DrawTextHighlight(Cell *sheet, size_t cellIndex, Font font)
+void DrawTextHighlight(Cell *sheet, size_t cellIndex)
 {
     Vector2 pos = {0};
     pos = CalcTextPos(pos, cellIndex);
     size_t selectionLen = GVARS.selection.end - GVARS.selection.start;
     char *selectedText = gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH) + GVARS.selection.start;
     selectedText[selectionLen] = 0;
-    float selectionSpan = MeasureTextEx(font, selectedText, GVARS.fontSize, 1).x;
+    float selectionSpan = MeasureTextEx(UI.font, selectedText, UI.fontSize, 1).x;
 
-    float cellTextSpan = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH), GVARS.fontSize, 1).x;
-    float offset = MeasureTextEx(font, gapStrToStr(sheet[cellIndex].gapStr, GVARS.selection.start), GVARS.fontSize, 1).x;
+    float cellTextSpan = MeasureTextEx(UI.font, gapStrToStr(sheet[cellIndex].gapStr, CELL_TEXT_LENGTH), UI.fontSize, 1).x;
+    float offset = MeasureTextEx(UI.font, gapStrToStr(sheet[cellIndex].gapStr, GVARS.selection.start), UI.fontSize, 1).x;
 
-    pos.x += (GVARS.cellWidth / 2) - (cellTextSpan / 2) + offset;
-    DrawRectangleRec((Rectangle){pos.x, pos.y, selectionSpan + 2, GVARS.cellHeight}, COLOR_HIGHLIGHT);
+    pos.x += (UI.cellWidth / 2) - (cellTextSpan / 2) + offset;
+    DrawRectangleRec((Rectangle){pos.x, pos.y, selectionSpan + 2, UI.cellHeight}, COLOR_HIGHLIGHT);
 }
 
 #endif

@@ -94,26 +94,31 @@ typedef struct Button {
 } Button;
 
 typedef struct Globals {
-    float screenWidth;
-    float screenHeight;
-    float cellWidth;
-    float cellHeight;
-    float fontSize;
     Specials specials;
     Button *buttons;
     Selection selection;
     Scope_Level scope;
     bool shouldExit;
     char* level_win;
+    Shader shader;
 } Globals;
 
-typedef struct Node {
-    void* data;
-    struct Node* next;
-    struct Node* prev;
-} Node;
+typedef struct UI_Elements {
+    float windowWidth;
+    float windowHeight;
+    float cellWidth;
+    float cellHeight;
+    float fontSize;
+    Font font;
+} UI_Elements;
 
-// screenWidth, screenHeight, cellWidth, cellHeight, fontSize, specials, buttons, shouldExit
+// typedef struct Node {
+//     void* data;
+//     struct Node* next;
+//     struct Node* prev;
+// } Node;
+
 Globals GVARS;
+UI_Elements UI;
 
 #endif

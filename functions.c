@@ -3,23 +3,26 @@
 
 #include "includes.h"
 
-void reInitGVARS()
+void initGlobals()
 {
-    GVARS.screenHeight = GetScreenHeight();
-    GVARS.screenWidth = GetScreenWidth();
-    GVARS.cellHeight = GVARS.screenHeight / ROWS;
-    GVARS.cellWidth = GVARS.screenWidth / COLUMNS;
-    GVARS.fontSize = GVARS.screenHeight / 44;
+    UI.windowHeight = SCREEN_HEIGHT;
+    UI.windowWidth = SCREEN_WIDTH;
+    UI.cellHeight = BASE_CELL_HEIGHT;
+    UI.cellWidth = BASE_CELL_WIDTH;
+    UI.fontSize = BASE_FONT_SIZE;
+    GVARS.scope = SCOPE_SHEET;
+    GVARS.shouldExit = false;
+    GVARS.level_win = NULL;
 }
 
 void initButtons()
 {
     GVARS.buttons = malloc(sizeof(Button) * 2);
-    GVARS.buttons[BTN_EXIT].pos = (Vector2){GVARS.screenWidth - BUTTON_SIZE - (BUTTON_SIZE / 2), (TOP_BAR_HEIGHT / 2) - 13};
+    GVARS.buttons[BTN_EXIT].pos = (Vector2){UI.windowWidth - BASE_BUTTON_SIZE - (BASE_BUTTON_SIZE / 2), (TOP_BAR_HEIGHT / 2) - 13};
     GVARS.buttons[BTN_EXIT].texture = LoadTextureFromImage(LoadImage("resources/x.png"));
     GVARS.buttons[BTN_EXIT].state = STATE_BTN_UNHIGHLIGHTED;
     SetTextureFilter(GVARS.buttons[BTN_EXIT].texture, TEXTURE_FILTER_BILINEAR);
-    GVARS.buttons[BTN_MINIMIZE].pos = (Vector2){GVARS.screenWidth - (BUTTON_SIZE * 3), (TOP_BAR_HEIGHT / 2) - 13};
+    GVARS.buttons[BTN_MINIMIZE].pos = (Vector2){UI.windowWidth - (BASE_BUTTON_SIZE * 3), (TOP_BAR_HEIGHT / 2) - 13};
     GVARS.buttons[BTN_MINIMIZE].texture = LoadTextureFromImage(LoadImage("resources/minimize.png"));
     GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_UNHIGHLIGHTED;
     SetTextureFilter(GVARS.buttons[BTN_MINIMIZE].texture, TEXTURE_FILTER_BILINEAR);
@@ -71,11 +74,11 @@ void setBorderPositions(Line *borders)
 {
     size_t index = 0;
     for (size_t i = 0; i < ROWS; i++) {
-        borders[i] = (Line){0, (GVARS.cellHeight * i) + TOP_BAR_HEIGHT, GVARS.screenWidth, (GVARS.cellHeight * i) + TOP_BAR_HEIGHT};
+        borders[i] = (Line){0, (UI.cellHeight * i) + TOP_BAR_HEIGHT, UI.windowWidth, (UI.cellHeight * i) + TOP_BAR_HEIGHT};
         index++;
     }
     for (size_t i = 0; i < COLUMNS; i++) {
-        borders[i + index] = (Line){GVARS.cellWidth * i, TOP_BAR_HEIGHT, GVARS.cellWidth * i, GVARS.screenHeight};
+        borders[i + index] = (Line){UI.cellWidth * i, TOP_BAR_HEIGHT, UI.cellWidth * i, UI.windowHeight};
     }
 }
 
@@ -83,7 +86,7 @@ void ClearTimes(Cell* sheet)
 {
     for (size_t i = 1; i < CELL_COUNT - 3; i++) {
         if ((i % 3 == 2) || (i % 3 == 1)) {
-            OverwriteStr(&sheet[i].gapStr, "", 0, CELL_TEXT_LENGTH);
+            OverwriteStr(&sheet[i].gapStr, "\0", 0, CELL_TEXT_LENGTH);
             CellOverwriteHandler(sheet, i);
         }
     }
@@ -100,7 +103,7 @@ Color getStateColor(State_Button state)
 
 Rectangle getButtonRect(Button button)
 {
-    return (Rectangle){button.pos.x, button.pos.y, BUTTON_SIZE, BUTTON_SIZE};
+    return (Rectangle){button.pos.x, button.pos.y, BASE_BUTTON_SIZE, BASE_BUTTON_SIZE};
 }
 
 // Returns TEXT_VETO or TEXT_DNF if found
@@ -124,8 +127,8 @@ Text_Type CompareSpecialText(char *text)
 // TODO: check if this can utilize xy/cr functions
 Vector2 CalcTextPos(Vector2 pos, size_t index)
 {
-    pos.x = pos.x + (GVARS.cellWidth * (index % 3));
-    pos.y = 1 + pos.y + (GVARS.cellHeight * (index / 3) + TOP_BAR_HEIGHT);
+    pos.x = pos.x + (UI.cellWidth * (index % 3));
+    pos.y = 1 + pos.y + (UI.cellHeight * (index / 3) + TOP_BAR_HEIGHT);
     return pos;
 }
 
@@ -174,7 +177,7 @@ size_t countChars(char *text, char c, size_t len)
 }
 
 // Filters string to be converted into time / Outputs "mm:ss" or "m:ss"
-char *filterText(char *text)
+char *filterCellText(char *text)
 {
     // Do these need to be static?
     static char *dummy = "\0";
@@ -241,7 +244,7 @@ char *filterText(char *text)
             return dummy;
         sprintf(filtered, "%s", text + textLen - 5);
         // TODO: Is this a memory leak?
-        return filterText(filtered);
+        return filterCellText(filtered);
     default:
         return dummy;
     }

@@ -7,8 +7,8 @@
 Vector2 indexToXY(size_t index)
 {
     Vector2 xy = {0};
-    xy.x = (index % COLUMNS) * GVARS.cellWidth;
-    xy.y = (index / COLUMNS) * GVARS.cellHeight + TOP_BAR_HEIGHT;
+    xy.x = (index % COLUMNS) * UI.cellWidth;
+    xy.y = (index / COLUMNS) * UI.cellHeight + TOP_BAR_HEIGHT;
     return xy;
 }
 
@@ -26,9 +26,9 @@ size_t xyToIndex(Vector2 xy)
 {
     size_t index = 0;
     xy.y = xy.y - TOP_BAR_HEIGHT;
-    Vector2 rounded = {xy.x - fmodf(xy.x, GVARS.cellWidth), xy.y - fmodf(xy.y, GVARS.cellHeight)};
-    rounded.x = rounded.x / GVARS.cellWidth;
-    rounded.y = rounded.y / GVARS.cellHeight;
+    Vector2 rounded = {xy.x - fmodf(xy.x, UI.cellWidth), xy.y - fmodf(xy.y, UI.cellHeight)};
+    rounded.x = rounded.x / UI.cellWidth;
+    rounded.y = rounded.y / UI.cellHeight;
     index = rounded.x + (rounded.y * COLUMNS);
     return index;
 }

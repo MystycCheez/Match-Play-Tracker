@@ -6,7 +6,7 @@
 #include "structs.h"
 
 // functions.c
-void reInitGVARS();
+void initGlobals();
 void initButtons();
 void initSheetText(Cell *sheet, Players players, int game);
 Cell *initSheet(Players players, int game);
@@ -19,7 +19,7 @@ Vector2 CalcTextPos(Vector2 pos, size_t index);
 size_t timeToSecs(char *time);
 char *secsToTime(size_t totalSecs);
 size_t countChars(char *text, char c, size_t len);
-char *filterText(char *text);
+char *filterCellText(char *text);
 Int2 CompareTimes(size_t row, Cell *cells);
 void UpdateScores(Cell *cells);
 
@@ -61,11 +61,11 @@ void ExportToBBCode(Cell* sheet);
 
 // draw.c
 void DrawCellBorders(size_t cellIndex);
-void DrawCursor(Cell *sheet, size_t cellIndex, Font font);
-void DrawTextCentered(Font font, Vector2 pos, float fontSize, float spacing, Cell cell);
-void DrawTextLeftAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell cell);
-void DrawTextAligned(Font font, Vector2 pos, float fontSize, float spacing, Cell cell, size_t i);
-void DrawTextHighlight(Cell *sheet, size_t cellIndex, Font font);
+void DrawCursor(Cell *sheet, size_t cellIndex);
+void DrawTextCentered(Vector2 pos, Cell cell);
+void DrawTextLeftAligned(Vector2 pos, Cell cell);
+void DrawTextAligned(Vector2 pos, Cell cell, size_t cellIndex);
+void DrawTextHighlight(Cell *sheet, size_t cellIndex);
 
 // handler.c
 void ExitHandler();
