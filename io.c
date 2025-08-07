@@ -3,7 +3,7 @@
 
 #include "includes.h"
 
-Font loadFont()
+void loadFont()
 {
     const char *font_file = "C:/Windows/Fonts/trebuc.ttf";
     int fileSize = 0;
@@ -21,7 +21,7 @@ Font loadFont()
     UnloadImage(atlas);
     GVARS.shader = LoadShader(NULL, "resources/sdf.fs");
     SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR); // Will I need this?
-    return font;
+    UI.font = font;
 }
 
 // Returns true if succesfully loaded

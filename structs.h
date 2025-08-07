@@ -95,7 +95,6 @@ typedef struct Button {
 
 typedef struct Globals {
     Specials specials;
-    Button *buttons;
     Selection selection;
     Scope_Level scope;
     bool shouldExit;
@@ -104,13 +103,26 @@ typedef struct Globals {
 } Globals;
 
 typedef struct UI_Elements {
-    float windowWidth;
-    float windowHeight;
+    Button *buttons;
     float cellWidth;
     float cellHeight;
     float fontSize;
     Font font;
 } UI_Elements;
+
+typedef struct Window_Elements {
+    float Width;
+    float Height;
+    Image Icon;
+    Texture IconTexture;
+} Window_Elements;
+
+typedef struct TitleBar_Elements {
+    Texture Texture;
+    NPatchInfo NPatch;
+    Rectangle Rec;
+    Image Image;
+} TitleBar_Elements;
 
 // typedef struct Node {
 //     void* data;
@@ -120,5 +132,7 @@ typedef struct UI_Elements {
 
 Globals GVARS;
 UI_Elements UI;
+Window_Elements Window;
+TitleBar_Elements TitleBar;
 
 #endif

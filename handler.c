@@ -17,16 +17,16 @@ void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mous
     static Vector2 dragOffset = {0};
 
     for (size_t i = 0; i < 2; i++) {
-        GVARS.buttons[i].state = ((bool *)(&Collision))[i] ? STATE_BTN_HIGHLIGHTED : STATE_BTN_UNHIGHLIGHTED;
+        UI.buttons[i].state = ((bool *)(&Collision))[i] ? STATE_BTN_HIGHLIGHTED : STATE_BTN_UNHIGHLIGHTED;
     }
     if (Mouse.down) {
         if (Collision.exit && !Drag.titleBar) {
             Drag.titleBar = true;
-            GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
+            UI.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
         }
         if (Collision.minimize && !Drag.minimize) {
             Drag.minimize = true;
-            GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
+            UI.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
         }
         if (!(Collision.exit || Collision.minimize) && (Drag.titleBar || Drag.minimize)) {
             buttonLeft = true;
@@ -52,11 +52,11 @@ void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mous
     }
     if (Mouse.released && !windowDrag && !(Drag.titleBar || Drag.minimize) && !buttonLeft) {
         if (Collision.exit) {
-            GVARS.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
+            UI.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
             ExitHandler();
         }
         if (Collision.minimize) {
-            GVARS.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
+            UI.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
             MinimizeWindow();
         }
     }
@@ -92,10 +92,10 @@ void MouseHandler(Cell *sheet, size_t *cellIndex)
         IsMouseButtonReleased(MOUSE_BUTTON_LEFT)
     };
     CollisionMap Collision = {
-        CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_EXIT])),
-        CheckCollisionPointRec(mousePos, getButtonRect(GVARS.buttons[BTN_MINIMIZE])),
-        CheckCollisionPointRec(mousePos, (Rectangle){0, 0, UI.windowWidth, TOP_BAR_HEIGHT}),
-        CheckCollisionPointRec(mousePos, (Rectangle){0, TOP_BAR_HEIGHT, UI.windowWidth, SHEET_HEIGHT})
+        CheckCollisionPointRec(mousePos, getButtonRect(UI.buttons[BTN_EXIT])),
+        CheckCollisionPointRec(mousePos, getButtonRect(UI.buttons[BTN_MINIMIZE])),
+        CheckCollisionPointRec(mousePos, (Rectangle){0, 0, Window.Width, TOP_BAR_HEIGHT}),
+        CheckCollisionPointRec(mousePos, (Rectangle){0, TOP_BAR_HEIGHT, Window.Width, SHEET_HEIGHT})
     };
     MouseTitleBarHandler(Collision, Mouse, mousePos, windowPos);
     MouseSheetHandler(Collision, Mouse, mousePos, sheet, cellIndex);

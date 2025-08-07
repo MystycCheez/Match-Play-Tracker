@@ -5,12 +5,14 @@
 #include "enums.h"
 #include "structs.h"
 
-// functions.c
+// init.c
 void initGlobals();
 void initButtons();
 void initSheetText(Cell *sheet, Players players, int game);
 Cell *initSheet(Players players, int game);
 void setBorderPositions(Line *borders);
+
+// functions.c
 void ClearTimes(Cell* sheet);
 Color getStateColor(State_Button state);
 Rectangle getButtonRect(Button button);
@@ -52,7 +54,7 @@ void chrswap(char* ptr1, char* ptr2);
 char* i_toStr(int num);
 
 // io.c
-Font loadFont();
+void loadFont();
 bool loadTimes(Cell* sheet);
 char **loadLevelText(int game);
 void loadSpecialText();

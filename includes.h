@@ -22,5 +22,6 @@
 #include "gap_buffer.c"
 #include "functions.c"
 #include "io.c"
+#include "init.c"
 
 #endif
