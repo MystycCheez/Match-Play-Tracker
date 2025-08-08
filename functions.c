@@ -11,6 +11,8 @@ void ClearTimes(Cell* sheet)
             CellOverwriteHandler(sheet, i);
         }
     }
+    OverwriteStr(&sheet[1].gapStr, GVARS.players.p1, 0, CELL_TEXT_LENGTH);
+    OverwriteStr(&sheet[2].gapStr, GVARS.players.p2, 0, CELL_TEXT_LENGTH);
 }
 
 Color getStateColor(State_Button state)
@@ -25,6 +27,12 @@ Color getStateColor(State_Button state)
 Rectangle getButtonRect(Button button)
 {
     return (Rectangle){button.pos.x, button.pos.y, button.size.x, button.size.y};
+}
+
+Rectangle getCellRect(size_t cellIndex)
+{
+    Vector2 pos = indexToXY(cellIndex);
+    return (Rectangle){pos.x, pos.y, UI.cellWidth, UI.cellHeight};
 }
 
 // Returns TEXT_VETO or TEXT_DNF if found

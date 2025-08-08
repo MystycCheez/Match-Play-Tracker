@@ -9,7 +9,7 @@ void ExitHandler()
     GVARS.shouldExit = true;
 }
 
-void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mousePos, Vector2 windowPos)
+void MouseTitleBarHandler(CollisionMap Collision, Vector2 windowPos)
 {
     static bool buttonLeft = false;
     static bool windowDrag = false;
@@ -40,13 +40,13 @@ void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mous
     if (Mouse.down && !windowDrag && !(Drag.titleBar || Drag.minimize)) {
         if (Collision.titleBar && !(Collision.exit || Collision.minimize)) {
             windowDrag = true;
-            dragOffset = mousePos;
+            dragOffset = Mouse.pos;
         }
         else windowDrag = false;
     }
     if (windowDrag) {
-        windowPos.x += mousePos.x - dragOffset.x;
-        windowPos.y += mousePos.y - dragOffset.y;
+        windowPos.x += Mouse.pos.x - dragOffset.x;
+        windowPos.y += Mouse.pos.y - dragOffset.y;
         SetWindowPosition(windowPos.x, windowPos.y);
         if (!Mouse.down) windowDrag = false;
     }
@@ -62,15 +62,15 @@ void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mous
     }
 }
 
-void MouseSheetHandler(CollisionMap Collision, MouseState Mouse, Vector2 mousePos, Cell *sheet, size_t *cellIndex)
+void MouseSheetHandler(CollisionMap Collision, Cell *sheet, size_t *cellIndex)
 {
     if (!Mouse.pressed) return;
     if (Collision.sheet) {
-        if (xyToIndex(mousePos) == *cellIndex) {
+        if (xyToIndex(Mouse.pos) == *cellIndex) {
             GVARS.scope = SCOPE_CELL;
         }
         else {
-            *cellIndex = xyToIndex(mousePos);
+            *cellIndex = xyToIndex(Mouse.pos);
             GVARS.scope = sheet[*cellIndex].selectable ? SCOPE_SHEET : SCOPE_OVERVIEW;
             cellIndex = GVARS.scope > SCOPE_OVERVIEW ? cellIndex : 0;
         }
@@ -83,19 +83,18 @@ void MouseSheetHandler(CollisionMap Collision, MouseState Mouse, Vector2 mousePo
 
 void MouseHandler(Cell *sheet, size_t *cellIndex)
 {
-    Vector2 mousePos = GetMousePosition();
+    Mouse.pos = GetMousePosition();
     Vector2 windowPos = GetWindowPosition();
 
-    MouseState Mouse = {
-        IsMouseButtonDown(MOUSE_BUTTON_LEFT),
-        IsMouseButtonPressed(MOUSE_BUTTON_LEFT),
-        IsMouseButtonReleased(MOUSE_BUTTON_LEFT)
-    };
+    Mouse.down = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
+    Mouse.pressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+    Mouse.released = IsMouseButtonReleased(MOUSE_BUTTON_LEFT);
+
     CollisionMap Collision = {
-        CheckCollisionPointRec(mousePos, getButtonRect(UI.buttons[BTN_EXIT])),
-        CheckCollisionPointRec(mousePos, getButtonRect(UI.buttons[BTN_MINIMIZE])),
-        CheckCollisionPointRec(mousePos, (Rectangle){0, 0, Window.Width, TOP_BAR_HEIGHT}),
-        CheckCollisionPointRec(mousePos, 
+        CheckCollisionPointRec(Mouse.pos, getButtonRect(UI.buttons[BTN_EXIT])),
+        CheckCollisionPointRec(Mouse.pos, getButtonRect(UI.buttons[BTN_MINIMIZE])),
+        CheckCollisionPointRec(Mouse.pos, (Rectangle){0, 0, Window.Width, TOP_BAR_HEIGHT}),
+        CheckCollisionPointRec(Mouse.pos, 
             (Rectangle){
                 UI.cellWidth, 
                 TOP_BAR_HEIGHT, 
@@ -103,8 +102,8 @@ void MouseHandler(Cell *sheet, size_t *cellIndex)
                 Window.Height - TOP_BAR_HEIGHT
             })
     };
-    MouseTitleBarHandler(Collision, Mouse, mousePos, windowPos);
-    MouseSheetHandler(Collision, Mouse, mousePos, sheet, cellIndex);
+    MouseTitleBarHandler(Collision, windowPos);
+    MouseSheetHandler(Collision, sheet, cellIndex);
 }
 
 // TODO: Fix this for the Egypt row
@@ -159,72 +158,72 @@ void CellInputHandler(Cell *sheet, size_t *cellIndex)
     }
 }
 
-void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
+void SheetKeyPressHandler(Cell *sheet, size_t *cellIndex)
 {
     if (GVARS.scope != SCOPE_SHEET) return;
     if (*cellIndex == 0) return;
     CellInputHandler(sheet, cellIndex);
-    if (key.escape) {
+    if (Key.escape) {
         GVARS.scope = SCOPE_OVERVIEW;
         return;
     }
-    if (key.enter) {
+    if (Key.enter) {
         CellOverwriteHandler(sheet, *cellIndex);
         EnterNavigationHandler(sheet, cellIndex);
         UpdateScores(sheet);
         if (*cellIndex == 0) GVARS.scope = SCOPE_OVERVIEW;
         return;
     }
-    if (key.delete) {
+    if (Key.delete) {
         OverwriteStr(&sheet[*cellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
     }
-    if (key.backspace) {
+    if (Key.backspace) {
         OverwriteStr(&sheet[*cellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
         GVARS.scope = SCOPE_CELL;
         return;
     }
-    if (key.left) {
+    if (Key.left) {
         if (*cellIndex % 3 == 2) {
             *cellIndex = *cellIndex - 1;
         }
     }
-    if (key.right) {
+    if (Key.right) {
         if (*cellIndex % 3 == 1) {
             *cellIndex = *cellIndex + 1;
         }
     }
-    if (key.down) {
+    if (Key.down) {
         if (*cellIndex > CELL_COUNT - 6) {
             return;
         }
         *cellIndex = *cellIndex + 3;
     }
-    if (key.up) {
+    if (Key.up) {
         if (*cellIndex < 3)
             return;
         *cellIndex = *cellIndex - 3;
     }
-    if (key.ctrl) {
-        if (key.v) {
+    if (Key.ctrl) {
+        if (Key.v) {
             placeString(&sheet[*cellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
             GVARS.scope = SCOPE_CELL;
             return;
         }
-        if (key.l) {
+        if (Key.l) {
             if (loadTimes(sheet)) {
                 UpdateScores(sheet);
                 printf("Loaded times from times/times.txt\n");
             }
         }
-        if (key.s) {
+        if (Key.s) {
             saveTimes(sheet);
             printf("Saved times to times/times.txt\n");
         }
-        if (key.b) {
+        if (Key.b) {
             ExportToBBCode(sheet);
             printf("Exported to BBCode\n");
         }
-        if (key.delete) {
+        if (Key.delete) {
             ClearTimes(sheet);
             UpdateScores(sheet);
             printf("Sheet Cleared\n");
@@ -232,36 +231,36 @@ void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
     }
 }
 
-void OverviewInputHandler(Cell* sheet, KeyMap key)
+void OverviewInputHandler(Cell* sheet)
 {
     if (GVARS.scope != SCOPE_OVERVIEW) return;
 
-    if (key.l) {
+    if (Key.l) {
         if (loadTimes(sheet)) {
             UpdateScores(sheet);
             printf("Loaded times from times/times.txt\n");
         }
     }
-    if (key.s) {
+    if (Key.s) {
         saveTimes(sheet);
         printf("Saved times to times/times.txt\n");
     }
-    if (key.b) {
+    if (Key.b) {
         ExportToBBCode(sheet);
         printf("Exported to BBCode\n");
     }
-    if (key.delete) {
+    if (Key.delete) {
         ClearTimes(sheet);
         UpdateScores(sheet);
         printf("Sheet Cleared\n");
     }
 }
 
-void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
+void CellKeyPressHandler(Cell *sheet, size_t *cellIndex)
 {
     if (GVARS.scope != SCOPE_CELL) return;
     CellInputHandler(sheet, cellIndex);
-    if (key.escape) {
+    if (Key.escape) {
         if (GVARS.selection.exists) Deselect();
         else {
             GVARS.scope = SCOPE_SHEET;
@@ -269,7 +268,7 @@ void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
         }
         return;
     }
-    if (key.enter) {
+    if (Key.enter) {
         CellOverwriteHandler(sheet, *cellIndex);
         EnterNavigationHandler(sheet, cellIndex);
         UpdateScores(sheet);
@@ -277,41 +276,41 @@ void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
         else GVARS.scope = SCOPE_SHEET;
         return;
     }
-    if (!key.shift) { // TODO: Clean this up / make it more concise
-        if (key.ctrl) { // TODO: do it by token
-            if (key.left) {
+    if (!Key.shift) { // TODO: Clean this up / make it more concise
+        if (Key.ctrl) { // TODO: do it by token
+            if (Key.left) {
                 MoveCursorToIndex(&sheet[*cellIndex].gapStr, 0);
                 Deselect();
                 return;
             }
-            if (key.right) {
+            if (Key.right) {
                 MoveCursorToIndex(&sheet[*cellIndex].gapStr, strlen(gapStrToStr(sheet[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
                 Deselect();
                 return;
             }
-            if (key.c) {
+            if (Key.c) {
                 CopyText(sheet[*cellIndex].gapStr);
                 return;
             }
-            if (key.x) {
+            if (Key.x) {
                 CopyText(sheet[*cellIndex].gapStr);
                 DeleteSelection(&sheet[*cellIndex].gapStr);
                 return;
             }
-            if (key.v) {
+            if (Key.v) {
                 placeString(&sheet[*cellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
                 return;
             }
         }
-        else if (!key.ctrl) {
+        else if (!Key.ctrl) {
             // Redundant Deselect() here, but I'm not sure if I should always deselect if keypress
             // TODO
-            if (key.left) {
+            if (Key.left) {
                 if (cursorLeft(&sheet[*cellIndex].gapStr)) Deselect();
                 Deselect();
                 return;
             }
-            if (key.right) {
+            if (Key.right) {
                 if (cursorRight(&sheet[*cellIndex].gapStr)) Deselect();
                 Deselect();
                 return;
@@ -324,15 +323,15 @@ void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
             return;
         }
     }
-    else if (key.shift) {
-        if (key.ctrl) {
-            // if (key.left) selectLeftToken();
-            // if (key.right) selectRightToken();
+    else if (Key.shift) {
+        if (Key.ctrl) {
+            // if (Key.left) selectLeftToken();
+            // if (Key.right) selectRightToken();
         }
-        else if (!key.ctrl) {
-            if (key.left)
+        else if (!Key.ctrl) {
+            if (Key.left)
                 selectChar(&sheet[*cellIndex].gapStr, DIR_LEFT);
-            if (key.right)
+            if (Key.right)
                 selectChar(&sheet[*cellIndex].gapStr, DIR_RIGHT);
         }
     }
@@ -340,33 +339,35 @@ void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex)
 
 void InputHandler(Cell *sheet, size_t *cellIndex)
 {
-    KeyMap key = {false};
+    Key.ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
+    Key.shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
 
-    key.ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
-    key.shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
+    Key.escape = IsKeyPressed(KEY_ESCAPE);
+    Key.enter = IsKeyPressed(KEY_ENTER);
+    Key.delete = IsKeyPressed(KEY_DELETE);
+    Key.backspace = IsKeyPressed(KEY_BACKSPACE);
 
-    key.escape = IsKeyPressed(KEY_ESCAPE);
-    key.enter = IsKeyPressed(KEY_ENTER);
-    key.delete = IsKeyPressed(KEY_DELETE);
-    key.backspace = IsKeyPressed(KEY_BACKSPACE);
+    Key.left = IsKeyPressed(KEY_LEFT);
+    Key.right = IsKeyPressed(KEY_RIGHT);
+    Key.up = IsKeyPressed(KEY_UP);
+    Key.down = IsKeyPressed(KEY_DOWN);
 
-    key.left = IsKeyPressed(KEY_LEFT);
-    key.right = IsKeyPressed(KEY_RIGHT);
-    key.up = IsKeyPressed(KEY_UP);
-    key.down = IsKeyPressed(KEY_DOWN);
-
-    key.c = IsKeyPressed(KEY_C);
-    key.x = IsKeyPressed(KEY_X);
-    key.v = IsKeyPressed(KEY_V);
-    key.l = IsKeyPressed(KEY_L);
-    key.s = IsKeyPressed(KEY_S);
-    key.b = IsKeyPressed(KEY_B);
+    Key.c = IsKeyPressed(KEY_C);
+    Key.x = IsKeyPressed(KEY_X);
+    Key.v = IsKeyPressed(KEY_V);
+    Key.l = IsKeyPressed(KEY_L);
+    Key.s = IsKeyPressed(KEY_S);
+    Key.b = IsKeyPressed(KEY_B);
 
     MouseHandler(sheet, cellIndex);
-    OverviewInputHandler(sheet, key);
-    SheetKeyPressHandler(sheet, key, cellIndex);
-    CellKeyPressHandler(sheet, key, cellIndex);
+    OverviewInputHandler(sheet);
+    SheetKeyPressHandler(sheet, cellIndex);
+    CellKeyPressHandler(sheet, cellIndex);
     // GenericKeyPressHandler(key, cellIndex);
 }
+
+// void KeyHandler(Cell* sheet)
+// {
+// }
 
 #endif

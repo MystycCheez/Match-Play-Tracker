@@ -21,6 +21,8 @@ bool loadTimes(Cell* sheet)
     }
 
     ClearTimes(sheet);
+    OverwriteStr(&sheet[1].gapStr, "", 0, CELL_TEXT_LENGTH);
+    OverwriteStr(&sheet[2].gapStr, "", 0, CELL_TEXT_LENGTH);
 
     int c = 0;
     

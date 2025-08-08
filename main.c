@@ -5,30 +5,30 @@
 int main()
 {
     SetTraceLogLevel(LOG_NONE);
-    SetExitKey(KEY_NULL);
-
+    
     initWindow();
     initGlobals();
     initButtons();
     
     loadSpecialText();
     loadFont();
-
-    Players players = {"Player 1", "Player 2", 0, 0};
+    SetExitKey(KEY_NULL);
+    
     Vector2 TextPos = {0}; 
 
     int game = LEVELS_GE;
     int cursorTimer = 0;
 
+    bool cursorIBEAM = false;
+
     size_t selectedCellIndex = 0;
 
-    Line borders[COLUMNS + ROWS] = {0};
-    setBorderPositions(borders);
+    setBorderPositions(UI.borders);
 
     Rectangle gradTop = {0, TOP_BAR_HEIGHT, Window.Width, UI.cellHeight};
     Rectangle gradBot = {0, (UI.cellHeight * 21) + TOP_BAR_HEIGHT, Window.Width, UI.cellHeight};
 
-    Cell* sheet = initSheet(players, game);
+    Cell* sheet = initSheet(game);
     
     const int RefreshRate = GetMonitorRefreshRate(GetCurrentMonitor());
     SetTargetFPS(RefreshRate);
@@ -36,6 +36,21 @@ int main()
     while (!GVARS.shouldExit && !WindowShouldClose())
     {
         InputHandler(sheet, &selectedCellIndex);
+
+        if (cursorIBEAM == false) {
+            if (GVARS.scope == SCOPE_CELL) {
+                if (CheckCollisionPointRec(Mouse.pos, getCellRect(selectedCellIndex))) {
+                    SetMouseCursor(MOUSE_CURSOR_IBEAM);
+                    cursorIBEAM = true;
+                }
+            }
+        } else if (
+            (GVARS.scope != SCOPE_CELL) || 
+            (!CheckCollisionPointRec(Mouse.pos, getCellRect(selectedCellIndex)))
+        ) {
+            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+            cursorIBEAM = false;
+        } 
         
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
@@ -53,7 +68,7 @@ int main()
             DrawRectangleV(indexToXY(i), (Vector2){UI.cellWidth, UI.cellHeight}, sheet[i].highlight);
         // Draw Borders
         for (size_t i = 0; i < COLUMNS + ROWS; i++) 
-            DrawLine(borders[i].x1, borders[i].y1, borders[i].x2, borders[i].y2, BORDER_COLOR);
+            DrawLine(UI.borders[i].x1, UI.borders[i].y1, UI.borders[i].x2, UI.borders[i].y2, BORDER_COLOR);
         // Draw text highlighting
         if (GVARS.scope == SCOPE_CELL && GVARS.selection.exists) {
             DrawTextHighlight(sheet, selectedCellIndex);
@@ -78,9 +93,8 @@ int main()
         cursorTimer++;
     }
     
-    UnloadFont(UI.font);
-    
     CloseWindow();
+    UnloadFont(UI.font);
     UnloadImage(Window.Icon);
     
     return 0;

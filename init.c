@@ -12,7 +12,9 @@ void initGlobals()
     UI.cellHeight = BASE_CELL_HEIGHT * GVARS.scaleDPI.y;
     UI.fontSize = BASE_FONT_SIZE * GVARS.scaleDPI.x;
 
-    printf("%f, %f\n", GVARS.scaleDPI.x, GVARS.scaleDPI.y);
+    GVARS.players = (Players){"Player 1", "Player 2", 0, 0};
+
+    // printf("%f, %f\n", GVARS.scaleDPI.x, GVARS.scaleDPI.y);
 
     GVARS.scope = SCOPE_SHEET;
     GVARS.shouldExit = false;
@@ -78,7 +80,7 @@ void initButtons()
     SetTextureFilter(UI.buttons[BTN_MINIMIZE].texture, TEXTURE_FILTER_BILINEAR);
 }
 
-void initSheetText(Cell *sheet, Players players, int game)
+void initSheetText(Cell *sheet, int game)
 {
     char **levelText = loadLevelText(game);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
@@ -87,17 +89,17 @@ void initSheetText(Cell *sheet, Players players, int game)
     free(levelText);
     char *s1 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     char *s2 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-    sprintf(s1, "%lld", players.s1);
-    sprintf(s2, "%lld", players.s2);
+    sprintf(s1, "%lld", GVARS.players.s1);
+    sprintf(s2, "%lld", GVARS.players.s2);
     placeString(&sheet[0].gapStr, "Stage", CELL_TEXT_LENGTH);
     placeString(&sheet[CELL_COUNT - 3].gapStr, "Points", CELL_TEXT_LENGTH);
-    placeString(&sheet[1].gapStr, players.p1, CELL_TEXT_LENGTH);
-    placeString(&sheet[2].gapStr, players.p2, CELL_TEXT_LENGTH);
+    placeString(&sheet[1].gapStr, GVARS.players.p1, CELL_TEXT_LENGTH);
+    placeString(&sheet[2].gapStr, GVARS.players.p2, CELL_TEXT_LENGTH);
     placeString(&sheet[CELL_COUNT - 2].gapStr, s1, CELL_TEXT_LENGTH);
     placeString(&sheet[CELL_COUNT - 1].gapStr, s2, CELL_TEXT_LENGTH);
 }
 
-Cell *initSheet(Players players, int game)
+Cell *initSheet(int game)
 {
     Cell *sheet = malloc(sizeof(Cell) * CELL_COUNT);
     for (size_t i = 0; i < CELL_COUNT; i++) {
@@ -116,19 +118,19 @@ Cell *initSheet(Players players, int game)
         sheet[3 + (i * COLUMNS)].color = COLOR_LEVEL;
         sheet[3 + (i * COLUMNS)].selectable = false;
     }
-    initSheetText(sheet, players, game);
+    initSheetText(sheet, game);
     return sheet;
 }
 
-void setBorderPositions(Line *borders)
+void setBorderPositions()
 {
     size_t index = 0;
     for (size_t i = 0; i < ROWS; i++) {
-        borders[i] = (Line){0, (UI.cellHeight * i) + TOP_BAR_HEIGHT, Window.Width, (UI.cellHeight * i) + TOP_BAR_HEIGHT};
+        UI.borders[i] = (Line){0, (UI.cellHeight * i) + TOP_BAR_HEIGHT, Window.Width, (UI.cellHeight * i) + TOP_BAR_HEIGHT};
         index++;
     }
     for (size_t i = 0; i < COLUMNS; i++) {
-        borders[i + index] = (Line){UI.cellWidth * i, TOP_BAR_HEIGHT, UI.cellWidth * i, Window.Height};
+        UI.borders[i + index] = (Line){UI.cellWidth * i, TOP_BAR_HEIGHT, UI.cellWidth * i, Window.Height};
     }
 }
 

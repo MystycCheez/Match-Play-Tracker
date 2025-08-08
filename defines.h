@@ -4,7 +4,7 @@
 #define ROWS 22
 
 #define CELL_COUNT (COLUMNS * ROWS)
-#define CELL_TEXT_LENGTH 13
+#define CELL_TEXT_LENGTH 17
 
 #define BASE_CELL_HEIGHT 29
 #define BASE_CELL_WIDTH 120

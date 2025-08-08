@@ -9,9 +9,9 @@
 void initGlobals();
 void initWindow();
 void initButtons();
-void initSheetText(Cell *sheet, Players players, int game);
-Cell *initSheet(Players players, int game);
-void setBorderPositions(Line *borders);
+void initSheetText(Cell *sheet, int game);
+Cell *initSheet(int game);
+void setBorderPositions();
 
 // functions.c
 void ClearTimes(Cell* sheet);
@@ -72,15 +72,15 @@ void DrawTextHighlight(Cell *sheet, size_t cellIndex);
 
 // handler.c
 void ExitHandler();
-void MouseTitleBarHandler(CollisionMap Collision, MouseState Mouse, Vector2 mousePos, Vector2 windowPos);
-void MouseSheetHandler(CollisionMap Collision, MouseState Mouse, Vector2 mousePos, Cell *sheet, size_t *cellIndex);
+void MouseTitleBarHandler(CollisionMap Collision, Vector2 windowPos);
+void MouseSheetHandler(CollisionMap Collision, Cell *sheet, size_t *cellIndex);
 void MouseHandler(Cell *sheet, size_t *cellIndex);
 void EnterNavigationHandler(Cell *sheet, size_t *cellIndex);
 void CellOverwriteHandler(Cell *sheet, size_t cellIndex);
 void CellInputHandler(Cell *sheet, size_t *cellIndex);
-void SheetKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex);
-void OverviewInputHandler(Cell* sheet, KeyMap key);
-void CellKeyPressHandler(Cell *sheet, KeyMap key, size_t *cellIndex);
+void SheetKeyPressHandler(Cell *sheet, size_t *cellIndex);
+void OverviewInputHandler(Cell* sheet);
+void CellKeyPressHandler(Cell *sheet, size_t *cellIndex);
 void InputHandler(Cell *sheet, size_t *cellIndex);
 
 #endif

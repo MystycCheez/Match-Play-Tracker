@@ -22,6 +22,7 @@ typedef struct MouseState {
     bool down;
     bool pressed;
     bool released;
+    Vector2 pos;
 } MouseState;
 
 typedef struct CollisionMap {
@@ -95,6 +96,7 @@ typedef struct Button {
 } Button;
 
 typedef struct Globals {
+    Players players;
     Vector2 scaleDPI;
     Specials specials;
     Selection selection;
@@ -105,6 +107,7 @@ typedef struct Globals {
 } Globals;
 
 typedef struct UI_Elements {
+    Line borders[COLUMNS + ROWS];
     Button *buttons;
     float cellWidth;
     float cellHeight;
@@ -136,5 +139,7 @@ Globals GVARS;
 UI_Elements UI;
 Window_Elements Window;
 TitleBar_Elements TitleBar;
+KeyMap Key = {false};
+MouseState Mouse;
 
 #endif
