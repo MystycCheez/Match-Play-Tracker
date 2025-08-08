@@ -59,11 +59,11 @@ int main()
             DrawTextHighlight(sheet, selectedCellIndex);
         }
         // Draw Text :)
-        BeginShaderMode(GVARS.shader);
+        // BeginShaderMode(GVARS.shader);
         for (size_t i = 0; i < CELL_COUNT; i++) {
             DrawTextAligned(TextPos, sheet[i], i);
         }
-        EndShaderMode();
+        // EndShaderMode();
         if (GVARS.scope >= SCOPE_SHEET) {
             DrawSelectionBorders(selectedCellIndex);
         }

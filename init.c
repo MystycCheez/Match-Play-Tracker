@@ -6,13 +6,13 @@
 
 void initGlobals()
 {
-    GVARS.scaleDPI = GetWindowScaleDPI();    
+    GVARS.scaleDPI = GetWindowScaleDPI();
 
     UI.cellWidth = BASE_CELL_WIDTH * GVARS.scaleDPI.x;
     UI.cellHeight = BASE_CELL_HEIGHT * GVARS.scaleDPI.y;
     UI.fontSize = BASE_FONT_SIZE * GVARS.scaleDPI.x;
 
-    printf("%f, %f\n", UI.cellWidth, UI.cellHeight);
+    printf("%f, %f\n", GVARS.scaleDPI.x, GVARS.scaleDPI.y);
 
     GVARS.scope = SCOPE_SHEET;
     GVARS.shouldExit = false;

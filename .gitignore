@@ -6,3 +6,5 @@ resources/elite-logo-full-no_slogan.png
 *.bbcode
 times/
 release/
+.vscode
+*.dll

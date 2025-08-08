@@ -6,22 +6,7 @@
 void loadFont()
 {
     const char *font_file = "C:/Windows/Fonts/trebuc.ttf";
-    int fileSize = 0;
-    unsigned char *fileData = LoadFileData(font_file, &fileSize);
-    if (fileData == NULL) {
-        fprintf(stderr, "Failed to load font: %s!\n", font_file);
-        exit(1);
-    }
-    Font font = {0};
-    font.baseSize = BASE_FONT_SIZE * 10;
-    font.glyphCount = 95;
-    font.glyphs = LoadFontData(fileData, fileSize, font.baseSize, 0, 0, FONT_SDF);
-    Image atlas = GenImageFontAtlas(font.glyphs, &font.recs, font.glyphCount, font.baseSize, 0, 1);
-    font.texture = LoadTextureFromImage(atlas);
-    UnloadImage(atlas);
-    GVARS.shader = LoadShader(NULL, "resources/sdf.fs");
-    SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR); // Will I need this?
-    UI.font = font;
+    UI.font = LoadFontEx(font_file, UI.fontSize, 0, 0);
 }
 
 // Returns true if succesfully loaded
