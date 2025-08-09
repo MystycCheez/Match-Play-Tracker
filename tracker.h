@@ -17,6 +17,7 @@ void setBorderPositions();
 void ClearTimes(Cell* sheet);
 Color getStateColor(State_Button state);
 Rectangle getButtonRect(Button button);
+Rectangle getCellRect(size_t cellIndex);
 Text_Type CompareSpecialText(char *text);
 Vector2 CalcTextPos(Vector2 pos, size_t index);
 size_t timeToSecs(char *time);
@@ -82,5 +83,6 @@ void SheetKeyPressHandler(Cell *sheet, size_t *cellIndex);
 void OverviewInputHandler(Cell* sheet);
 void CellKeyPressHandler(Cell *sheet, size_t *cellIndex);
 void InputHandler(Cell *sheet, size_t *cellIndex);
+void CursorHandler(size_t cellIndex);
 
 #endif

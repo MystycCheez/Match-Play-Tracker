@@ -129,17 +129,17 @@ typedef struct TitleBar_Elements {
     Image Image;
 } TitleBar_Elements;
 
-// typedef struct Node {
-//     void* data;
-//     struct Node* next;
-//     struct Node* prev;
-// } Node;
+typedef struct Cursor_Elements {
+    MouseCursor type;
+    int timer;
+} Cursor_Elements;
 
 Globals GVARS;
 UI_Elements UI;
 Window_Elements Window;
 TitleBar_Elements TitleBar;
-KeyMap Key = {false};
+Cursor_Elements Cursor;
 MouseState Mouse;
+KeyMap Key = {false}; // Do I need the {false} ?
 
 #endif

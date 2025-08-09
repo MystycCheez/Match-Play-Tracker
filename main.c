@@ -12,14 +12,12 @@ int main()
     
     loadSpecialText();
     loadFont();
+
     SetExitKey(KEY_NULL);
-    
+
     Vector2 TextPos = {0}; 
 
     int game = LEVELS_GE;
-    int cursorTimer = 0;
-
-    bool cursorIBEAM = false;
 
     size_t selectedCellIndex = 0;
 
@@ -36,21 +34,7 @@ int main()
     while (!GVARS.shouldExit && !WindowShouldClose())
     {
         InputHandler(sheet, &selectedCellIndex);
-
-        if (cursorIBEAM == false) {
-            if (GVARS.scope == SCOPE_CELL) {
-                if (CheckCollisionPointRec(Mouse.pos, getCellRect(selectedCellIndex))) {
-                    SetMouseCursor(MOUSE_CURSOR_IBEAM);
-                    cursorIBEAM = true;
-                }
-            }
-        } else if (
-            (GVARS.scope != SCOPE_CELL) || 
-            (!CheckCollisionPointRec(Mouse.pos, getCellRect(selectedCellIndex)))
-        ) {
-            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-            cursorIBEAM = false;
-        } 
+        CursorHandler(selectedCellIndex);
         
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
@@ -74,23 +58,21 @@ int main()
             DrawTextHighlight(sheet, selectedCellIndex);
         }
         // Draw Text :)
-        // BeginShaderMode(GVARS.shader);
         for (size_t i = 0; i < CELL_COUNT; i++) {
             DrawTextAligned(TextPos, sheet[i], i);
         }
-        // EndShaderMode();
         if (GVARS.scope >= SCOPE_SHEET) {
             DrawSelectionBorders(selectedCellIndex);
         }
-
+        // Draw blinking cursor
         if (GVARS.scope == SCOPE_CELL) {
-            if (cursorTimer % RefreshRate < RefreshRate / 2) {
+            if (Cursor.timer % RefreshRate < RefreshRate / 2) {
                 DrawCursor(sheet, selectedCellIndex);
             }
         }
 
         EndDrawing();
-        cursorTimer++;
+        Cursor.timer++;
     }
     
     CloseWindow();

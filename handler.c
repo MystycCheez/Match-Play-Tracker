@@ -106,22 +106,29 @@ void MouseHandler(Cell *sheet, size_t *cellIndex)
     MouseSheetHandler(Collision, sheet, cellIndex);
 }
 
-// TODO: Fix this for the Egypt row
 void EnterNavigationHandler(Cell *sheet, size_t *cellIndex)
 {
-    if (*cellIndex > CELL_COUNT - 6) {
-        *cellIndex = 0;
-        GVARS.scope = SCOPE_OVERVIEW;
-    } else {
-        if (*cellIndex % 3 == 2) {
-            if (sheet[*cellIndex - 1].gapStr.str[0] == 0) {
-                *cellIndex = *cellIndex - 1;
-            } else *cellIndex = *cellIndex + 2;
-        } else if (*cellIndex % 3 == 1) {
-            if (sheet[*cellIndex + 1].gapStr.str[0] == 0) {
-                *cellIndex = *cellIndex + 1;
-            } else *cellIndex = *cellIndex + 3;
-        }
+    if (*cellIndex == CELL_COUNT - 5) {
+        if (sheet[*cellIndex + 1].gapStr.str[0] != 0) {
+            *cellIndex = 0;
+            GVARS.scope = SCOPE_OVERVIEW;
+        } else *cellIndex = *cellIndex + 1;
+        return;
+    } else if (*cellIndex == CELL_COUNT - 4) {
+        if (sheet[*cellIndex - 1].gapStr.str[0] != 0) {
+            *cellIndex = 0;
+            GVARS.scope = SCOPE_OVERVIEW;
+        } else *cellIndex = *cellIndex - 1;
+        return;
+    } 
+    if (*cellIndex % 3 == 2) {
+        if (sheet[*cellIndex - 1].gapStr.str[0] == 0) {
+            *cellIndex = *cellIndex - 1;
+        } else *cellIndex = *cellIndex + 2;
+    } else if (*cellIndex % 3 == 1) {
+        if (sheet[*cellIndex + 1].gapStr.str[0] == 0) {
+            *cellIndex = *cellIndex + 1;
+        } else *cellIndex = *cellIndex + 3;
     }
 }
 
@@ -366,8 +373,22 @@ void InputHandler(Cell *sheet, size_t *cellIndex)
     // GenericKeyPressHandler(key, cellIndex);
 }
 
-// void KeyHandler(Cell* sheet)
-// {
-// }
+void CursorHandler(size_t cellIndex)
+{
+    if (Cursor.type == MOUSE_CURSOR_DEFAULT) {
+            if (GVARS.scope == SCOPE_CELL) {
+                if (CheckCollisionPointRec(Mouse.pos, getCellRect(cellIndex))) {
+                    SetMouseCursor(MOUSE_CURSOR_IBEAM);
+                    Cursor.type = MOUSE_CURSOR_IBEAM;
+                }
+            }
+        } else if (
+            (GVARS.scope != SCOPE_CELL) || 
+            (!CheckCollisionPointRec(Mouse.pos, getCellRect(cellIndex)))
+        ) {
+            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+            Cursor.type = MOUSE_CURSOR_DEFAULT;
+        } 
+}
 
 #endif

@@ -12,6 +12,8 @@ void initGlobals()
     UI.cellHeight = BASE_CELL_HEIGHT * GVARS.scaleDPI.y;
     UI.fontSize = BASE_FONT_SIZE * GVARS.scaleDPI.x;
 
+    Cursor.type = MOUSE_CURSOR_DEFAULT;
+
     GVARS.players = (Players){"Player 1", "Player 2", 0, 0};
 
     // printf("%f, %f\n", GVARS.scaleDPI.x, GVARS.scaleDPI.y);
