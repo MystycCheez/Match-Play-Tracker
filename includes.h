@@ -10,11 +10,9 @@
 #include "raylib.h"
 #include "tracker.h"
 
-#include "enums.h"
 #include "defines.h"
+#include "enums.h"
 #include "structs.h"
-
-// #include "linked_list.c" // This is for when I implement Undo/Redo... Maybe
 
 #include "misc.c"
 #include "handler.c"

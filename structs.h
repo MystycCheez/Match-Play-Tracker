@@ -51,6 +51,13 @@ typedef struct KeyMap {
     bool b;
 } KeyMap;
 
+typedef struct KeyboardStates {
+    int pressed;
+    bool shift;
+    bool ctrl;
+    // bool alt;
+} KeyboardStates;
+
 // 3 components: str, cStart, cEnd
 typedef struct GapBuffer {
     char* str;
@@ -92,7 +99,7 @@ typedef struct Button {
     Vector2 pos;
     Vector2 size;
     Texture2D texture;
-    State_Button state : 2;
+    Button_State state : 2;
 } Button;
 
 typedef struct Globals {
@@ -141,5 +148,6 @@ TitleBar_Elements TitleBar;
 Cursor_Elements Cursor;
 MouseState Mouse;
 KeyMap Key = {false}; // Do I need the {false} ?
+KeyboardStates KeyData;
 
 #endif

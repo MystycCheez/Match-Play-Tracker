@@ -15,7 +15,7 @@ void ClearTimes(Cell* sheet)
     OverwriteStr(&sheet[2].gapStr, GVARS.players.p2, 0, CELL_TEXT_LENGTH);
 }
 
-Color getStateColor(State_Button state)
+Color getStateColor(Button_State state)
 {
     if (state == STATE_BTN_PRESSED)
         return GRAY;

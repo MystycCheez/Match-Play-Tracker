@@ -15,7 +15,7 @@ void setBorderPositions();
 
 // functions.c
 void ClearTimes(Cell* sheet);
-Color getStateColor(State_Button state);
+Color getStateColor(Button_State state);
 Rectangle getButtonRect(Button button);
 Rectangle getCellRect(size_t cellIndex);
 Text_Type CompareSpecialText(char *text);

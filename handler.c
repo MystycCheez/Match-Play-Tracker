@@ -348,23 +348,27 @@ void InputHandler(Cell *sheet, size_t *cellIndex)
 {
     Key.ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
     Key.shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
-
+    
+    KeyData.pressed = GetKeyPressed();
+    KeyData.ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
+    KeyData.shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
+    
     Key.escape = IsKeyPressed(KEY_ESCAPE);
     Key.enter = IsKeyPressed(KEY_ENTER);
     Key.delete = IsKeyPressed(KEY_DELETE);
     Key.backspace = IsKeyPressed(KEY_BACKSPACE);
-
+    
     Key.left = IsKeyPressed(KEY_LEFT);
     Key.right = IsKeyPressed(KEY_RIGHT);
     Key.up = IsKeyPressed(KEY_UP);
     Key.down = IsKeyPressed(KEY_DOWN);
-
+    
+    Key.b = IsKeyPressed(KEY_B);
     Key.c = IsKeyPressed(KEY_C);
-    Key.x = IsKeyPressed(KEY_X);
-    Key.v = IsKeyPressed(KEY_V);
     Key.l = IsKeyPressed(KEY_L);
     Key.s = IsKeyPressed(KEY_S);
-    Key.b = IsKeyPressed(KEY_B);
+    Key.v = IsKeyPressed(KEY_V);
+    Key.x = IsKeyPressed(KEY_X);
 
     MouseHandler(sheet, cellIndex);
     OverviewInputHandler(sheet);

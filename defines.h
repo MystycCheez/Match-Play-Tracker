@@ -35,5 +35,7 @@
 #define DIR_LEFT 0
 #define DIR_RIGHT 1
 
+#define MODIFIER_KEYS 2
+
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))

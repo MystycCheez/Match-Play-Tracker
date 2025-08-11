@@ -8,3 +8,4 @@ times/
 release/
 .vscode
 *.dll
+actions.c
