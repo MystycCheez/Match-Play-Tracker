@@ -17,24 +17,20 @@ int main()
 
     Vector2 TextPos = {0}; 
 
-    int game = LEVELS_GE;
-
-    size_t selectedCellIndex = 0;
+    sheet = initSheet();
 
     setBorderPositions(UI.borders);
 
     Rectangle gradTop = {0, TOP_BAR_HEIGHT, Window.Width, UI.cellHeight};
     Rectangle gradBot = {0, (UI.cellHeight * 21) + TOP_BAR_HEIGHT, Window.Width, UI.cellHeight};
-
-    Cell* sheet = initSheet(game);
     
     const int RefreshRate = GetMonitorRefreshRate(GetCurrentMonitor());
     SetTargetFPS(RefreshRate);
     
     while (!GVARS.shouldExit && !WindowShouldClose())
     {
-        InputHandler(sheet, &selectedCellIndex);
-        CursorHandler(selectedCellIndex);
+        InputHandler();
+        CursorHandler();
         
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
@@ -55,19 +51,19 @@ int main()
             DrawLine(UI.borders[i].x1, UI.borders[i].y1, UI.borders[i].x2, UI.borders[i].y2, BORDER_COLOR);
         // Draw text highlighting
         if (GVARS.scope == SCOPE_CELL && GVARS.selection.exists) {
-            DrawTextHighlight(sheet, selectedCellIndex);
+            DrawTextHighlight();
         }
         // Draw Text :)
         for (size_t i = 0; i < CELL_COUNT; i++) {
             DrawTextAligned(TextPos, sheet[i], i);
         }
         if (GVARS.scope >= SCOPE_SHEET) {
-            DrawSelectionBorders(selectedCellIndex);
+            DrawSelectionBorders();
         }
         // Draw blinking cursor
         if (GVARS.scope == SCOPE_CELL) {
             if (Cursor.timer % RefreshRate < RefreshRate / 2) {
-                DrawCursor(sheet, selectedCellIndex);
+                DrawCursor();
             }
         }
 

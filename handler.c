@@ -62,26 +62,26 @@ void MouseTitleBarHandler(CollisionMap Collision, Vector2 windowPos)
     }
 }
 
-void MouseSheetHandler(CollisionMap Collision, Cell *sheet, size_t *cellIndex)
+void MouseSheetHandler(CollisionMap Collision)
 {
     if (!Mouse.pressed) return;
     if (Collision.sheet) {
-        if (xyToIndex(Mouse.pos) == *cellIndex) {
+        if (xyToIndex(Mouse.pos) == GVARS.selectedCellIndex) {
             GVARS.scope = SCOPE_CELL;
         }
         else {
-            *cellIndex = xyToIndex(Mouse.pos);
-            GVARS.scope = sheet[*cellIndex].selectable ? SCOPE_SHEET : SCOPE_OVERVIEW;
-            cellIndex = GVARS.scope > SCOPE_OVERVIEW ? cellIndex : 0;
+            GVARS.selectedCellIndex = xyToIndex(Mouse.pos);
+            GVARS.scope = sheet[GVARS.selectedCellIndex].selectable ? SCOPE_SHEET : SCOPE_OVERVIEW;
+            GVARS.selectedCellIndex = GVARS.scope > SCOPE_OVERVIEW ? GVARS.selectedCellIndex : 0;
         }
     }
     else {
         GVARS.scope = SCOPE_OVERVIEW;
-        cellIndex = 0;
+        GVARS.selectedCellIndex = 0;
     }
 }
 
-void MouseHandler(Cell *sheet, size_t *cellIndex)
+void MouseHandler()
 {
     Mouse.pos = GetMousePosition();
     Vector2 windowPos = GetWindowPosition();
@@ -103,170 +103,170 @@ void MouseHandler(Cell *sheet, size_t *cellIndex)
             })
     };
     MouseTitleBarHandler(Collision, windowPos);
-    MouseSheetHandler(Collision, sheet, cellIndex);
+    MouseSheetHandler(Collision);
 }
 
-void EnterNavigationHandler(Cell *sheet, size_t *cellIndex)
+void EnterNavigationHandler()
 {
-    if (*cellIndex == CELL_COUNT - 5) {
-        if (sheet[*cellIndex + 1].gapStr.str[0] != 0) {
-            *cellIndex = 0;
+    if (GVARS.selectedCellIndex == CELL_COUNT - 5) {
+        if (sheet[GVARS.selectedCellIndex + 1].gapStr.str[0] != 0) {
+            GVARS.selectedCellIndex = 0;
             GVARS.scope = SCOPE_OVERVIEW;
-        } else *cellIndex = *cellIndex + 1;
+        } else GVARS.selectedCellIndex = GVARS.selectedCellIndex + 1;
         return;
-    } else if (*cellIndex == CELL_COUNT - 4) {
-        if (sheet[*cellIndex - 1].gapStr.str[0] != 0) {
-            *cellIndex = 0;
+    } else if (GVARS.selectedCellIndex == CELL_COUNT - 4) {
+        if (sheet[GVARS.selectedCellIndex - 1].gapStr.str[0] != 0) {
+            GVARS.selectedCellIndex = 0;
             GVARS.scope = SCOPE_OVERVIEW;
-        } else *cellIndex = *cellIndex - 1;
+        } else GVARS.selectedCellIndex = GVARS.selectedCellIndex - 1;
         return;
     } 
-    if (*cellIndex % 3 == 2) {
-        if (sheet[*cellIndex - 1].gapStr.str[0] == 0) {
-            *cellIndex = *cellIndex - 1;
-        } else *cellIndex = *cellIndex + 2;
-    } else if (*cellIndex % 3 == 1) {
-        if (sheet[*cellIndex + 1].gapStr.str[0] == 0) {
-            *cellIndex = *cellIndex + 1;
-        } else *cellIndex = *cellIndex + 3;
+    if (GVARS.selectedCellIndex % 3 == 2) {
+        if (sheet[GVARS.selectedCellIndex - 1].gapStr.str[0] == 0) {
+            GVARS.selectedCellIndex = GVARS.selectedCellIndex - 1;
+        } else GVARS.selectedCellIndex = GVARS.selectedCellIndex + 2;
+    } else if (GVARS.selectedCellIndex % 3 == 1) {
+        if (sheet[GVARS.selectedCellIndex + 1].gapStr.str[0] == 0) {
+            GVARS.selectedCellIndex = GVARS.selectedCellIndex + 1;
+        } else GVARS.selectedCellIndex = GVARS.selectedCellIndex + 3;
     }
 }
 
-void CellOverwriteHandler(Cell *sheet, size_t cellIndex)
+void CellOverwriteHandler()
 {
-    if (cellIndex > 2 && cellIndex < CELL_COUNT - 3) {
-        char *filteredText = filterCellText(sheet[cellIndex].gapStr.str);
-        OverwriteStr(&sheet[cellIndex].gapStr, filteredText, 0, CELL_TEXT_LENGTH);
+    if (GVARS.selectedCellIndex > 2 && GVARS.selectedCellIndex < CELL_COUNT - 3) {
+        char *filteredText = filterCellText(sheet[GVARS.selectedCellIndex].gapStr.str);
+        OverwriteStr(&sheet[GVARS.selectedCellIndex].gapStr, filteredText, 0, CELL_TEXT_LENGTH);
     }
 }
 
-void CellInputHandler(Cell *sheet, size_t *cellIndex)
+void CellInputHandler()
 {
     if (GVARS.scope == SCOPE_OVERVIEW) return;
-    if (*cellIndex == 0) return;
+    if (GVARS.selectedCellIndex == 0) return;
     int key_char = GetCharPressed();
 
     while (key_char > 0) {
         if ((key_char >= 32) && (key_char <= 125)) {
             if (GVARS.scope == SCOPE_CELL) {
                 if (GVARS.selection.exists) {
-                    replaceChar(&sheet[*cellIndex].gapStr, (char)key_char);
+                    replaceChar(&sheet[GVARS.selectedCellIndex].gapStr, (char)key_char);
                     Deselect();
                 }
-                else placeChar(&sheet[*cellIndex].gapStr, (char)key_char);
+                else placeChar(&sheet[GVARS.selectedCellIndex].gapStr, (char)key_char);
             }
             else {
                 Deselect();
                 GVARS.scope = SCOPE_CELL;
-                placeChar(&sheet[*cellIndex].gapStr, (char)key_char);
+                placeChar(&sheet[GVARS.selectedCellIndex].gapStr, (char)key_char);
             }
         }
         key_char = GetCharPressed();
     }
 }
 
-void SheetKeyPressHandler(Cell *sheet, size_t *cellIndex)
+void SheetKeyPressHandler()
 {
     if (GVARS.scope != SCOPE_SHEET) return;
-    if (*cellIndex == 0) return;
-    CellInputHandler(sheet, cellIndex);
+    if (GVARS.selectedCellIndex == 0) return;
+    CellInputHandler();
     if (Key.escape) {
         GVARS.scope = SCOPE_OVERVIEW;
         return;
     }
     if (Key.enter) {
-        CellOverwriteHandler(sheet, *cellIndex);
-        EnterNavigationHandler(sheet, cellIndex);
-        UpdateScores(sheet);
-        if (*cellIndex == 0) GVARS.scope = SCOPE_OVERVIEW;
+        CellOverwriteHandler();
+        EnterNavigationHandler();
+        UpdateScores();
+        if (GVARS.selectedCellIndex == 0) GVARS.scope = SCOPE_OVERVIEW;
         return;
     }
     if (Key.delete) {
-        OverwriteStr(&sheet[*cellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
+        OverwriteStr(&sheet[GVARS.selectedCellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
     }
     if (Key.backspace) {
-        OverwriteStr(&sheet[*cellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
+        OverwriteStr(&sheet[GVARS.selectedCellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
         GVARS.scope = SCOPE_CELL;
         return;
     }
     if (Key.left) {
-        if (*cellIndex % 3 == 2) {
-            *cellIndex = *cellIndex - 1;
+        if (GVARS.selectedCellIndex % 3 == 2) {
+            GVARS.selectedCellIndex = GVARS.selectedCellIndex - 1;
         }
     }
     if (Key.right) {
-        if (*cellIndex % 3 == 1) {
-            *cellIndex = *cellIndex + 1;
+        if (GVARS.selectedCellIndex % 3 == 1) {
+            GVARS.selectedCellIndex = GVARS.selectedCellIndex + 1;
         }
     }
     if (Key.down) {
-        if (*cellIndex > CELL_COUNT - 6) {
+        if (GVARS.selectedCellIndex > CELL_COUNT - 6) {
             return;
         }
-        *cellIndex = *cellIndex + 3;
+        GVARS.selectedCellIndex = GVARS.selectedCellIndex + 3;
     }
     if (Key.up) {
-        if (*cellIndex < 3)
+        if (GVARS.selectedCellIndex < 3)
             return;
-        *cellIndex = *cellIndex - 3;
+        GVARS.selectedCellIndex = GVARS.selectedCellIndex - 3;
     }
     if (Key.ctrl) {
         if (Key.v) {
-            placeString(&sheet[*cellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
+            placeString(&sheet[GVARS.selectedCellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
             GVARS.scope = SCOPE_CELL;
             return;
         }
         if (Key.l) {
-            if (loadTimes(sheet)) {
-                UpdateScores(sheet);
+            if (loadTimes()) {
+                UpdateScores();
                 printf("Loaded times from times/times.txt\n");
             }
         }
         if (Key.s) {
-            saveTimes(sheet);
+            saveTimes();
             printf("Saved times to times/times.txt\n");
         }
         if (Key.b) {
-            ExportToBBCode(sheet);
+            ExportToBBCode();
             printf("Exported to BBCode\n");
         }
         if (Key.delete) {
-            ClearTimes(sheet);
-            UpdateScores(sheet);
+            ClearTimes();
+            UpdateScores();
             printf("Sheet Cleared\n");
         }
     }
 }
 
-void OverviewInputHandler(Cell* sheet)
+void OverviewInputHandler()
 {
     if (GVARS.scope != SCOPE_OVERVIEW) return;
 
     if (Key.l) {
-        if (loadTimes(sheet)) {
-            UpdateScores(sheet);
+        if (loadTimes()) {
+            UpdateScores();
             printf("Loaded times from times/times.txt\n");
         }
     }
     if (Key.s) {
-        saveTimes(sheet);
+        saveTimes();
         printf("Saved times to times/times.txt\n");
     }
     if (Key.b) {
-        ExportToBBCode(sheet);
+        ExportToBBCode();
         printf("Exported to BBCode\n");
     }
     if (Key.delete) {
-        ClearTimes(sheet);
-        UpdateScores(sheet);
+        ClearTimes();
+        UpdateScores();
         printf("Sheet Cleared\n");
     }
 }
 
-void CellKeyPressHandler(Cell *sheet, size_t *cellIndex)
+void CellKeyPressHandler()
 {
     if (GVARS.scope != SCOPE_CELL) return;
-    CellInputHandler(sheet, cellIndex);
+    CellInputHandler();
     if (Key.escape) {
         if (GVARS.selection.exists) Deselect();
         else {
@@ -276,36 +276,36 @@ void CellKeyPressHandler(Cell *sheet, size_t *cellIndex)
         return;
     }
     if (Key.enter) {
-        CellOverwriteHandler(sheet, *cellIndex);
-        EnterNavigationHandler(sheet, cellIndex);
-        UpdateScores(sheet);
-        if (*cellIndex == 0) GVARS.scope = SCOPE_OVERVIEW;
+        CellOverwriteHandler();
+        EnterNavigationHandler();
+        UpdateScores();
+        if (GVARS.selectedCellIndex == 0) GVARS.scope = SCOPE_OVERVIEW;
         else GVARS.scope = SCOPE_SHEET;
         return;
     }
     if (!Key.shift) { // TODO: Clean this up / make it more concise
         if (Key.ctrl) { // TODO: do it by token
             if (Key.left) {
-                MoveCursorToIndex(&sheet[*cellIndex].gapStr, 0);
+                MoveCursorToIndex(&sheet[GVARS.selectedCellIndex].gapStr, 0);
                 Deselect();
                 return;
             }
             if (Key.right) {
-                MoveCursorToIndex(&sheet[*cellIndex].gapStr, strlen(gapStrToStr(sheet[*cellIndex].gapStr, CELL_TEXT_LENGTH)));
+                MoveCursorToIndex(&sheet[GVARS.selectedCellIndex].gapStr, strlen(gapStrToStr(sheet[GVARS.selectedCellIndex].gapStr, CELL_TEXT_LENGTH)));
                 Deselect();
                 return;
             }
             if (Key.c) {
-                CopyText(sheet[*cellIndex].gapStr);
+                CopyText(sheet[GVARS.selectedCellIndex].gapStr);
                 return;
             }
             if (Key.x) {
-                CopyText(sheet[*cellIndex].gapStr);
-                DeleteSelection(&sheet[*cellIndex].gapStr);
+                CopyText(sheet[GVARS.selectedCellIndex].gapStr);
+                DeleteSelection(&sheet[GVARS.selectedCellIndex].gapStr);
                 return;
             }
             if (Key.v) {
-                placeString(&sheet[*cellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
+                placeString(&sheet[GVARS.selectedCellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
                 return;
             }
         }
@@ -313,19 +313,19 @@ void CellKeyPressHandler(Cell *sheet, size_t *cellIndex)
             // Redundant Deselect() here, but I'm not sure if I should always deselect if keypress
             // TODO
             if (Key.left) {
-                if (cursorLeft(&sheet[*cellIndex].gapStr)) Deselect();
+                if (cursorLeft(&sheet[GVARS.selectedCellIndex].gapStr)) Deselect();
                 Deselect();
                 return;
             }
             if (Key.right) {
-                if (cursorRight(&sheet[*cellIndex].gapStr)) Deselect();
+                if (cursorRight(&sheet[GVARS.selectedCellIndex].gapStr)) Deselect();
                 Deselect();
                 return;
             }
         }
         if (IsKeyPressed(KEY_BACKSPACE)) {
             // TODO: modify deleteCharAtCursor to account for no char being deleted
-            deleteCharAtCursor(&sheet[*cellIndex].gapStr);
+            deleteCharAtCursor(&sheet[GVARS.selectedCellIndex].gapStr);
             Deselect();
             return;
         }
@@ -337,14 +337,14 @@ void CellKeyPressHandler(Cell *sheet, size_t *cellIndex)
         }
         else if (!Key.ctrl) {
             if (Key.left)
-                selectChar(&sheet[*cellIndex].gapStr, DIR_LEFT);
+                selectChar(&sheet[GVARS.selectedCellIndex].gapStr, DIR_LEFT);
             if (Key.right)
-                selectChar(&sheet[*cellIndex].gapStr, DIR_RIGHT);
+                selectChar(&sheet[GVARS.selectedCellIndex].gapStr, DIR_RIGHT);
         }
     }
 }
 
-void InputHandler(Cell *sheet, size_t *cellIndex)
+void InputHandler()
 {
     Key.ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
     Key.shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
@@ -370,25 +370,27 @@ void InputHandler(Cell *sheet, size_t *cellIndex)
     Key.v = IsKeyPressed(KEY_V);
     Key.x = IsKeyPressed(KEY_X);
 
-    MouseHandler(sheet, cellIndex);
-    OverviewInputHandler(sheet);
-    SheetKeyPressHandler(sheet, cellIndex);
-    CellKeyPressHandler(sheet, cellIndex);
+    // DoAction[Actions[GetKeyPressed()][GVARS.scope]]();
+
+    MouseHandler();
+    OverviewInputHandler();
+    SheetKeyPressHandler();
+    CellKeyPressHandler();
     // GenericKeyPressHandler(key, cellIndex);
 }
 
-void CursorHandler(size_t cellIndex)
+void CursorHandler()
 {
     if (Cursor.type == MOUSE_CURSOR_DEFAULT) {
             if (GVARS.scope == SCOPE_CELL) {
-                if (CheckCollisionPointRec(Mouse.pos, getCellRect(cellIndex))) {
+                if (CheckCollisionPointRec(Mouse.pos, getCellRect(GVARS.selectedCellIndex))) {
                     SetMouseCursor(MOUSE_CURSOR_IBEAM);
                     Cursor.type = MOUSE_CURSOR_IBEAM;
                 }
             }
         } else if (
             (GVARS.scope != SCOPE_CELL) || 
-            (!CheckCollisionPointRec(Mouse.pos, getCellRect(cellIndex)))
+            (!CheckCollisionPointRec(Mouse.pos, getCellRect(GVARS.selectedCellIndex)))
         ) {
             SetMouseCursor(MOUSE_CURSOR_DEFAULT);
             Cursor.type = MOUSE_CURSOR_DEFAULT;

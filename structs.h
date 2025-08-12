@@ -108,9 +108,11 @@ typedef struct Globals {
     Specials specials;
     Selection selection;
     Scope_Level scope;
+    Shader shader;
+    int game;
+    size_t selectedCellIndex;
     bool shouldExit;
     char* level_win;
-    Shader shader;
 } Globals;
 
 typedef struct UI_Elements {
@@ -146,6 +148,9 @@ UI_Elements UI;
 Window_Elements Window;
 TitleBar_Elements TitleBar;
 Cursor_Elements Cursor;
+
+Cell* sheet;
+
 MouseState Mouse;
 KeyMap Key = {false}; // Do I need the {false} ?
 KeyboardStates KeyData;

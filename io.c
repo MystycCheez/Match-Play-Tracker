@@ -10,7 +10,7 @@ void loadFont()
 }
 
 // Returns true if succesfully loaded
-bool loadTimes(Cell* sheet)
+bool loadTimes()
 {
     char* filename = "times/times.txt";
     
@@ -86,7 +86,7 @@ void loadSpecialText()
     GVARS.specials.count = specialCount;
 }
 
-void saveTimes(Cell* sheet)
+void saveTimes()
 {
     MakeDirectory("times");
     char* filename = "times/times.txt";
@@ -110,7 +110,7 @@ void saveTimes(Cell* sheet)
     fclose(file_ptr);
 }
 
-void ExportToBBCode(Cell* sheet)
+void ExportToBBCode()
 {
     MakeDirectory("times");
     char* bbFileName = "times/results.bbcode";

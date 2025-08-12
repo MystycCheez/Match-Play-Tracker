@@ -15,9 +15,8 @@ void initGlobals()
     Cursor.type = MOUSE_CURSOR_DEFAULT;
 
     GVARS.players = (Players){"Player 1", "Player 2", 0, 0};
-
-    // printf("%f, %f\n", GVARS.scaleDPI.x, GVARS.scaleDPI.y);
-
+    GVARS.game = LEVELS_GE;
+    GVARS.selectedCellIndex = 0;
     GVARS.scope = SCOPE_SHEET;
     GVARS.shouldExit = false;
     GVARS.level_win = NULL;
@@ -82,9 +81,9 @@ void initButtons()
     SetTextureFilter(UI.buttons[BTN_MINIMIZE].texture, TEXTURE_FILTER_BILINEAR);
 }
 
-void initSheetText(Cell *sheet, int game)
+void initSheetText(Cell *sheet)
 {
-    char **levelText = loadLevelText(game);
+    char **levelText = loadLevelText(GVARS.game);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
         placeString(&sheet[(i * 3) + 3].gapStr, levelText[i], CELL_TEXT_LENGTH);
     }
@@ -101,7 +100,7 @@ void initSheetText(Cell *sheet, int game)
     placeString(&sheet[CELL_COUNT - 1].gapStr, s2, CELL_TEXT_LENGTH);
 }
 
-Cell *initSheet(int game)
+Cell *initSheet()
 {
     Cell *sheet = malloc(sizeof(Cell) * CELL_COUNT);
     for (size_t i = 0; i < CELL_COUNT; i++) {
@@ -120,7 +119,7 @@ Cell *initSheet(int game)
         sheet[3 + (i * COLUMNS)].color = COLOR_LEVEL;
         sheet[3 + (i * COLUMNS)].selectable = false;
     }
-    initSheetText(sheet, game);
+    initSheetText(sheet);
     return sheet;
 }
 
