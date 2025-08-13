@@ -2,7 +2,6 @@
 #define INIT_C
 
 #include "includes.h"
-#include "GLFW/glfw3.h"
 
 void initGlobals()
 {
@@ -133,6 +132,41 @@ void setBorderPositions()
     for (size_t i = 0; i < COLUMNS; i++) {
         UI.borders[i + index] = (Line){UI.cellWidth * i, TOP_BAR_HEIGHT, UI.cellWidth * i, Window.Height};
     }
+}
+
+void initActionTable()
+{
+    #define ACTION_DEBUG
+    #ifdef ACTION_DEBUG
+        char* filename = "action_table.txt";
+
+        FILE* file_ptr = fopen(filename, "w");
+        if (file_ptr == NULL) {
+        fprintf(stderr, "Error: Could not open file: %s\n", filename);
+        fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
+        exit(1);
+        }
+    #endif
+    // Just init everything to do nothing for now
+    for (size_t y = 0; y < KEY_COUNT * 4; y++) {
+        for (size_t x = 0; x < 3; x++) {
+            ActionTable[x][y] = A_DONOTHING;
+        }
+    }
+    #ifdef ACTION_DEBUG
+        fprintf(file_ptr, "                                  |                 OVERVIEW |                    SHEET |                     CELL |\n");
+        for (size_t y = 0; y < KEY_COUNT * 4; y++) {
+            fprintf(file_ptr, " %32s ", GetKeyComboText(y));
+            for (size_t x = 0; x < 3; x++) {
+                fprintf(file_ptr, "| %24d ", ActionTable[x][y]);
+            }
+            fprintf(file_ptr, "|\n");
+        }
+
+        fclose(file_ptr);
+    #endif
+
+    exit(1);
 }
 
 #endif

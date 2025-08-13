@@ -51,12 +51,12 @@ typedef struct KeyMap {
     bool b;
 } KeyMap;
 
-typedef struct KeyboardStates {
+typedef struct KeyboardState {
     int pressed;
     bool shift;
     bool ctrl;
     // bool alt;
-} KeyboardStates;
+} KeyboardState;
 
 // 3 components: str, cStart, cEnd
 typedef struct GapBuffer {
@@ -153,6 +153,6 @@ Cell* sheet;
 
 MouseState Mouse;
 KeyMap Key = {false}; // Do I need the {false} ?
-KeyboardStates KeyData;
+KeyboardState KeyData;
 
 #endif

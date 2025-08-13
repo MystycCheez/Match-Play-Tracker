@@ -254,4 +254,42 @@ void UpdateScores()
     }
 }
 
+bool getMoveDir()
+{
+    if (KeyData.pressed == KEY_LEFT) return DIR_LEFT;
+    if (KeyData.pressed == DIR_RIGHT) return DIR_RIGHT;
+    assert(!"Shouldn't be trying to get a direction when not pressing left or right!");
+}
+
+int GetKeyComboIndex()
+{
+    int offset = ((int)KeyData.ctrl + (int)KeyData.shift) * (sizeof(KeyMap) / sizeof(bool));
+    return KeyData.pressed + offset;
+}
+
+char* GetKeyComboText(int index)
+{
+    size_t size = 50;
+    size_t pos = 0;
+    char* buffer = calloc(size, 1);
+    if (((index / KEY_COUNT) >= 1) && ((index / KEY_COUNT) < 3)) {
+        pos += snprintf(buffer, size - pos, "Ctrl + ");
+    }
+    if ((index / KEY_COUNT) >= 2) {
+        pos += snprintf(buffer + pos, size - pos, "Shift + ");
+    }
+    if ((index / KEY_COUNT) >= 3) {
+        pos += snprintf(buffer + pos, size - pos, "Ctrl + Shift + ");
+    }
+    index = (index % KEY_COUNT);
+    const char* tmp = GetKeyName(index);
+    snprintf(buffer + pos, pos - size, tmp);
+    return buffer;
+}
+
+const char* GetKeyName(int index)
+{
+    return keynames[index];
+}
+
 #endif

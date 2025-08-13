@@ -1,4 +1,5 @@
 // #define GAP_DEBUG
+// #define ACTION_DEBUG
 
 #include "includes.h"
 
@@ -12,6 +13,8 @@ int main()
     
     loadSpecialText();
     loadFont();
+
+    initActionTable();
 
     SetExitKey(KEY_NULL);
 

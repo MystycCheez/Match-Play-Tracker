@@ -140,6 +140,13 @@ bool cursorRight(GapBuffer *gapStr)
     return true;
 }
 
+bool CursorMoveDir(GapBuffer *gapStr, bool dir)
+{
+    if (dir == DIR_LEFT) return cursorLeft(gapStr);
+    if (dir == DIR_RIGHT) return cursorRight(gapStr);
+    assert(!"Move Direction is not valid!");
+}
+
 void selectChar(GapBuffer *gapStr, bool dir)
 {
     if (!GVARS.selection.exists) {

@@ -8,11 +8,14 @@
 #include <math.h>
 
 #include "raylib.h"
+#include "GLFW/glfw3.h"
 #include "tracker.h"
 
 #include "defines.h"
 #include "enums.h"
 #include "structs.h"
+
+#include "actions.c"
 
 #include "misc.c"
 #include "handler.c"

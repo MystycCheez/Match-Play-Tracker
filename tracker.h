@@ -12,6 +12,7 @@ void initButtons();
 void initSheetText();
 Cell *initSheet();
 void setBorderPositions();
+void initActionTable();
 
 // functions.c
 void ClearTimes();
@@ -26,6 +27,10 @@ size_t countChars(char *text, char c, size_t len);
 char *filterCellText(char *text);
 Int2 CompareTimes(size_t row);
 void UpdateScores();
+bool getMoveDir();
+int GetKeyComboIndex();
+char* GetKeyComboText(int index);
+const char* GetKeyName(int index);
 
 // gap_buffer.c
 GapBuffer initGapStr(size_t len);
@@ -39,6 +44,7 @@ char* gapStrToStr(GapBuffer gapStr, size_t maxLen);
 void deleteCharAtCursor(GapBuffer *gapStr);
 bool cursorLeft(GapBuffer *gapStr);
 bool cursorRight(GapBuffer *gapStr);
+bool CursorMoveDir(GapBuffer *gapStr, bool dir);
 void selectChar(GapBuffer *gapStr, bool dir);
 void Deselect();
 void MoveCursorToIndex(GapBuffer *gapStr, size_t index);
@@ -84,5 +90,26 @@ void OverviewInputHandler();
 void CellKeyPressHandler();
 void InputHandler();
 void CursorHandler();
+
+// actions.c
+void A_DoNothing();
+void A_ScopeDecrease();
+void A_SelectChar();
+void A_MoveCursor();
+void A_MoveCursorByToken();
+void A_MoveCursorToStart();
+void A_MoveCursorToEnd();
+void A_LoadTimes();
+void A_SaveTimes();
+void A_ExportTimes();
+void A_ClearTimes();
+void A_Deselect_Or_UndoAndBackout();
+void A_OverwriteAndUpdate();
+void A_Copy();
+void A_Cut();
+void A_Paste();
+void A_DeleteCellText();
+void A_DeleteSelection();
+void A_DeleteChar();
 
 #endif
