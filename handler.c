@@ -346,36 +346,26 @@ void CellKeyPressHandler()
 
 void InputHandler()
 {
-    Key.ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
-    Key.shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
-    
+    CellInputHandler();
     KeyData.pressed = GetKeyPressed();
     KeyData.ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
     KeyData.shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
-    
-    Key.escape = IsKeyPressed(KEY_ESCAPE);
-    Key.enter = IsKeyPressed(KEY_ENTER);
-    Key.delete = IsKeyPressed(KEY_DELETE);
-    Key.backspace = IsKeyPressed(KEY_BACKSPACE);
-    
-    Key.left = IsKeyPressed(KEY_LEFT);
-    Key.right = IsKeyPressed(KEY_RIGHT);
-    Key.up = IsKeyPressed(KEY_UP);
-    Key.down = IsKeyPressed(KEY_DOWN);
-    
-    Key.b = IsKeyPressed(KEY_B);
-    Key.c = IsKeyPressed(KEY_C);
-    Key.l = IsKeyPressed(KEY_L);
-    Key.s = IsKeyPressed(KEY_S);
-    Key.v = IsKeyPressed(KEY_V);
-    Key.x = IsKeyPressed(KEY_X);
 
-    Action[ActionTable[GVARS.scope][GetKeyComboIndex(KeyData.pressed, GetModifierCode())]]();
+    // if (KeyData.pressed > 0) {
+        Action[ActionTable[GVARS.scope][GetKeyComboIndex(GetKeyIndex(KeyData.pressed), GetModifier())]]();
+    // }
+    static bool test = true;
+    if (test) {
+        printf("%s\n", GetKeyName(GetKeyIndex(KeyData.pressed)));
+        
+        Action[A_DONOTHING]();
+        test = false;
+    }
 
     MouseHandler();
-    OverviewInputHandler();
-    SheetKeyPressHandler();
-    CellKeyPressHandler();
+    // OverviewInputHandler();
+    // SheetKeyPressHandler();
+    // CellKeyPressHandler();
     // GenericKeyPressHandler(key, cellIndex);
 }
 

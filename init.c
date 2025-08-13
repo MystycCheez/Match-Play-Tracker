@@ -158,6 +158,7 @@ void initActionTable()
         ActionTable[scope][GetKeyComboIndex(K_S, M_CTRL)] = A_SAVETIMES;
         ActionTable[scope][GetKeyComboIndex(K_L, M_CTRL)] = A_LOADTIMES;
         ActionTable[scope][GetKeyComboIndex(K_B, M_CTRL)] = A_EXPORTTIMES;
+        ActionTable[scope][GetKeyComboIndex(K_DELETE, M_CTRL)] = A_CLEARTIMES;
         ActionTable[scope][GetKeyComboIndex(K_ESCAPE, M_NONE)] = A_SCOPEDECREASE;
     }
 
@@ -184,8 +185,10 @@ void initActionTable()
     ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_DELETE, M_NONE)] = A_DELETECELLTEXT;
 
     for (size_t i = K_LEFT; i < 4; i++) {
-        ActionTable[SCOPE_SHEET][GetKeyComboIndex(i, M_NONE)] = A_NAVIGATE;
+        ActionTable[SCOPE_SHEET][GetKeyComboIndex(i, M_NONE)] = A_NAVIGATELEFT + i;
     }
+
+    ActionTable[SCOPE_SHEET][UNUSED_KEY_COMBO] = A_DONOTHING;
 
 
     #ifdef ACTION_DEBUG
@@ -203,7 +206,7 @@ void initActionTable()
         fclose(file_ptr);
     #endif
 
-    exit(1);
+    // exit(1);
 }
 
 #endif

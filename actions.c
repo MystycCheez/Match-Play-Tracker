@@ -2,47 +2,72 @@
 #define ACTIONS_C
 
 #include "includes.h"
+#define ACTION_DEBUG_
 
 // Will I need this?
 void A_DoNothing()
 {
+    // #ifdef ACTION_DEBUG_
+    // printf("%s", __func__);
+    // #endif
     return;
 }
 
 void A_ScopeDecrease()
 {
-    GVARS.scope = max(GVARS.scope - 1, 0);
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
+    if (GVARS.scope > 0) GVARS.scope -= 1;
 }
 
 void A_SelectChar()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     selectChar(&sheet[GVARS.selectedCellIndex].gapStr, getMoveDir());
 }
 
 void A_MoveCursor()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     if (CursorMoveDir(&sheet[GVARS.selectedCellIndex].gapStr, getMoveDir())) Deselect();
 }
 
 void A_MoveCursorByToken()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     assert(!"TODO: A_MoveCursor_Token");
 }
 
 void A_MoveCursorToStart()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     MoveCursorToIndex(&sheet[GVARS.selectedCellIndex].gapStr, 0);
     Deselect();
 }
 
 void A_MoveCursorToEnd()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     MoveCursorToIndex(&sheet[GVARS.selectedCellIndex].gapStr, strlen(gapStrToStr(sheet[GVARS.selectedCellIndex].gapStr, CELL_TEXT_LENGTH)));
     Deselect();
 }
 
 void A_LoadTimes()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     if (loadTimes()) {
         UpdateScores();
         printf("Loaded times from times/times.txt\n");
@@ -51,18 +76,27 @@ void A_LoadTimes()
 
 void A_SaveTimes()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     saveTimes();
     printf("Saved times to times/times.txt\n");
 }
 
 void A_ExportTimes()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     ExportToBBCode();
     printf("Exported to BBCode\n");
 }
 
 void A_ClearTimes()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     ClearTimes();
     UpdateScores();
     printf("Sheet Cleared\n");
@@ -70,6 +104,9 @@ void A_ClearTimes()
 
 void A_Deselect_Or_Undo_Backout()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     if (GVARS.selection.exists) {
         Deselect();
     } else {
@@ -80,6 +117,9 @@ void A_Deselect_Or_Undo_Backout()
 
 void A_Overwrite_UpdateScore()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     CellOverwriteHandler();
     EnterNavigationHandler();
     UpdateScores();
@@ -88,41 +128,91 @@ void A_Overwrite_UpdateScore()
 
 void A_Copy()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     CopyText(sheet[GVARS.selectedCellIndex].gapStr);
 }
 
 void A_Cut()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     CopyText(sheet[GVARS.selectedCellIndex].gapStr);
     DeleteSelection(&sheet[GVARS.selectedCellIndex].gapStr);
 }
 
 void A_Paste()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     placeString(&sheet[GVARS.selectedCellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
 }
 
 void A_DeleteCellText()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     OverwriteStr(&sheet[GVARS.selectedCellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
+    CellOverwriteHandler();
+    UpdateScores();
 }
 
 void A_DeleteSelection()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     // TODO
 }
 
 void A_DeleteChar()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     if (GVARS.selection.exists) A_DeleteSelection();
     deleteCharAtCursor(&sheet[GVARS.selectedCellIndex].gapStr);
 }
 
-void A_Navigate()
+void A_NavigateLeft()
 {
-
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
+    if (GVARS.selectedCellIndex % 3 == 2)
+    GVARS.selectedCellIndex = GVARS.selectedCellIndex - 1;
 }
 
+void A_NavigateRight()
+{
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
+    if (GVARS.selectedCellIndex % 3 == 1) 
+    GVARS.selectedCellIndex = GVARS.selectedCellIndex + 1;
+}
+
+void A_NavigateUp()
+{
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
+    if (GVARS.selectedCellIndex < 3) return;
+    GVARS.selectedCellIndex = GVARS.selectedCellIndex - 3;
+}
+
+void A_NavigateDown()
+{
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
+    if (GVARS.selectedCellIndex > CELL_COUNT - 6) return;
+    GVARS.selectedCellIndex = GVARS.selectedCellIndex + 3;
+}
 
 // List of action functions
 void (*Action[])() = {
@@ -145,7 +235,10 @@ void (*Action[])() = {
     A_DeleteCellText,
     A_DeleteSelection,
     A_DeleteChar,
-    A_Navigate,
+    A_NavigateLeft,
+    A_NavigateRight,
+    A_NavigateUp,
+    A_NavigateDown,
 };
 
 // List of Actions
@@ -169,7 +262,10 @@ typedef enum Actions {
     A_DELETECELLTEXT,
     A_DELETESELECTION,
     A_DELETECHAR,
-    A_NAVIGATE,
+    A_NAVIGATELEFT,
+    A_NAVIGATERIGHT,
+    A_NAVIGATEUP,
+    A_NAVIGATEDOWN,
 
     ACTION_COUNT
 } Actions;
@@ -194,7 +290,10 @@ const char* actionnames[] = {
     "A_DELETECELLTEXT",
     "A_DELETESELECTION",
     "A_DELETECHAR",
-    "A_NAVIGATE",
+    "A_NAVIGATELEFT",
+    "A_NAVIGATERIGHT",
+    "A_NAVIGATEUP",
+    "A_NAVIGATEDOWN",
 };
 
 const char* actionnames_humanreadable[] = {
@@ -217,7 +316,10 @@ const char* actionnames_humanreadable[] = {
     "Delete cell text",
     "Delete selection",
     "Delete char",
-    "Navigate"
+    "Navigate left",
+    "Navigate right",
+    "Navigate up",
+    "Navigate down",
 };
 
 typedef enum Keys {
@@ -240,7 +342,7 @@ typedef enum Keys {
     KEY_COUNT
 } Keys;
 
-const int keys[KEY_COUNT] = {
+const int R_Keys[KEY_COUNT] = {
     KEY_LEFT,
     KEY_RIGHT,
     KEY_UP,
@@ -249,7 +351,7 @@ const int keys[KEY_COUNT] = {
     KEY_ESCAPE,
     KEY_DELETE,
     KEY_BACKSPACE,
-    K_TAB,
+    KEY_TAB,
     KEY_C,
     KEY_X,
     KEY_V,

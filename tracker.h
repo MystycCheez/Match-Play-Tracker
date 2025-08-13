@@ -33,7 +33,8 @@ char* GetKeyComboText(int index);
 const char* GetKeyName(int index);
 const char* GetActionText(int index);
 const char* GetHumanReadableActionText(int index);
-int GetModifierCode();
+int GetModifier();
+int GetKeyIndex(int key);
 
 // gap_buffer.c
 GapBuffer initGapStr(size_t len);

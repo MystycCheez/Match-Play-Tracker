@@ -263,6 +263,7 @@ bool getMoveDir()
 
 int GetKeyComboIndex(int key, int modifier)
 {
+    if (key == -1) return UNUSED_KEY_COMBO;
     return key + (modifier * KEY_COUNT);
 }
 
@@ -288,6 +289,7 @@ char* GetKeyComboText(int index)
 
 const char* GetKeyName(int index)
 {
+    if (index == -1) return "N/A";
     return keynames[index];
 }
 
@@ -301,12 +303,20 @@ const char* GetHumanReadableActionText(int index)
     return actionnames_humanreadable[index];
 }
 
-int GetModifierCode()
+int GetModifier()
 {
-    int code = 0;
-    if (KeyData.ctrl) code++;
-    if (KeyData.shift) code++;
-    return code;
+    int modifier = 0;
+    if (KeyData.ctrl) modifier += 1;
+    if (KeyData.shift) modifier += 2;
+    return modifier;
+}
+
+int GetKeyIndex(int key)
+{
+    for (size_t i = 0; i < KEY_COUNT; i++) {
+        if (key == R_Keys[i]) return i;
+    }
+    return -1;
 }
 
 #endif

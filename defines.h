@@ -37,5 +37,7 @@
 
 #define MODIFIER_KEYS 2
 
+#define UNUSED_KEY_COMBO GetKeyComboIndex(K_ESCAPE, M_CTRL_SHIFT)
+
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))
