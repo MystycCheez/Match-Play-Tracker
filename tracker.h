@@ -28,9 +28,12 @@ char *filterCellText(char *text);
 Int2 CompareTimes(size_t row);
 void UpdateScores();
 bool getMoveDir();
-int GetKeyComboIndex();
+int GetKeyComboIndex(int key, int modifier);
 char* GetKeyComboText(int index);
 const char* GetKeyName(int index);
+const char* GetActionText(int index);
+const char* GetHumanReadableActionText(int index);
+int GetModifierCode();
 
 // gap_buffer.c
 GapBuffer initGapStr(size_t len);
@@ -103,7 +106,7 @@ void A_LoadTimes();
 void A_SaveTimes();
 void A_ExportTimes();
 void A_ClearTimes();
-void A_Deselect_Or_UndoAndBackout();
+void A_Deselect_Or_Undo_Backout();
 void A_OverwriteAndUpdate();
 void A_Copy();
 void A_Cut();

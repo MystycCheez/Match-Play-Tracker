@@ -50,4 +50,11 @@ typedef enum Scope_Level {
     SCOPE_CELL = 2,
 } Scope_Level;
 
+typedef enum Modifiers {
+    M_NONE = 0,
+    M_CTRL = 1,
+    M_SHIFT = 2,
+    M_CTRL_SHIFT = 3,
+} Modifiers;
+
 #endif

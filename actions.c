@@ -68,7 +68,7 @@ void A_ClearTimes()
     printf("Sheet Cleared\n");
 }
 
-void A_Deselect_Or_UndoAndBackout()
+void A_Deselect_Or_Undo_Backout()
 {
     if (GVARS.selection.exists) {
         Deselect();
@@ -78,7 +78,7 @@ void A_Deselect_Or_UndoAndBackout()
     }
 }
 
-void A_OverwriteAndUpdate()
+void A_Overwrite_UpdateScore()
 {
     CellOverwriteHandler();
     EnterNavigationHandler();
@@ -118,8 +118,13 @@ void A_DeleteChar()
     deleteCharAtCursor(&sheet[GVARS.selectedCellIndex].gapStr);
 }
 
+void A_Navigate()
+{
 
-// List of actions
+}
+
+
+// List of action functions
 void (*Action[])() = {
     A_DoNothing,
     A_ScopeDecrease,
@@ -132,21 +137,18 @@ void (*Action[])() = {
     A_SaveTimes,
     A_ExportTimes,
     A_ClearTimes,
-    A_Deselect_Or_UndoAndBackout,
-    A_OverwriteAndUpdate,
+    A_Deselect_Or_Undo_Backout,
+    A_Overwrite_UpdateScore,
     A_Copy,
     A_Cut,
     A_Paste,
     A_DeleteCellText,
     A_DeleteSelection,
     A_DeleteChar,
+    A_Navigate,
 };
 
-// Do I need this enumeration? Leaning likely yes
-// List of Actions for ("dispatch table" ?)
-//
-// Do I need unique actions for functions with only slight differences?
-// For example, functions with a direction (i.e. A_MOVE_CURSOR_L_TOKEN & A_MOVE_CURSOR_R_TOKEN)
+// List of Actions
 typedef enum Actions {
     A_DONOTHING,
     A_SCOPEDECREASE,
@@ -159,17 +161,64 @@ typedef enum Actions {
     A_SAVETIMES,
     A_EXPORTTIMES,
     A_CLEARTIMES,
-    A_DESELECT_OR_UNDOANDBACKOUT,
-    A_OVERWRITEANDUPDATE,
+    A_DESELECT_OR_UNDO_BACKOUT,
+    A_OVERWRITE_UPDATESCORE,
     A_COPY,
     A_CUT,
     A_PASTE,
     A_DELETECELLTEXT,
     A_DELETESELECTION,
     A_DELETECHAR,
+    A_NAVIGATE,
 
-    ACTION_COUNT // Do not use!
+    ACTION_COUNT
 } Actions;
+
+const char* actionnames[] = {
+    "A_DONOTHING",
+    "A_SCOPEDECREASE",
+    "A_SELECTCHAR",
+    "A_MOVECURSOR",
+    "A_MOVECURSORBYTOKEN",
+    "A_MOVECURSORTOSTART",
+    "A_MOVECURSORTOEND",
+    "A_LOADTIMES",
+    "A_SAVETIMES",
+    "A_EXPORTTIMES",
+    "A_CLEARTIMES",
+    "A_DESELECT_OR_UNDO_BACKOUT",
+    "A_OVERWRITE_UPDATESCORE",
+    "A_COPY",
+    "A_CUT",
+    "A_PASTE",
+    "A_DELETECELLTEXT",
+    "A_DELETESELECTION",
+    "A_DELETECHAR",
+    "A_NAVIGATE",
+};
+
+const char* actionnames_humanreadable[] = {
+    "N/A",
+    "Scope decrease",
+    "Select char",
+    "Move cursor",
+    "Move cursor by token",
+    "Move cursor to start",
+    "Move cursor to end",
+    "Load times",
+    "Save times",
+    "Export times",
+    "Clear times",
+    "Deselect or undo and backout",
+    "Overwrite and update score",
+    "Copy",
+    "Cut",
+    "Paste",
+    "Delete cell text",
+    "Delete selection",
+    "Delete char",
+    "Navigate"
+};
 
 typedef enum Keys {
     K_LEFT,
@@ -180,6 +229,7 @@ typedef enum Keys {
     K_ESCAPE,
     K_DELETE,
     K_BACKSPACE,
+    K_TAB,
     K_C,
     K_X,
     K_V,
@@ -199,6 +249,7 @@ const int keys[KEY_COUNT] = {
     KEY_ESCAPE,
     KEY_DELETE,
     KEY_BACKSPACE,
+    K_TAB,
     KEY_C,
     KEY_X,
     KEY_V,
@@ -216,6 +267,7 @@ const char* keynames[] = {
     "ESCAPE",
     "DELETE",
     "BACKSPACE",
+    "TAB",
     "C",
     "X",
     "V",
@@ -224,6 +276,6 @@ const char* keynames[] = {
     "B",
 };
 
-Actions ActionTable[3][KEY_COUNT * 3];
+Actions ActionTable[3][KEY_COUNT * 4];
 
 #endif

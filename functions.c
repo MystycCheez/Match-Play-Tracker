@@ -261,10 +261,9 @@ bool getMoveDir()
     assert(!"Shouldn't be trying to get a direction when not pressing left or right!");
 }
 
-int GetKeyComboIndex()
+int GetKeyComboIndex(int key, int modifier)
 {
-    int offset = ((int)KeyData.ctrl + (int)KeyData.shift) * (sizeof(KeyMap) / sizeof(bool));
-    return KeyData.pressed + offset;
+    return key + (modifier * KEY_COUNT);
 }
 
 char* GetKeyComboText(int index)
@@ -272,10 +271,10 @@ char* GetKeyComboText(int index)
     size_t size = 50;
     size_t pos = 0;
     char* buffer = calloc(size, 1);
-    if (((index / KEY_COUNT) >= 1) && ((index / KEY_COUNT) < 3)) {
+    if (((index / KEY_COUNT) >= 1) && ((index / KEY_COUNT) < 2)) {
         pos += snprintf(buffer, size - pos, "Ctrl + ");
     }
-    if ((index / KEY_COUNT) >= 2) {
+    if (((index / KEY_COUNT) >= 2) && ((index / KEY_COUNT) < 3)) {
         pos += snprintf(buffer + pos, size - pos, "Shift + ");
     }
     if ((index / KEY_COUNT) >= 3) {
@@ -290,6 +289,24 @@ char* GetKeyComboText(int index)
 const char* GetKeyName(int index)
 {
     return keynames[index];
+}
+
+const char* GetActionText(int index)
+{
+    return actionnames[index];
+}
+
+const char* GetHumanReadableActionText(int index)
+{
+    return actionnames_humanreadable[index];
+}
+
+int GetModifierCode()
+{
+    int code = 0;
+    if (KeyData.ctrl) code++;
+    if (KeyData.shift) code++;
+    return code;
 }
 
 #endif

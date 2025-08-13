@@ -51,6 +51,12 @@ typedef struct KeyMap {
     bool b;
 } KeyMap;
 
+// typedef struct Modifier {
+//     bool ctrl;
+//     bool shift;
+//     // bool alt;
+// } Modifier;
+
 typedef struct KeyboardState {
     int pressed;
     bool shift;

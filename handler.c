@@ -370,7 +370,7 @@ void InputHandler()
     Key.v = IsKeyPressed(KEY_V);
     Key.x = IsKeyPressed(KEY_X);
 
-    Action[ActionTable[GVARS.scope][GetKeyComboIndex()]]();
+    Action[ActionTable[GVARS.scope][GetKeyComboIndex(KeyData.pressed, GetModifierCode())]]();
 
     MouseHandler();
     OverviewInputHandler();

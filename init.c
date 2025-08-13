@@ -138,7 +138,7 @@ void initActionTable()
 {
     #define ACTION_DEBUG
     #ifdef ACTION_DEBUG
-        char* filename = "action_table.txt";
+        char* filename = "action_table.md";
 
         FILE* file_ptr = fopen(filename, "w");
         if (file_ptr == NULL) {
@@ -148,17 +148,54 @@ void initActionTable()
         }
     #endif
     // Just init everything to do nothing for now
-    for (size_t y = 0; y < KEY_COUNT * 4; y++) {
-        for (size_t x = 0; x < 3; x++) {
+    for (size_t x = 0; x < 3; x++) {
+        for (size_t y = 0; y < KEY_COUNT * 4; y++) {
             ActionTable[x][y] = A_DONOTHING;
         }
     }
+
+    for (size_t scope = 0; scope < 3; scope++) {
+        ActionTable[scope][GetKeyComboIndex(K_S, M_CTRL)] = A_SAVETIMES;
+        ActionTable[scope][GetKeyComboIndex(K_L, M_CTRL)] = A_LOADTIMES;
+        ActionTable[scope][GetKeyComboIndex(K_B, M_CTRL)] = A_EXPORTTIMES;
+        ActionTable[scope][GetKeyComboIndex(K_ESCAPE, M_NONE)] = A_SCOPEDECREASE;
+    }
+
+    ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_ENTER, M_NONE)] = A_OVERWRITE_UPDATESCORE;
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_ENTER, M_NONE)] = A_OVERWRITE_UPDATESCORE;
+
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_ESCAPE, M_NONE)] = A_DESELECT_OR_UNDO_BACKOUT;
+
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_LEFT, M_SHIFT)] = A_SELECTCHAR;
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_RIGHT, M_SHIFT)] = A_SELECTCHAR;
+
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_LEFT, M_NONE)] = A_MOVECURSOR;
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_RIGHT, M_NONE)] = A_MOVECURSOR;
+
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_LEFT, M_CTRL)] = A_MOVECURSORTOSTART;
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_RIGHT, M_CTRL)] = A_MOVECURSORTOEND;
+
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_C, M_CTRL)] = A_COPY;
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_X, M_CTRL)] = A_CUT;
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_V, M_CTRL)] = A_PASTE;
+
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_BACKSPACE, M_NONE)] = A_DELETECHAR;
+
+    ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_DELETE, M_NONE)] = A_DELETECELLTEXT;
+
+    for (size_t i = K_LEFT; i < 4; i++) {
+        ActionTable[SCOPE_SHEET][GetKeyComboIndex(i, M_NONE)] = A_NAVIGATE;
+    }
+
+
     #ifdef ACTION_DEBUG
-        fprintf(file_ptr, "                                  |                 OVERVIEW |                    SHEET |                     CELL |\n");
+        fprintf(file_ptr, "|                KEY COMBO |                     OVERVIEW |                        SHEET |                         CELL |\n");
+        fprintf(file_ptr, "| ------------------------ | ---------------------------- | ---------------------------- | ---------------------------- |\n");
         for (size_t y = 0; y < KEY_COUNT * 4; y++) {
-            fprintf(file_ptr, " %32s ", GetKeyComboText(y));
+            if ((ActionTable[0][y] == 0) && (ActionTable[1][y] == 0) && (ActionTable[2][y] == 0)) continue;
+            fprintf(file_ptr, "| %24s ", GetKeyComboText(y));
             for (size_t x = 0; x < 3; x++) {
-                fprintf(file_ptr, "| %24d ", ActionTable[x][y]);
+                fprintf(file_ptr, "| %28s ", GetHumanReadableActionText(ActionTable[x][y]));
             }
             fprintf(file_ptr, "|\n");
         }
