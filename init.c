@@ -175,14 +175,18 @@ void initActionTable()
 
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_LEFT, M_CTRL)] = A_MOVECURSORTOSTART;
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_RIGHT, M_CTRL)] = A_MOVECURSORTOEND;
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_HOME, M_NONE)] = A_MOVECURSORTOSTART;
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_END, M_NONE)] = A_MOVECURSORTOEND;
 
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_C, M_CTRL)] = A_COPY;
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_X, M_CTRL)] = A_CUT;
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_V, M_CTRL)] = A_PASTE;
 
-    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_BACKSPACE, M_NONE)] = A_DELETECHAR;
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_BACKSPACE, M_NONE)] = A_DELETE;
 
     ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_DELETE, M_NONE)] = A_DELETECELLTEXT;
+    ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_BACKSPACE, M_NONE)] = A_DELETECELLTEXT;
+
 
     for (size_t i = K_LEFT; i < 4; i++) {
         ActionTable[SCOPE_SHEET][GetKeyComboIndex(i, M_NONE)] = A_NAVIGATELEFT + i;

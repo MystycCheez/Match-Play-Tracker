@@ -123,7 +123,10 @@ void A_Overwrite_UpdateScore()
     CellOverwriteHandler();
     EnterNavigationHandler();
     UpdateScores();
-    if (GVARS.selectedCellIndex == 0) A_ScopeDecrease();
+    A_ScopeDecrease();
+    if (GVARS.selectedCellIndex == 0) {
+        GVARS.scope = SCOPE_OVERVIEW;
+    } else GVARS.scope = SCOPE_SHEET;
 }
 
 void A_Copy()
@@ -149,6 +152,7 @@ void A_Paste()
     printf("%s\n", __func__);
     #endif
     placeString(&sheet[GVARS.selectedCellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
+    Deselect();
 }
 
 void A_DeleteCellText()
@@ -166,7 +170,11 @@ void A_DeleteSelection()
     #ifdef ACTION_DEBUG_
     printf("%s\n", __func__);
     #endif
-    // TODO
+    printf("Not Implemented: %s", __func__);
+//     MoveCursorToIndex(&sheet[GVARS.selectedCellIndex].gapStr, GVARS.selection.end);
+//     while (sheet[GVARS.selectedCellIndex].gapStr.cStart != GVARS.selection.start) {
+//         deleteCharAtCursor(&sheet[GVARS.selectedCellIndex].gapStr);
+//     }
 }
 
 void A_DeleteChar()
@@ -214,6 +222,13 @@ void A_NavigateDown()
     GVARS.selectedCellIndex = GVARS.selectedCellIndex + 3;
 }
 
+void A_Delete()
+{
+    if (GVARS.selection.exists) {
+        A_DeleteSelection();
+    } else A_DeleteChar();
+}
+
 // List of action functions
 void (*Action[])() = {
     A_DoNothing,
@@ -232,6 +247,7 @@ void (*Action[])() = {
     A_Copy,
     A_Cut,
     A_Paste,
+    A_Delete,
     A_DeleteCellText,
     A_DeleteSelection,
     A_DeleteChar,
@@ -259,6 +275,7 @@ typedef enum Actions {
     A_COPY,
     A_CUT,
     A_PASTE,
+    A_DELETE,
     A_DELETECELLTEXT,
     A_DELETESELECTION,
     A_DELETECHAR,
@@ -287,6 +304,7 @@ const char* actionnames[] = {
     "A_COPY",
     "A_CUT",
     "A_PASTE",
+    "A_DELETE",
     "A_DELETECELLTEXT",
     "A_DELETESELECTION",
     "A_DELETECHAR",
@@ -313,6 +331,7 @@ const char* actionnames_humanreadable[] = {
     "Copy",
     "Cut",
     "Paste",
+    "Delete",
     "Delete cell text",
     "Delete selection",
     "Delete char",
@@ -332,6 +351,8 @@ typedef enum Keys {
     K_DELETE,
     K_BACKSPACE,
     K_TAB,
+    K_HOME,
+    K_END,
     K_C,
     K_X,
     K_V,
@@ -352,6 +373,8 @@ const int R_Keys[KEY_COUNT] = {
     KEY_DELETE,
     KEY_BACKSPACE,
     KEY_TAB,
+    KEY_HOME,
+    KEY_END,
     KEY_C,
     KEY_X,
     KEY_V,
@@ -370,6 +393,8 @@ const char* keynames[] = {
     "DELETE",
     "BACKSPACE",
     "TAB",
+    "HOME",
+    "END",
     "C",
     "X",
     "V",

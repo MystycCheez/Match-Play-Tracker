@@ -7,7 +7,9 @@
 |                    ENTER |                          N/A |   Overwrite and update score |   Overwrite and update score |
 |                   ESCAPE |               Scope decrease |               Scope decrease | Deselect or undo and backout |
 |                   DELETE |                          N/A |             Delete cell text |                          N/A |
-|                BACKSPACE |                          N/A |                          N/A |                  Delete char |
+|                BACKSPACE |                          N/A |             Delete cell text |                       Delete |
+|                     HOME |                          N/A |                          N/A |         Move cursor to start |
+|                      END |                          N/A |                          N/A |           Move cursor to end |
 |              Ctrl + LEFT |                          N/A |                          N/A |         Move cursor to start |
 |             Ctrl + RIGHT |                          N/A |                          N/A |           Move cursor to end |
 |            Ctrl + DELETE |                  Clear times |                  Clear times |                  Clear times |
