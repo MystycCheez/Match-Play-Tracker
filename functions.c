@@ -308,13 +308,14 @@ int GetModifier()
     int modifier = 0;
     if (KeyData.ctrl) modifier += 1;
     if (KeyData.shift) modifier += 2;
+    if (KeyData.alt) modifier += 3;
     return modifier;
 }
 
 int GetKeyIndex(int key)
 {
     for (size_t i = 0; i < KEY_COUNT; i++) {
-        if (key == R_Keys[i]) return i;
+        if (key == Raylib_Keys[i]) return i;
     }
     return -1;
 }

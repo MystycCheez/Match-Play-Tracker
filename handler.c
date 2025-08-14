@@ -70,12 +70,13 @@ void MouseSheetHandler(CollisionMap Collision)
             GVARS.scope = SCOPE_CELL;
         }
         else {
+            CellOverwriteHandler();
+            UpdateScores();
             GVARS.selectedCellIndex = xyToIndex(Mouse.pos);
             GVARS.scope = sheet[GVARS.selectedCellIndex].selectable ? SCOPE_SHEET : SCOPE_OVERVIEW;
             GVARS.selectedCellIndex = GVARS.scope > SCOPE_OVERVIEW ? GVARS.selectedCellIndex : 0;
         }
-    }
-    else {
+    } else {
         GVARS.scope = SCOPE_OVERVIEW;
         GVARS.selectedCellIndex = 0;
     }
@@ -106,6 +107,7 @@ void MouseHandler()
     MouseSheetHandler(Collision);
 }
 
+// Holy shit this is an eyesore
 void EnterNavigationHandler()
 {
     if (GVARS.selectedCellIndex == CELL_COUNT - 5) {

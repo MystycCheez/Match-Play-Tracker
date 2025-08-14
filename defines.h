@@ -35,7 +35,9 @@
 #define DIR_LEFT 0
 #define DIR_RIGHT 1
 
-#define MODIFIER_KEYS 2
+#define MODIFIER_KEYS 3
+
+#define KEY_COMBO_COUNT ((KEY_COUNT * MODIFIER_KEYS) + 1)
 
 #define UNUSED_KEY_COMBO GetKeyComboIndex(K_ESCAPE, M_CTRL_SHIFT)
 

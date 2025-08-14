@@ -1,13 +1,16 @@
+# Generated from io.c in ExportActionTable() at Line 261
+
 |                KEY COMBO |                     OVERVIEW |                        SHEET |                         CELL |
 | ------------------------ | ---------------------------- | ---------------------------- | ---------------------------- |
 |                     LEFT |                          N/A |                Navigate left |                  Move cursor |
 |                    RIGHT |                          N/A |               Navigate right |                  Move cursor |
 |                       UP |                          N/A |                  Navigate up |                          N/A |
 |                     DOWN |                          N/A |                Navigate down |                          N/A |
-|                    ENTER |                          N/A |   Overwrite and update score |   Overwrite and update score |
+|                    ENTER |                          N/A |        Navigate to next cell |   Overwrite and update score |
 |                   ESCAPE |               Scope decrease |               Scope decrease | Deselect or undo and backout |
 |                   DELETE |                          N/A |             Delete cell text |                          N/A |
-|                BACKSPACE |                          N/A |             Delete cell text |                       Delete |
+|                BACKSPACE |                          N/A | Delete cell text; enter cell |                       Delete |
+|                      TAB |                          N/A |        Navigate to next cell |   Overwrite and update score |
 |                     HOME |                          N/A |                          N/A |         Move cursor to start |
 |                      END |                          N/A |                          N/A |           Move cursor to end |
 |              Ctrl + LEFT |                          N/A |                          N/A |         Move cursor to start |

@@ -35,6 +35,7 @@ typedef struct CollisionMap {
 typedef struct KeyMap {
     bool ctrl;
     bool shift;
+    bool alt;
     bool left;
     bool right;
     bool up;
@@ -51,17 +52,11 @@ typedef struct KeyMap {
     bool b;
 } KeyMap;
 
-// typedef struct Modifier {
-//     bool ctrl;
-//     bool shift;
-//     // bool alt;
-// } Modifier;
-
 typedef struct KeyboardState {
     int pressed;
     bool shift;
     bool ctrl;
-    // bool alt;
+    bool alt;
 } KeyboardState;
 
 // 3 components: str, cStart, cEnd

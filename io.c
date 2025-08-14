@@ -249,4 +249,31 @@ void ExportToBBCode()
     fclose(out_bb);
 }
 
+void ExportActionTable()
+{
+    char* filename = "action_table.md";
+    FILE* file_ptr = fopen(filename, "w");
+    if (file_ptr == NULL) {
+        fprintf(stderr, "Error: Could not open file: %s\n", filename);
+        fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
+        exit(1);
+    }
+    fprintf(file_ptr, "# Generated from %s in %s() at Line %d\n\n", __FILE__, __func__, __LINE__);
+    fprintf(file_ptr, "|                KEY COMBO |                     OVERVIEW |                        SHEET |                         CELL |\n");
+    fprintf(file_ptr, "| ------------------------ | ---------------------------- | ---------------------------- | ---------------------------- |\n");
+    for (size_t y = 0; y < KEY_COUNT * 4; y++) {
+        if (
+            (ActionTable[0][y] == A_DONOTHING) && 
+            (ActionTable[1][y] == A_DONOTHING) && 
+            (ActionTable[2][y] == A_DONOTHING)
+        ) continue;
+        fprintf(file_ptr, "| %24s ", GetKeyComboText(y));
+        for (size_t x = 0; x < 3; x++) {
+            fprintf(file_ptr, "| %28s ", GetHumanReadableActionText(ActionTable[x][y]));
+        }
+        fprintf(file_ptr, "|\n");
+    }
+    fclose(file_ptr);
+}
+
 #endif

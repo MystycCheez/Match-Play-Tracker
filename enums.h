@@ -55,6 +55,7 @@ typedef enum Modifiers {
     M_CTRL = 1,
     M_SHIFT = 2,
     M_CTRL_SHIFT = 3,
+    M_ALT = 4,
 } Modifiers;
 
 #endif

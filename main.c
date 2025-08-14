@@ -77,6 +77,8 @@ int main()
     CloseWindow();
     UnloadFont(UI.font);
     UnloadImage(Window.Icon);
+
+    ExportActionTable();
     
     return 0;
 }

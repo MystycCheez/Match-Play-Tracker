@@ -89,9 +89,6 @@ void MouseHandler();
 void EnterNavigationHandler();
 void CellOverwriteHandler();
 void CellInputHandler();
-void SheetKeyPressHandler();
-void OverviewInputHandler();
-void CellKeyPressHandler();
 void InputHandler();
 void CursorHandler();
 
@@ -108,12 +105,19 @@ void A_SaveTimes();
 void A_ExportTimes();
 void A_ClearTimes();
 void A_Deselect_Or_Undo_Backout();
-void A_OverwriteAndUpdate();
+void A_Overwrite_UpdateScore();
+void A_NavigateToNextCell();
 void A_Copy();
 void A_Cut();
 void A_Paste();
+void A_Delete();
 void A_DeleteCellText();
+void A_DeleteCellTextAndEnterInto();
 void A_DeleteSelection();
 void A_DeleteChar();
+void A_NavigateLeft();
+void A_NavigateRight();
+void A_NavigateUp();
+void A_NavigateDown();
 
 #endif

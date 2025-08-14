@@ -4,12 +4,8 @@
 #include "includes.h"
 #define ACTION_DEBUG_
 
-// Will I need this?
 void A_DoNothing()
 {
-    // #ifdef ACTION_DEBUG_
-    // printf("%s", __func__);
-    // #endif
     return;
 }
 
@@ -110,7 +106,7 @@ void A_Deselect_Or_Undo_Backout()
     if (GVARS.selection.exists) {
         Deselect();
     } else {
-        // TODO: Undo action
+        OverwriteStr(&sheet[GVARS.selectedCellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
         GVARS.scope = SCOPE_SHEET;
     }
 }
@@ -121,12 +117,20 @@ void A_Overwrite_UpdateScore()
     printf("%s\n", __func__);
     #endif
     CellOverwriteHandler();
-    EnterNavigationHandler();
+    A_NavigateToNextCell();
     UpdateScores();
     A_ScopeDecrease();
     if (GVARS.selectedCellIndex == 0) {
         GVARS.scope = SCOPE_OVERVIEW;
     } else GVARS.scope = SCOPE_SHEET;
+}
+
+void A_NavigateToNextCell()
+{
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
+    EnterNavigationHandler();
 }
 
 void A_Copy()
@@ -163,6 +167,17 @@ void A_DeleteCellText()
     OverwriteStr(&sheet[GVARS.selectedCellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
     CellOverwriteHandler();
     UpdateScores();
+}
+
+void A_DeleteCellTextAndEnterInto()
+{
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
+    OverwriteStr(&sheet[GVARS.selectedCellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
+    CellOverwriteHandler();
+    UpdateScores();
+    GVARS.scope = SCOPE_CELL;
 }
 
 void A_DeleteSelection()
@@ -224,6 +239,9 @@ void A_NavigateDown()
 
 void A_Delete()
 {
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
     if (GVARS.selection.exists) {
         A_DeleteSelection();
     } else A_DeleteChar();
@@ -244,11 +262,13 @@ void (*Action[])() = {
     A_ClearTimes,
     A_Deselect_Or_Undo_Backout,
     A_Overwrite_UpdateScore,
+    A_NavigateToNextCell,
     A_Copy,
     A_Cut,
     A_Paste,
     A_Delete,
     A_DeleteCellText,
+    A_DeleteCellTextAndEnterInto,
     A_DeleteSelection,
     A_DeleteChar,
     A_NavigateLeft,
@@ -272,11 +292,13 @@ typedef enum Actions {
     A_CLEARTIMES,
     A_DESELECT_OR_UNDO_BACKOUT,
     A_OVERWRITE_UPDATESCORE,
+    A_NAVIGATETONEXTCELL,
     A_COPY,
     A_CUT,
     A_PASTE,
     A_DELETE,
     A_DELETECELLTEXT,
+    A_DELETECELLTEXTANDENTERINTO,
     A_DELETESELECTION,
     A_DELETECHAR,
     A_NAVIGATELEFT,
@@ -301,11 +323,13 @@ const char* actionnames[] = {
     "A_CLEARTIMES",
     "A_DESELECT_OR_UNDO_BACKOUT",
     "A_OVERWRITE_UPDATESCORE",
+    "A_NAVIGATETONEXTCELL",
     "A_COPY",
     "A_CUT",
     "A_PASTE",
     "A_DELETE",
     "A_DELETECELLTEXT",
+    "A_DELETECELLTEXTANDENTERINTO",
     "A_DELETESELECTION",
     "A_DELETECHAR",
     "A_NAVIGATELEFT",
@@ -328,11 +352,13 @@ const char* actionnames_humanreadable[] = {
     "Clear times",
     "Deselect or undo and backout",
     "Overwrite and update score",
+    "Navigate to next cell",
     "Copy",
     "Cut",
     "Paste",
     "Delete",
     "Delete cell text",
+    "Delete cell text; enter cell",
     "Delete selection",
     "Delete char",
     "Navigate left",
@@ -363,7 +389,7 @@ typedef enum Keys {
     KEY_COUNT
 } Keys;
 
-const int R_Keys[KEY_COUNT] = {
+const int Raylib_Keys[KEY_COUNT] = {
     KEY_LEFT,
     KEY_RIGHT,
     KEY_UP,
