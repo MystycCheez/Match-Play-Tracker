@@ -34,6 +34,7 @@ const char* GetKeyName(int index);
 const char* GetActionText(int index);
 const char* GetHumanReadableActionText(int index);
 int GetModifier();
+const char* GetModifierText(size_t index);
 int GetKeyIndex(int key);
 
 // gap_buffer.c
@@ -119,5 +120,6 @@ void A_NavigateLeft();
 void A_NavigateRight();
 void A_NavigateUp();
 void A_NavigateDown();
+void A_SwapVetoColor();
 
 #endif

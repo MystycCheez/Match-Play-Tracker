@@ -247,6 +247,24 @@ void A_Delete()
     } else A_DeleteChar();
 }
 
+void A_SwapVetoColor()
+{
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
+    GVARS.vetoFlag = !GVARS.vetoFlag;
+    for (size_t i = 4; i < LEVEL_COUNT * 2; i++) {
+        if (!(i % 3 == 0)) {
+            for (size_t n = 0; n < 3; n++) {
+                if (CompareSpecialText(gapStrToStr(sheet[i].gapStr, CELL_TEXT_LENGTH)) == TEXT_VETO) {
+                    sheet[i].color = GVARS.vetoFlag ? COLOR_LEVEL : WHITE;  
+                }
+            }
+        }
+    }
+    
+}
+
 // List of action functions
 void (*Action[])() = {
     A_DoNothing,
@@ -275,6 +293,7 @@ void (*Action[])() = {
     A_NavigateRight,
     A_NavigateUp,
     A_NavigateDown,
+    A_SwapVetoColor,
 };
 
 // List of Actions
@@ -305,6 +324,7 @@ typedef enum Actions {
     A_NAVIGATERIGHT,
     A_NAVIGATEUP,
     A_NAVIGATEDOWN,
+    A_SWAPVETOCOLOR,
 
     ACTION_COUNT
 } Actions;
@@ -336,6 +356,7 @@ const char* actionnames[] = {
     "A_NAVIGATERIGHT",
     "A_NAVIGATEUP",
     "A_NAVIGATEDOWN",
+    "A_SWAPVETOCOLOR",
 };
 
 const char* actionnames_humanreadable[] = {
@@ -365,6 +386,7 @@ const char* actionnames_humanreadable[] = {
     "Navigate right",
     "Navigate up",
     "Navigate down",
+    "Swap veto text color",
 };
 
 typedef enum Keys {
@@ -429,6 +451,14 @@ const char* keynames[] = {
     "B",
 };
 
-Actions ActionTable[3][KEY_COUNT * 4];
+const char* modifiernames[] = {
+    "\0",
+    "Ctrl",
+    "Shift",
+    "Ctrl + Shift",
+    "Alt",
+};
+
+Actions ActionTable[3][KEY_COMBO_COUNT];
 
 #endif

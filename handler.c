@@ -174,6 +174,7 @@ void InputHandler()
     KeyData.pressed = GetKeyPressed();
     KeyData.ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
     KeyData.shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
+    KeyData.alt = IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT);
 
     Action[ActionTable[GVARS.scope][GetKeyComboIndex(GetKeyIndex(KeyData.pressed), GetModifier())]]();
 

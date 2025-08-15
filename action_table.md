@@ -24,3 +24,4 @@
 |                 Ctrl + B |                 Export times |                 Export times |                 Export times |
 |             Shift + LEFT |                          N/A |                          N/A |                  Select char |
 |            Shift + RIGHT |                          N/A |                          N/A |                  Select char |
+|                  Alt + C |         Swap veto text color |         Swap veto text color |         Swap veto text color |

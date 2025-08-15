@@ -272,14 +272,11 @@ char* GetKeyComboText(int index)
     size_t size = 50;
     size_t pos = 0;
     char* buffer = calloc(size, 1);
-    if (((index / KEY_COUNT) >= 1) && ((index / KEY_COUNT) < 2)) {
-        pos += snprintf(buffer, size - pos, "Ctrl + ");
-    }
-    if (((index / KEY_COUNT) >= 2) && ((index / KEY_COUNT) < 3)) {
-        pos += snprintf(buffer + pos, size - pos, "Shift + ");
-    }
-    if ((index / KEY_COUNT) >= 3) {
-        pos += snprintf(buffer + pos, size - pos, "Ctrl + Shift + ");
+    for (size_t i = 1; i < 5; i++) {
+        if ((size_t)(index / KEY_COUNT) == i) {
+            pos += snprintf(buffer, size - pos, "%s + ", GetModifierText(i));
+            break;
+        }
     }
     index = (index % KEY_COUNT);
     const char* tmp = GetKeyName(index);
@@ -308,8 +305,13 @@ int GetModifier()
     int modifier = 0;
     if (KeyData.ctrl) modifier += 1;
     if (KeyData.shift) modifier += 2;
-    if (KeyData.alt) modifier += 3;
+    if (KeyData.alt) modifier += 4;
     return modifier;
+}
+
+const char* GetModifierText(size_t index)
+{
+    return modifiernames[index];
 }
 
 int GetKeyIndex(int key)

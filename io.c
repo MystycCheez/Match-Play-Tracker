@@ -261,7 +261,7 @@ void ExportActionTable()
     fprintf(file_ptr, "# Generated from %s in %s() at Line %d\n\n", __FILE__, __func__, __LINE__);
     fprintf(file_ptr, "|                KEY COMBO |                     OVERVIEW |                        SHEET |                         CELL |\n");
     fprintf(file_ptr, "| ------------------------ | ---------------------------- | ---------------------------- | ---------------------------- |\n");
-    for (size_t y = 0; y < KEY_COUNT * 4; y++) {
+    for (size_t y = 0; y < KEY_COMBO_COUNT; y++) {
         if (
             (ActionTable[0][y] == A_DONOTHING) && 
             (ActionTable[1][y] == A_DONOTHING) && 

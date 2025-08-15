@@ -137,17 +137,19 @@ void setBorderPositions()
 void initActionTable()
 {
     for (size_t x = 0; x < 3; x++) {
-        for (size_t y = 0; y < KEY_COUNT * 4; y++) {
+        for (size_t y = 0; y < KEY_COMBO_COUNT; y++) {
             ActionTable[x][y] = A_DONOTHING;
         }
     }
 
+    // For all scopes
     for (size_t scope = 0; scope < 3; scope++) {
         ActionTable[scope][GetKeyComboIndex(K_S, M_CTRL)] = A_SAVETIMES;
         ActionTable[scope][GetKeyComboIndex(K_L, M_CTRL)] = A_LOADTIMES;
         ActionTable[scope][GetKeyComboIndex(K_B, M_CTRL)] = A_EXPORTTIMES;
         ActionTable[scope][GetKeyComboIndex(K_DELETE, M_CTRL)] = A_CLEARTIMES;
         ActionTable[scope][GetKeyComboIndex(K_ESCAPE, M_NONE)] = A_SCOPEDECREASE;
+        ActionTable[scope][GetKeyComboIndex(K_C, M_ALT)] = A_SWAPVETOCOLOR;
     }
 
     ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_ENTER, M_NONE)] = A_NAVIGATETONEXTCELL;

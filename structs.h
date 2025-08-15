@@ -114,6 +114,7 @@ typedef struct Globals {
     size_t selectedCellIndex;
     bool shouldExit;
     char* level_win;
+    bool vetoFlag;
 } Globals;
 
 typedef struct UI_Elements {
