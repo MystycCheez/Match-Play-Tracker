@@ -14,11 +14,23 @@ Cell *initSheet();
 void setBorderPositions();
 void initActionTable();
 
-// functions.c
-void ClearTimes();
+// get.c
 Color getStateColor(Button_State state);
 Rectangle getButtonRect(Button button);
 Rectangle getCellRect(size_t cellIndex);
+bool getMoveDir();
+int GetKeyComboIndex(int key, int modifier);
+char* GetKeyComboText(int index);
+int GetModifier();
+int GetKeyIndex(int key);
+const char* GetKeyText(int key);
+int GetRaylibKey(size_t index);
+const char* GetModifierText(Modifier modifier);
+const char* GetActionText(int index);
+const char* GetHumanReadableActionText(int index);
+
+// functions.c
+void ClearTimes();
 Text_Type CompareSpecialText(char *text);
 Vector2 CalcTextPos(Vector2 pos, size_t index);
 size_t timeToSecs(char *time);
@@ -27,15 +39,13 @@ size_t countChars(char *text, char c, size_t len);
 char *filterCellText(char *text);
 Int2 CompareTimes(size_t row);
 void UpdateScores();
-bool getMoveDir();
-int GetKeyComboIndex(int key, int modifier);
-char* GetKeyComboText(int index);
-const char* GetKeyName(int index);
-const char* GetActionText(int index);
-const char* GetHumanReadableActionText(int index);
-int GetModifier();
-const char* GetModifierText(size_t index);
-int GetKeyIndex(int key);
+Vector2 indexToXY(size_t index);
+Vector2 indexToCR(size_t index);
+size_t xyToIndex(Vector2 xy);
+size_t crToIndex(Vector2 cr);
+char* ColorToHexText(Color color);
+void chrswap(char* ptr1, char* ptr2);
+char* i_toStr(int num);
 
 // gap_buffer.c
 GapBuffer initGapStr(size_t len);
@@ -56,15 +66,6 @@ void MoveCursorToIndex(GapBuffer *gapStr, size_t index);
 void DeleteSelection(GapBuffer *gapStr);
 void replaceChar(GapBuffer *gapStr, char c);
 void CopyText(GapBuffer gapStr);
-
-// misc.c
-Vector2 indexToXY(size_t index);
-Vector2 indexToCR(size_t index);
-size_t xyToIndex(Vector2 xy);
-size_t crToIndex(Vector2 cr);
-char* ColorToHexText(Color color);
-void chrswap(char* ptr1, char* ptr2);
-char* i_toStr(int num);
 
 // io.c
 void loadFont();

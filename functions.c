@@ -15,26 +15,6 @@ void ClearTimes()
     OverwriteStr(&sheet[2].gapStr, GVARS.players.p2, 0, CELL_TEXT_LENGTH);
 }
 
-Color getStateColor(Button_State state)
-{
-    if (state == STATE_BTN_PRESSED)
-        return GRAY;
-    if (state == STATE_BTN_HIGHLIGHTED)
-        return LIGHTGRAY;
-    return WHITE;
-}
-
-Rectangle getButtonRect(Button button)
-{
-    return (Rectangle){button.pos.x, button.pos.y, button.size.x, button.size.y};
-}
-
-Rectangle getCellRect(size_t cellIndex)
-{
-    Vector2 pos = indexToXY(cellIndex);
-    return (Rectangle){pos.x, pos.y, UI.cellWidth, UI.cellHeight};
-}
-
 // Returns TEXT_VETO or TEXT_DNF if found
 // Returns TEXT_NA if special text not found
 Text_Type CompareSpecialText(char *text)
@@ -254,72 +234,65 @@ void UpdateScores()
     }
 }
 
-bool getMoveDir()
+// XY being the top left corner of the cell index
+Vector2 indexToXY(size_t index)
 {
-    if (KeyData.pressed == KEY_LEFT) return DIR_LEFT;
-    if (KeyData.pressed == KEY_RIGHT) return DIR_RIGHT;
-    assert(!"Shouldn't be trying to get a direction when not pressing left or right!");
+    Vector2 xy = {0};
+    xy.x = (index % COLUMNS) * UI.cellWidth;
+    xy.y = (index / COLUMNS) * UI.cellHeight + TOP_BAR_HEIGHT;
+    return xy;
 }
 
-int GetKeyComboIndex(int key, int modifier)
+// CR being column/row
+Vector2 indexToCR(size_t index)
 {
-    if (key == -1) return UNUSED_KEY_COMBO;
-    return key + (modifier * KEY_COUNT);
+    Vector2 cr = {0};
+    cr.x = index % COLUMNS;
+    cr.y = index / COLUMNS;
+    return cr;
 }
 
-char* GetKeyComboText(int index)
+// XY being anywhere within a cell
+size_t xyToIndex(Vector2 xy)
 {
-    size_t size = 50;
-    size_t pos = 0;
-    char* buffer = calloc(size, 1);
-    for (size_t i = 1; i < 5; i++) {
-        if ((size_t)(index / KEY_COUNT) == i) {
-            pos += snprintf(buffer, size - pos, "%s + ", GetModifierText(i));
-            break;
-        }
-    }
-    index = (index % KEY_COUNT);
-    const char* tmp = GetKeyName(index);
-    snprintf(buffer + pos, pos - size, tmp);
-    return buffer;
+    size_t index = 0;
+    xy.y = xy.y - TOP_BAR_HEIGHT;
+    Vector2 rounded = {xy.x - fmodf(xy.x, UI.cellWidth), xy.y - fmodf(xy.y, UI.cellHeight)};
+    rounded.x = rounded.x / UI.cellWidth;
+    rounded.y = rounded.y / UI.cellHeight;
+    index = rounded.x + (rounded.y * COLUMNS);
+    return index;
 }
 
-const char* GetKeyName(int index)
+// CR being column/row
+size_t crToIndex(Vector2 cr)
 {
-    if (index == -1) return "N/A";
-    return keynames[index];
+    return (size_t)(cr.x + (cr.y * COLUMNS));
 }
 
-const char* GetActionText(int index)
+char* ColorToHexText(Color color)
 {
-    return actionnames[index];
+    char* colorText = malloc(8);
+    snprintf(colorText + 0, 2, "#");
+    snprintf(colorText + 1, 3, "%02x", color.r);
+    snprintf(colorText + 3, 3, "%02x", color.g);
+    snprintf(colorText + 5, 3, "%02x", color.b);
+    return colorText;
 }
 
-const char* GetHumanReadableActionText(int index)
+void chrswap(char* ptr1, char* ptr2)
 {
-    return actionnames_humanreadable[index];
+    char tmp = *ptr2;
+    *ptr2 = *ptr1;
+    *ptr1 = tmp;
 }
 
-int GetModifier()
+char* i_toStr(int num)
 {
-    int modifier = 0;
-    if (KeyData.ctrl) modifier += 1;
-    if (KeyData.shift) modifier += 2;
-    if (KeyData.alt) modifier += 4;
-    return modifier;
-}
-
-const char* GetModifierText(size_t index)
-{
-    return modifiernames[index];
-}
-
-int GetKeyIndex(int key)
-{
-    for (size_t i = 0; i < KEY_COUNT; i++) {
-        if (key == Raylib_Keys[i]) return i;
-    }
-    return -1;
+    // TODO: make more portable or just use itoa in place of this
+    char* str = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    sprintf(str, "%d", num);
+    return str;
 }
 
 #endif

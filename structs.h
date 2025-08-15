@@ -154,7 +154,6 @@ Cursor_Elements Cursor;
 Cell* sheet;
 
 MouseState Mouse;
-KeyMap Key = {false}; // Do I need the {false} ?
 KeyboardState KeyData;
 
 #endif
