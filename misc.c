@@ -41,10 +41,11 @@ size_t crToIndex(Vector2 cr)
 
 char* ColorToHexText(Color color)
 {
-    char* colorText = malloc(7);
-    snprintf(colorText + 0, 3, "%02x", color.r);
-    snprintf(colorText + 2, 3, "%02x", color.g);
-    snprintf(colorText + 4, 3, "%02x", color.b);
+    char* colorText = malloc(8);
+    snprintf(colorText + 0, 2, "#");
+    snprintf(colorText + 1, 3, "%02x", color.r);
+    snprintf(colorText + 3, 3, "%02x", color.g);
+    snprintf(colorText + 5, 3, "%02x", color.b);
     return colorText;
 }
 

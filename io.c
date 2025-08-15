@@ -139,11 +139,16 @@ void ExportToBBCode()
             } else {
                 colorText[i] = "white";
             }
+            if (GVARS.vetoFlag) {
+                if (CompareSpecialText(gapStrToStr(sheet[i].gapStr, CELL_TEXT_LENGTH)) == TEXT_VETO) {
+                    colorText[i] = ColorToHexText(COLOR_LEVEL);
+                }
+            }
         }
     }
 
     fprintf(out_bb, // Player 1
-        "[size=6][color=#%s]%s[/color] VS [color=#", 
+        "[size=6][color=%s]%s[/color] VS [color=", 
         colorText[1], 
         cellText[1]
     );
@@ -158,13 +163,13 @@ void ExportToBBCode()
         "[/size][/td]\n"
     );
     fprintf(out_bb, // Player 1
-        "[td][size=4][color=#%s]%s[/color]\n"
+        "[td][size=4][color=%s]%s[/color]\n"
         "[/size][/td]\n",
         colorText[1],
         cellText[1]
     );
     fprintf(out_bb, // Player 2
-        "[td][size=4][color=#%s]%s[/color]\n"
+        "[td][size=4][color=%s]%s[/color]\n"
         "[/size][/td]\n",
         colorText[2],
         cellText[2]
