@@ -154,25 +154,20 @@ void selectChar(GapBuffer *gapStr, bool dir)
         GVARS.selection.end = gapStr->cStart;
         GVARS.selection.exists = true;
     }
+    
     if (dir == DIR_LEFT) {
         if (!cursorLeft(gapStr)) {
             if (GVARS.selection.start == GVARS.selection.end) {GVARS.selection.exists = false;}
-            return;
-        }
-        if (gapStr->cStart <= GVARS.selection.start && gapStr->cStart < GVARS.selection.start) {
+        } else if (gapStr->cStart <= GVARS.selection.start && gapStr->cStart < GVARS.selection.start) {
             GVARS.selection.start--;
         } else GVARS.selection.end--;
-    }
-    if (dir == DIR_RIGHT) {
+    } else if (dir == DIR_RIGHT) {
         if (!cursorRight(gapStr)) {
             if (GVARS.selection.start == GVARS.selection.end) {GVARS.selection.exists = false;}
-            return;
-        }
-        if (gapStr->cStart >= GVARS.selection.start && gapStr->cStart > GVARS.selection.end) {
+        } else if (gapStr->cStart >= GVARS.selection.start && gapStr->cStart > GVARS.selection.end) {
             GVARS.selection.end++;
         } else GVARS.selection.start++;
-    }
-    if (GVARS.selection.start == GVARS.selection.end) GVARS.selection.exists = false;
+    } else if (GVARS.selection.start == GVARS.selection.end) GVARS.selection.exists = false;
     // printf("start: %lld, end: %lld\n", GVARS.selection.start, GVARS.selection.end);
 }
 

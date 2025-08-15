@@ -185,11 +185,7 @@ void A_DeleteSelection()
     #ifdef ACTION_DEBUG_
     printf("%s\n", __func__);
     #endif
-    printf("Not Implemented: %s", __func__);
-//     MoveCursorToIndex(&sheet[GVARS.selectedCellIndex].gapStr, GVARS.selection.end);
-//     while (sheet[GVARS.selectedCellIndex].gapStr.cStart != GVARS.selection.start) {
-//         deleteCharAtCursor(&sheet[GVARS.selectedCellIndex].gapStr);
-//     }
+    DeleteSelection(&sheet[GVARS.selectedCellIndex].gapStr);
 }
 
 void A_DeleteChar()
