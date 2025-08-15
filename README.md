@@ -12,11 +12,11 @@ There are still many unimplemented features and functionality that may not work 
 ## Installation & Usage
 
 Download the latest release via the Releases section on Github.  
-Unzip into a new folder and run tracker.exe.
+Unzip and run tracker.exe.
 
 ## Hotkeys
 
-As of now, functions are used via hotkey:
+As of now, functions are used via hotkey. This is a small list of hotkeys:
 
 | Hotkey        | Functionality                                    |
 | ------------- | ------------------------------------------------ |
@@ -24,6 +24,8 @@ As of now, functions are used via hotkey:
 | Ctrl + L      | Loads times from times/times.txt (Clears times!) |
 | Ctrl + S      | Saves current times to times/times.txt           |
 | Ctrl + B      | Exports times to times/results.bbcode            |
+
+An extensive list can be found in [ACTIONS.md](https://github.com/MystycCheez/Match-Play-Tracker/blob/main/ACTIONS.md)
 
 ## References
 

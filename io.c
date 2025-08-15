@@ -251,7 +251,7 @@ void ExportToBBCode()
 
 void ExportActionTable()
 {
-    char* filename = "action_table.md";
+    char* filename = "ACTIONS.md";
     FILE* file_ptr = fopen(filename, "w");
     if (file_ptr == NULL) {
         fprintf(stderr, "Error: Could not open file: %s\n", filename);
