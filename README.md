@@ -33,6 +33,7 @@ An extensive list can be found in [ACTIONS.md](https://github.com/MystycCheez/Ma
 * [Rankings page for visual reference](https://rankings.the-elite.net/)
 * [Elite Logo Kit](https://www.dropbox.com/scl/fo/nv1mbqgpwcz3vqcrxa1hc/AGoagjyz8FOr2MS_G1_7034?rlkey=1a6avrc02cbybms9qg93rcrs0&e=1&dl=0)
 
-## (TODO: name this properly)
+## Used Libraries
 
 * [Raylib](https://www.raylib.com/)
+* [Nob.h](https://github.com/tsoding/nob.h)

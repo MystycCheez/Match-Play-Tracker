@@ -27,12 +27,9 @@ int main(int argc, char** argv)
     );
     if (!nob_cmd_run_sync_and_reset(&cmd)) return 1;
 
-    nob_cmd_append(&cmd, "ls");
-    if (!nob_cmd_run_sync_and_reset(&cmd)) return 1;
-
     nob_set_current_dir(BUILD_DIR);
 
-    nob_cmd_append(&cmd, BUILD_DIR"tracker.exe");
+    nob_cmd_append(&cmd, "tracker.exe");
     if (!nob_cmd_run_sync_and_reset(&cmd)) return 1;
 
     return 0;
