@@ -10,11 +10,17 @@
 #include "raylib.h"
 #include "GLFW/glfw3.h"
 
-#include "decs.h"
-#include "globals.h"
+#include "key.h"
 
 #include "defines.h"
 #include "enums.h"
 #include "structs.h"
+
+#include "decs.h"
+#include "globals.h"
+
+#include "actions.h"
+
+
 
 #endif

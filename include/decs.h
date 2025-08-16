@@ -1,9 +1,7 @@
 #ifndef DECS_H
 #define DECS_H
 
-#include "defines.h"
-#include "enums.h"
-#include "structs.h"
+#include "headers.h"
 
 // init.c
 void initGlobals();
