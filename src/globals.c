@@ -19,6 +19,8 @@ void (*Action[ACTION_COUNT])() = {
     A_DoNothing,
     A_ScopeDecrease,
     A_SelectChar,
+    A_SelectAll,
+    A_SelectAllAtCursorTowardsDir,
     A_MoveCursor,
     A_MoveCursorByToken,
     A_MoveCursorToStart,

@@ -147,7 +147,9 @@ bool CursorMoveDir(GapBuffer *gapStr, bool dir)
     assert(!"Move Direction is not valid!");
 }
 
-void selectChar(GapBuffer *gapStr, bool dir)
+// boy this is another mess
+// return value indicates if movement occurred or not
+bool selectChar(GapBuffer *gapStr, bool dir)
 {
     if (!GVARS.selection.exists) {
         GVARS.selection.start = gapStr->cStart;
@@ -158,17 +160,21 @@ void selectChar(GapBuffer *gapStr, bool dir)
     if (dir == DIR_LEFT) {
         if (!cursorLeft(gapStr)) {
             if (GVARS.selection.start == GVARS.selection.end) {GVARS.selection.exists = false;}
+            return false;
         } else if (gapStr->cStart <= GVARS.selection.start && gapStr->cStart < GVARS.selection.start) {
             GVARS.selection.start--;
         } else GVARS.selection.end--;
     } else if (dir == DIR_RIGHT) {
         if (!cursorRight(gapStr)) {
             if (GVARS.selection.start == GVARS.selection.end) {GVARS.selection.exists = false;}
+            return false;
         } else if (gapStr->cStart >= GVARS.selection.start && gapStr->cStart > GVARS.selection.end) {
             GVARS.selection.end++;
         } else GVARS.selection.start++;
     } else if (GVARS.selection.start == GVARS.selection.end) GVARS.selection.exists = false;
+    if (GVARS.selection.start == GVARS.selection.end) {GVARS.selection.exists = false;}
     // printf("start: %lld, end: %lld\n", GVARS.selection.start, GVARS.selection.end);
+    return true;
 }
 
 // This function exists because it might need to do more in the future

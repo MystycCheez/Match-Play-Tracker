@@ -16,6 +16,7 @@
 |              Ctrl + LEFT |                          N/A |                          N/A |         Move cursor to start |
 |             Ctrl + RIGHT |                          N/A |                          N/A |           Move cursor to end |
 |            Ctrl + DELETE |                  Clear times |                  Clear times |                  Clear times |
+|                 Ctrl + A |                          N/A |                          N/A |         Select all cell text |
 |                 Ctrl + C |                          N/A |                          N/A |                         Copy |
 |                 Ctrl + D |                  Clear times |                  Clear times |                  Clear times |
 |                 Ctrl + X |                          N/A |                          N/A |                          Cut |
@@ -26,3 +27,5 @@
 |                  Alt + C |         Swap veto text color |         Swap veto text color |         Swap veto text color |
 |             Shift + LEFT |                          N/A |                          N/A |                  Select char |
 |            Shift + RIGHT |                          N/A |                          N/A |                  Select char |
+|                     LEFT |                          N/A |                          N/A |    Select from cursor by dir |
+|                    RIGHT |                          N/A |                          N/A |    Select from cursor by dir |

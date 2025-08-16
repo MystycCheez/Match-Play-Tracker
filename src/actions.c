@@ -25,6 +25,28 @@ void A_SelectChar()
     selectChar(&sheet[GVARS.selectedCellIndex].gapStr, getMoveDir());
 }
 
+void A_SelectAll()
+{
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
+    A_MoveCursorToStart();
+    while (selectChar(&sheet[GVARS.selectedCellIndex].gapStr, DIR_RIGHT)) {
+        A_DoNothing();
+    }
+}
+
+void A_SelectAllAtCursorTowardsDir()
+{
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
+    bool dir = getMoveDir();
+    while (selectChar(&sheet[GVARS.selectedCellIndex].gapStr, dir)) {
+        A_DoNothing();
+    }
+}
+
 void A_MoveCursor()
 {
     #ifdef ACTION_DEBUG_

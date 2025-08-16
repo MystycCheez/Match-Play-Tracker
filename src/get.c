@@ -84,6 +84,7 @@ const char* GetKeyText(int key)
         case K_TAB: return "TAB";
         case K_HOME: return "HOME";
         case K_END: return "END";
+        case K_A: return "A";
         case K_C: return "C";
         case K_D: return "D";
         case K_X: return "X";
@@ -109,6 +110,7 @@ int GetRaylibKey(size_t index)
         case K_TAB: return KEY_TAB;
         case K_HOME: return KEY_HOME;
         case K_END: return KEY_END;
+        case K_A: return KEY_A;
         case K_C: return KEY_C;
         case K_D: return KEY_D;
         case K_X: return KEY_X;
@@ -140,6 +142,8 @@ const char* GetActionText(int index)
         case A_DONOTHING:                   return "A_DONOTHING";
         case A_SCOPEDECREASE:               return "A_SCOPEDECREASE";
         case A_SELECTCHAR:                  return "A_SELECTCHAR";
+        case A_SELECTALL:                   return "A_SELECTALL";
+        case A_SELECTALLATCURSORTOWARDSDIR: return "A_SELECTALLATCURSORTOWARDSDIR";
         case A_MOVECURSOR:                  return "A_MOVECURSOR";
         case A_MOVECURSORBYTOKEN:           return "A_MOVECURSORBYTOKEN";
         case A_MOVECURSORTOSTART:           return "A_MOVECURSORTOSTART";
@@ -174,6 +178,8 @@ const char* GetHumanReadableActionText(int index)
         case A_DONOTHING:                   return "N/A";
         case A_SCOPEDECREASE:               return "Scope decrease";
         case A_SELECTCHAR:                  return "Select char";
+        case A_SELECTALL:                   return "Select all cell text";
+        case A_SELECTALLATCURSORTOWARDSDIR: return "Select from cursor by dir";
         case A_MOVECURSOR:                  return "Move cursor";
         case A_MOVECURSORBYTOKEN:           return "Move cursor by token";
         case A_MOVECURSORTOSTART:           return "Move cursor to start";

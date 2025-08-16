@@ -161,6 +161,10 @@ void initActionTable()
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_LEFT, M_SHIFT)] = A_SELECTCHAR;
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_RIGHT, M_SHIFT)] = A_SELECTCHAR;
 
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_LEFT, M_CTRL_SHIFT)] = A_SELECTALLATCURSORTOWARDSDIR;
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_RIGHT, M_CTRL_SHIFT)] = A_SELECTALLATCURSORTOWARDSDIR;
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_A, M_CTRL)] = A_SELECTALL;
+
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_LEFT, M_NONE)] = A_MOVECURSOR;
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_RIGHT, M_NONE)] = A_MOVECURSOR;
 
