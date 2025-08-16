@@ -12,8 +12,26 @@ int main(int argc, char** argv)
 
     Nob_Cmd cmd = {0};
 
-    nob_cmd_append(&cmd, "gcc", "-g3", "-o", BUILD_DIR"tracker.exe", "main.c", "-std=c99", "-Wall", "-Wextra", "-lraylib", "-lglfw3");
+    nob_cmd_append(&cmd, 
+        "gcc", 
+        "-g3", 
+        "-o", 
+        BUILD_DIR"tracker.exe", 
+        SRC_DIR"*.c", 
+        "-std=c99", 
+        "-Wall", 
+        "-Wextra", 
+        "-lraylib", 
+        "-lglfw3", 
+        "-I"INCLUDE_DIR
+    );
     if (!nob_cmd_run_sync_and_reset(&cmd)) return 1;
+
+    nob_cmd_append(&cmd, "ls");
+    if (!nob_cmd_run_sync_and_reset(&cmd)) return 1;
+
+    nob_set_current_dir(BUILD_DIR);
+
     nob_cmd_append(&cmd, BUILD_DIR"tracker.exe");
     if (!nob_cmd_run_sync_and_reset(&cmd)) return 1;
 
