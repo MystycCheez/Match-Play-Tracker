@@ -1,0 +1,21 @@
+#define BUILD_DIR "build/"
+#define SRC_DIR "src/"
+#define INCLUDE_DIR "include/"
+
+#define NOB_IMPLEMENTATION
+
+#include "include/nob.h"
+
+int main(int argc, char** argv)
+{
+    NOB_GO_REBUILD_URSELF(argc, argv);
+
+    Nob_Cmd cmd = {0};
+
+    nob_cmd_append(&cmd, "gcc", "-g3", "-o", BUILD_DIR"tracker.exe", "main.c", "-std=c99", "-Wall", "-Wextra", "-lraylib", "-lglfw3");
+    if (!nob_cmd_run_sync_and_reset(&cmd)) return 1;
+    nob_cmd_append(&cmd, BUILD_DIR"tracker.exe");
+    if (!nob_cmd_run_sync_and_reset(&cmd)) return 1;
+
+    return 0;
+}

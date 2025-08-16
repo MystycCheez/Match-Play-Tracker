@@ -1,5 +1,5 @@
-#ifndef TRACKER_H
-#define TRACKER_H
+#ifndef DECS_H
+#define DECS_H
 
 #include "defines.h"
 #include "enums.h"
@@ -74,6 +74,7 @@ char **loadLevelText();
 void loadSpecialText();
 void saveTimes();
 void ExportToBBCode();
+void ExportActionTable();
 
 // draw.c
 void DrawSelectionBorders();

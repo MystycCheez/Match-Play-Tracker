@@ -1,7 +1,7 @@
 #ifndef GAP_BUFFER_C
 #define GAP_BUFFER_C
 
-#include "includes.h"
+#include "headers.h"
 
 GapBuffer initGapStr(size_t len)
 {

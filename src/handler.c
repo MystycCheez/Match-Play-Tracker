@@ -1,7 +1,7 @@
 #ifndef HANDLER_C
 #define HANDLER_C
 
-#include "includes.h"
+#include "headers.h"
 
 // TODO: Add save reminder dialog
 void ExitHandler()

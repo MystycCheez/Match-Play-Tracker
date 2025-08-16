@@ -1,4 +1,4 @@
-# Generated from io.c in ExportActionTable() at Line 266
+# Generated from src/io.c in ExportActionTable() at Line 266
 
 |                KEY COMBO |                     OVERVIEW |                        SHEET |                         CELL |
 | ------------------------ | ---------------------------- | ---------------------------- | ---------------------------- |

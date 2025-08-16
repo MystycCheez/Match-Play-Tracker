@@ -1,8 +1,6 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
-#include "includes.h"
-
 typedef enum Alignment {
     ALIGN_LEFT = 0,
     ALIGN_RIGHT = 1, // Not Currently used
@@ -85,5 +83,38 @@ typedef enum Key {
 
     KEY_COUNT
 } Key;
+
+// List of Actions
+typedef enum Actions {
+    A_DONOTHING,
+    A_SCOPEDECREASE,
+    A_SELECTCHAR,
+    A_MOVECURSOR,
+    A_MOVECURSORBYTOKEN,
+    A_MOVECURSORTOSTART,
+    A_MOVECURSORTOEND,
+    A_LOADTIMES,
+    A_SAVETIMES,
+    A_EXPORTTIMES,
+    A_CLEARTIMES,
+    A_DESELECT_OR_UNDO_BACKOUT,
+    A_OVERWRITE_UPDATESCORE,
+    A_NAVIGATETONEXTCELL,
+    A_COPY,
+    A_CUT,
+    A_PASTE,
+    A_DELETE,
+    A_DELETECELLTEXT,
+    A_DELETECELLTEXTANDENTERINTO,
+    A_DELETESELECTION,
+    A_DELETECHAR,
+    A_NAVIGATELEFT,
+    A_NAVIGATERIGHT,
+    A_NAVIGATEUP,
+    A_NAVIGATEDOWN,
+    A_SWAPVETOCOLOR,
+
+    ACTION_COUNT
+} Actions;
 
 #endif

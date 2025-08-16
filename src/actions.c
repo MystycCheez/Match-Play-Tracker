@@ -1,8 +1,8 @@
 #ifndef ACTIONS_C
 #define ACTIONS_C
 
-#include "includes.h"
 #define ACTION_DEBUG_
+#include "headers.h"
 
 void A_DoNothing()
 {
@@ -260,71 +260,5 @@ void A_SwapVetoColor()
     }
     
 }
-
-// List of action functions
-void (*Action[])() = {
-    A_DoNothing,
-    A_ScopeDecrease,
-    A_SelectChar,
-    A_MoveCursor,
-    A_MoveCursorByToken,
-    A_MoveCursorToStart,
-    A_MoveCursorToEnd,
-    A_LoadTimes,
-    A_SaveTimes,
-    A_ExportTimes,
-    A_ClearTimes,
-    A_Deselect_Or_Undo_Backout,
-    A_Overwrite_UpdateScore,
-    A_NavigateToNextCell,
-    A_Copy,
-    A_Cut,
-    A_Paste,
-    A_Delete,
-    A_DeleteCellText,
-    A_DeleteCellTextAndEnterInto,
-    A_DeleteSelection,
-    A_DeleteChar,
-    A_NavigateLeft,
-    A_NavigateRight,
-    A_NavigateUp,
-    A_NavigateDown,
-    A_SwapVetoColor,
-};
-
-// List of Actions
-typedef enum Actions {
-    A_DONOTHING,
-    A_SCOPEDECREASE,
-    A_SELECTCHAR,
-    A_MOVECURSOR,
-    A_MOVECURSORBYTOKEN,
-    A_MOVECURSORTOSTART,
-    A_MOVECURSORTOEND,
-    A_LOADTIMES,
-    A_SAVETIMES,
-    A_EXPORTTIMES,
-    A_CLEARTIMES,
-    A_DESELECT_OR_UNDO_BACKOUT,
-    A_OVERWRITE_UPDATESCORE,
-    A_NAVIGATETONEXTCELL,
-    A_COPY,
-    A_CUT,
-    A_PASTE,
-    A_DELETE,
-    A_DELETECELLTEXT,
-    A_DELETECELLTEXTANDENTERINTO,
-    A_DELETESELECTION,
-    A_DELETECHAR,
-    A_NAVIGATELEFT,
-    A_NAVIGATERIGHT,
-    A_NAVIGATEUP,
-    A_NAVIGATEDOWN,
-    A_SWAPVETOCOLOR,
-
-    ACTION_COUNT
-} Actions;
-
-Actions ActionTable[3][KEY_COMBO_COUNT];
 
 #endif
