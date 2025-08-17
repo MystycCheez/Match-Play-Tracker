@@ -29,7 +29,7 @@ An extensive list can be found in [ACTIONS.md](https://github.com/MystycCheez/Ma
 
 ## Build Instructions
 
-Run gcc -o nob.exe nob.c
+Run gcc -o nob.exe nob.c  
 Run nob.exe
 
 Running nob.exe will compile and run tracker.exe located in the build folder.
