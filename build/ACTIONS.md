@@ -23,9 +23,9 @@
 |                 Ctrl + V |                          N/A |                          N/A |                        Paste |
 |                 Ctrl + L |                   Load times |                   Load times |                   Load times |
 |                 Ctrl + S |                   Save times |                   Save times |                   Save times |
-|                 Ctrl + B |                 Export times |                 Export times |                 Export times |
+|                 Ctrl + B |             Export to BBCode |             Export to BBCode |             Export to BBCode |
 |                  Alt + C |         Swap veto text color |         Swap veto text color |         Swap veto text color |
 |             Shift + LEFT |                          N/A |                          N/A |                  Select char |
 |            Shift + RIGHT |                          N/A |                          N/A |                  Select char |
-|                     LEFT |                          N/A |                          N/A |    Select from cursor by dir |
-|                    RIGHT |                          N/A |                          N/A |    Select from cursor by dir |
+|      Ctrl + Shift + LEFT |                          N/A |                          N/A |    Select from cursor by dir |
+|     Ctrl + Shift + RIGHT |                          N/A |                          N/A |    Select from cursor by dir |

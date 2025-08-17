@@ -24,6 +24,8 @@ int main()
 
     sheet = initSheet();
 
+    ExportActionTable();
+
     setBorderPositions(UI.borders);
 
     Rectangle gradTop = {0, TOP_BAR_HEIGHT, Window.Width, UI.cellHeight};
@@ -79,8 +81,6 @@ int main()
     CloseWindow();
     UnloadFont(UI.font);
     UnloadImage(Window.Icon);
-
-    ExportActionTable();
     
     return 0;
 }

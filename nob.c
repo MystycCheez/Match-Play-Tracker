@@ -14,6 +14,7 @@ int main(int argc, char** argv)
 
     nob_cmd_append(&cmd, 
         "gcc", 
+        // "-save-temps",
         "-g3", 
         "-o", 
         BUILD_DIR"tracker.exe", 

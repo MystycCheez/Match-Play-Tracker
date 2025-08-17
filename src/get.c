@@ -41,7 +41,7 @@ char* GetKeyComboText(int index)
     size_t size = 50;
     size_t pos = 0;
     char* buffer = calloc(size, 1);
-    for (size_t i = 1; i < 5; i++) {
+    for (size_t i = 1; i < MODIFIER_KEY_COUNT; i++) {
         if ((size_t)(index / KEY_COUNT) == i) {
             pos += snprintf(buffer, size - pos, "%s + ", GetModifierText(i));
             break;
