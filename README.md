@@ -27,6 +27,13 @@ As of now, functions are used via hotkey. This is a small list of hotkeys:
 
 An extensive list can be found in [ACTIONS.md](https://github.com/MystycCheez/Match-Play-Tracker/blob/main/ACTIONS.md)
 
+## Build Instructions
+
+Run gcc -o nob.exe nob.c
+Run nob.exe
+
+Running nob.exe will compile and run tracker.exe located in the build folder.
+
 ## References
 
 * [Match Play Spreadsheet](https://docs.google.com/spreadsheets/d/1-aDvgb4x5IuDA9IEChYfun8wZ0e-Zp0XMfhFdTRXf1Q/edit?gid=2120665130#gid=2120665130)
