@@ -8,7 +8,7 @@
 |                     DOWN |                          N/A |                Navigate down |                          N/A |
 |                    ENTER |                          N/A |        Navigate to next cell |   Overwrite and update score |
 |                   ESCAPE |               Scope decrease |               Scope decrease | Deselect or undo and backout |
-|                   DELETE |                          N/A |             Delete cell text |                          N/A |
+|                   DELETE |                          N/A |             Delete cell text |             Delete selection |
 |                BACKSPACE |                          N/A | Delete cell text; enter cell |                       Delete |
 |                      TAB |                          N/A |        Navigate to next cell |   Overwrite and update score |
 |                     HOME |                          N/A |                          N/A |         Move cursor to start |
@@ -27,5 +27,10 @@
 |                  Alt + C |         Swap veto text color |         Swap veto text color |         Swap veto text color |
 |             Shift + LEFT |                          N/A |                          N/A |                  Select char |
 |            Shift + RIGHT |                          N/A |                          N/A |                  Select char |
+|           Shift + DELETE |                          N/A |                          N/A |             Delete cell text |
+|             Shift + HOME |                          N/A |                          N/A |    Select from cursor by dir |
+|              Shift + END |                          N/A |                          N/A |    Select from cursor by dir |
 |      Ctrl + Shift + LEFT |                          N/A |                          N/A |    Select from cursor by dir |
 |     Ctrl + Shift + RIGHT |                          N/A |                          N/A |    Select from cursor by dir |
+|      Ctrl + Shift + HOME |                          N/A |                          N/A |    Select from cursor by dir |
+|       Ctrl + Shift + END |                          N/A |                          N/A |    Select from cursor by dir |

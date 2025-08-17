@@ -178,6 +178,7 @@ void A_Paste()
     #ifdef ACTION_DEBUG_
     printf("%s\n", __func__);
     #endif
+    DeleteSelection(&sheet[GVARS.selectedCellIndex].gapStr);
     placeString(&sheet[GVARS.selectedCellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
     Deselect();
 }
@@ -209,6 +210,7 @@ void A_DeleteSelection()
     printf("%s\n", __func__);
     #endif
     DeleteSelection(&sheet[GVARS.selectedCellIndex].gapStr);
+    Deselect();
 }
 
 void A_DeleteChar()

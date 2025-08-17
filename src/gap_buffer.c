@@ -159,29 +159,29 @@ bool selectChar(GapBuffer *gapStr, bool dir)
     
     if (dir == DIR_LEFT) {
         if (!cursorLeft(gapStr)) {
-            if (GVARS.selection.start == GVARS.selection.end) {GVARS.selection.exists = false;}
+            if (GVARS.selection.start == GVARS.selection.end) {Deselect();}
             return false;
         } else if (gapStr->cStart <= GVARS.selection.start && gapStr->cStart < GVARS.selection.start) {
             GVARS.selection.start--;
         } else GVARS.selection.end--;
     } else if (dir == DIR_RIGHT) {
         if (!cursorRight(gapStr)) {
-            if (GVARS.selection.start == GVARS.selection.end) {GVARS.selection.exists = false;}
+            if (GVARS.selection.start == GVARS.selection.end) {Deselect();}
             return false;
         } else if (gapStr->cStart >= GVARS.selection.start && gapStr->cStart > GVARS.selection.end) {
             GVARS.selection.end++;
         } else GVARS.selection.start++;
-    } else if (GVARS.selection.start == GVARS.selection.end) GVARS.selection.exists = false;
-    if (GVARS.selection.start == GVARS.selection.end) {GVARS.selection.exists = false;}
+    } else if (GVARS.selection.start == GVARS.selection.end) Deselect();
+    if (GVARS.selection.start == GVARS.selection.end) {Deselect();}
     // printf("start: %lld, end: %lld\n", GVARS.selection.start, GVARS.selection.end);
     return true;
 }
 
-// This function exists because it might need to do more in the future
 void Deselect()
 {
     GVARS.selection.exists = false;
-    // Do I need to adjust the start/end?
+    GVARS.selection.start = 0;
+    GVARS.selection.end = 0;
 }
 
 void MoveCursorToIndex(GapBuffer *gapStr, size_t index)
@@ -197,6 +197,7 @@ void MoveCursorToIndex(GapBuffer *gapStr, size_t index)
 
 void DeleteSelection(GapBuffer *gapStr)
 {
+    if (!GVARS.selection.exists) return;
     MoveCursorToIndex(gapStr, GVARS.selection.end);
     while (gapStr->cStart > GVARS.selection.start) {
         deleteCharAtCursor(gapStr);
@@ -219,7 +220,7 @@ void CopyText(GapBuffer gapStr)
     char *copy = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     char *tmp = gapStrToStr(gapStr, CELL_TEXT_LENGTH);
     memset(copy, 0, CELL_TEXT_LENGTH);
-    strncpy(copy, tmp + GVARS.selection.start, GVARS.selection.end);
+    strncpy(copy, tmp + GVARS.selection.start, GVARS.selection.end - GVARS.selection.start);
     SetClipboardText(copy);
     free(tmp);
     free(copy);

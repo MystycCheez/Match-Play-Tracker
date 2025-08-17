@@ -173,11 +173,19 @@ void initActionTable()
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_HOME, M_NONE)] = A_MOVECURSORTOSTART;
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_END, M_NONE)] = A_MOVECURSORTOEND;
 
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_HOME, M_SHIFT)] = A_SELECTALLATCURSORTOWARDSDIR;
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_END, M_SHIFT)] = A_SELECTALLATCURSORTOWARDSDIR;
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_HOME, M_CTRL_SHIFT)] = A_SELECTALLATCURSORTOWARDSDIR; // is this needed?
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_END, M_CTRL_SHIFT)] = A_SELECTALLATCURSORTOWARDSDIR;  // is this needed?
+
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_C, M_CTRL)] = A_COPY;
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_X, M_CTRL)] = A_CUT;
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_V, M_CTRL)] = A_PASTE;
 
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_BACKSPACE, M_NONE)] = A_DELETE;
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_DELETE, M_NONE)] = A_DELETESELECTION;
+
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_DELETE, M_SHIFT)] = A_DELETECELLTEXT;
 
     ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_DELETE, M_NONE)] = A_DELETECELLTEXT;
     ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_BACKSPACE, M_NONE)] = A_DELETECELLTEXTANDENTERINTO;

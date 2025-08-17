@@ -27,6 +27,8 @@ bool getMoveDir()
 {
     if (KeyData.pressed == KEY_LEFT) return DIR_LEFT;
     if (KeyData.pressed == KEY_RIGHT) return DIR_RIGHT;
+    if (KeyData.pressed == KEY_HOME) return DIR_LEFT;
+    if (KeyData.pressed == KEY_END) return DIR_RIGHT;
     assert(!"Shouldn't be trying to get a direction when not pressing left or right!");
 }
 
