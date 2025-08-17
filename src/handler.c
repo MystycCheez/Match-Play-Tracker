@@ -152,14 +152,16 @@ void CellInputHandler()
         if ((key_char >= 32) && (key_char <= 125)) {
             if (GVARS.scope == SCOPE_CELL) {
                 if (GVARS.selection.exists) {
-                    replaceChar(&sheet[GVARS.selectedCellIndex].gapStr, (char)key_char);
+                    DeleteSelection(&sheet[GVARS.selectedCellIndex].gapStr);
+                    placeChar(&sheet[GVARS.selectedCellIndex].gapStr, (char)key_char);
                     Deselect();
-                }
-                else placeChar(&sheet[GVARS.selectedCellIndex].gapStr, (char)key_char);
-            }
-            else {
+                } else placeChar(&sheet[GVARS.selectedCellIndex].gapStr, (char)key_char);
+            } else {
                 Deselect();
                 GVARS.scope = SCOPE_CELL;
+                OverwriteStr(&sheet[GVARS.selectedCellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
+                CellOverwriteHandler();
+                UpdateScores();
                 placeChar(&sheet[GVARS.selectedCellIndex].gapStr, (char)key_char);
             }
         }
