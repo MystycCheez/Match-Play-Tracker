@@ -291,26 +291,6 @@ void (*Action_Function[ACTION_COUNT])() = {
     #undef ACTION
 };
 
-const char* GetActionText(int index)
-{
-    switch (index) {
-        #define ACTION(a,b,c) case a: return #a;
-            ACTION_LIST
-        #undef ACTION
-        default: assert(!"Not a valid action!\n");
-    }
-}
-
-const char* GetHumanReadableActionText(int index)
-{
-    switch (index) {
-        #define ACTION(a,b,c) case a: return c;
-            ACTION_LIST
-        #undef ACTION
-        default: assert(!"Not a valid action!\n");
-    }
-}
-
 Action ActionTable[3][KEY_COMBO_COUNT];
 
 #endif
