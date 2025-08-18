@@ -30,26 +30,6 @@ typedef struct CollisionMap {
     bool sheet;
 } CollisionMap;
 
-typedef struct KeyMap {
-    bool ctrl;
-    bool shift;
-    bool alt;
-    bool left;
-    bool right;
-    bool up;
-    bool down;
-    bool enter;
-    bool escape;
-    bool delete;
-    bool backspace;
-    bool c;
-    bool x;
-    bool v;
-    bool l;
-    bool s;
-    bool b;
-} KeyMap;
-
 typedef struct KeyboardState {
     int pressed;
     bool shift;

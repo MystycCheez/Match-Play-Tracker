@@ -16,11 +16,9 @@
 #include "enums.h"
 #include "structs.h"
 
-#include "decs.h"
-#include "globals.h"
-
 #include "actions.h"
+#include "decs.h"
 
-
+#include "globals.h"
 
 #endif

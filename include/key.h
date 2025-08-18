@@ -21,6 +21,7 @@
     KEY(K_L, KEY_L, "L") \
     KEY(K_S, KEY_S, "S") \
     KEY(K_B, KEY_B, "B") \
+    KEY(K_R, KEY_R, "R") \
 
 typedef enum Key {
     #define KEY(a,b,c) a,

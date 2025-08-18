@@ -179,8 +179,11 @@ void initActionTable()
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_END, M_CTRL_SHIFT)] = A_SELECTALLATCURSORTOWARDSDIR;  // is this needed?
 
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_C, M_CTRL)] = A_COPY;
+    ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_C, M_CTRL)] = A_COPY_ALL;
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_X, M_CTRL)] = A_CUT;
+    ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_X, M_CTRL)] = A_CUT_ALL;
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_V, M_CTRL)] = A_PASTE;
+    ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_V, M_CTRL)] = A_PASTE_INTO_CELL;
 
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_BACKSPACE, M_NONE)] = A_DELETE;
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_DELETE, M_NONE)] = A_DELETESELECTION;
@@ -192,6 +195,9 @@ void initActionTable()
 
     ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_TAB, M_NONE)] = A_NAVIGATETONEXTCELL;
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_TAB, M_NONE)] = A_OVERWRITE_UPDATESCORE;
+
+    ActionTable[SCOPE_CELL][GetKeyComboIndex(K_R, M_CTRL)] = A_RESET_TEXT_COLOR;
+    ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_R, M_CTRL)] = A_RESET_TEXT_COLOR;
 
     // Up, Down, Left, Right
     for (size_t i = K_LEFT; i < 4; i++) {

@@ -19,8 +19,11 @@
     ACTION(A_OVERWRITE_UPDATESCORE, A_Overwrite_UpdateScore, "Overwrite and update score") \
     ACTION(A_NAVIGATETONEXTCELL, A_NavigateToNextCell, "Navigate to next cell") \
     ACTION(A_COPY, A_Copy, "Copy") \
+    ACTION(A_COPY_ALL, A_Copy_All, "Copy all cell text") \
     ACTION(A_CUT, A_Cut, "Cut") \
+    ACTION(A_CUT_ALL, A_Cut_All, "Cut all cell text") \
     ACTION(A_PASTE, A_Paste, "Paste") \
+    ACTION(A_PASTE_INTO_CELL, A_PasteIntoCell, "Overwrite cell with paste") \
     ACTION(A_DELETE, A_Delete, "Delete") \
     ACTION(A_DELETECELLTEXT, A_DeleteCellText, "Delete cell text") \
     ACTION(A_DELETECELLTEXTANDENTERINTO, A_DeleteCellTextAndEnterInto, "Delete cell text; enter cell") \
@@ -31,6 +34,7 @@
     ACTION(A_NAVIGATEUP, A_NavigateUp, "Navigate up") \
     ACTION(A_NAVIGATEDOWN, A_NavigateDown, "Navigate down") \
     ACTION(A_SWAPVETOCOLOR, A_SwapVetoColor, "Swap veto text color") \
+    ACTION(A_RESET_TEXT_COLOR, A_ResetTextColor, "Reset cell text color") \
 
 typedef enum Action {
     #define ACTION(a,b,c) a,

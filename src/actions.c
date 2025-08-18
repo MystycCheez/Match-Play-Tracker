@@ -185,6 +185,16 @@ void A_Copy()
     CopyText(sheet[GVARS.selectedCellIndex].gapStr);
 }
 
+void A_Copy_All()
+{
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
+    A_SelectAll();
+    A_Copy();
+    Deselect();
+}
+
 void A_Cut()
 {
     #ifdef ACTION_DEBUG_
@@ -192,6 +202,17 @@ void A_Cut()
     #endif
     CopyText(sheet[GVARS.selectedCellIndex].gapStr);
     DeleteSelection(&sheet[GVARS.selectedCellIndex].gapStr);
+}
+
+void A_Cut_All()
+{
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
+    A_SelectAll();
+    A_Copy();
+    Deselect();
+    A_DeleteCellText();
 }
 
 void A_Paste()
@@ -202,6 +223,16 @@ void A_Paste()
     DeleteSelection(&sheet[GVARS.selectedCellIndex].gapStr);
     placeString(&sheet[GVARS.selectedCellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
     Deselect();
+}
+
+void A_PasteIntoCell()
+{
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif    
+    A_DeleteCellText();
+    placeString(&sheet[GVARS.selectedCellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
+    GVARS.scope = SCOPE_CELL;
 }
 
 void A_DeleteCellText()
@@ -304,6 +335,14 @@ void A_SwapVetoColor()
             }
         }
     }   
+}
+
+void A_ResetTextColor()
+{
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
+    sheet[GVARS.selectedCellIndex].color = WHITE;
 }
 
 void (*Action_Function[ACTION_COUNT])() = {

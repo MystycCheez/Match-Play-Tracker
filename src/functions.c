@@ -85,8 +85,13 @@ size_t countChars(char *text, char c, size_t len)
     return count;
 }
 
+void setCellTextColor(char* text)
+{
+    sheet[GVARS.selectedCellIndex].color = HexToColor(text);
+}
+
 // Filters string to be converted into time / Outputs "mm:ss" or "m:ss"
-char *filterCellText(char *text)
+char *filterCellText(char* text)
 {
     // Do these need to be static?
     static char *dummy = "\0";
@@ -278,6 +283,21 @@ char* ColorToHexText(Color color)
     snprintf(colorText + 3, 3, "%02x", color.g);
     snprintf(colorText + 5, 3, "%02x", color.b);
     return colorText;
+}
+
+Color HexToColor(char* text)
+{
+    char* r = malloc(2);
+    char* g = malloc(2);
+    char* b = malloc(2);
+    strncpy(r, text + 1, 2);
+    strncpy(g, text + 3, 2);
+    strncpy(b, text + 5, 2);
+    int R = strtol(r, NULL, 16);
+    int G = strtol(g, NULL, 16);
+    int B = strtol(b, NULL, 16);
+    Color color = {R, G, B, 0xFF};
+    return color;
 }
 
 void chrswap(char* ptr1, char* ptr2)

@@ -17,13 +17,14 @@
 |             Ctrl + RIGHT |                          N/A |                          N/A |           Move cursor to end |
 |            Ctrl + DELETE |                  Clear times |                  Clear times |                  Clear times |
 |                 Ctrl + A |                          N/A |                          N/A |         Select all cell text |
-|                 Ctrl + C |                          N/A |                          N/A |                         Copy |
+|                 Ctrl + C |                          N/A |           Copy all cell text |                         Copy |
 |                 Ctrl + D |                  Clear times |                  Clear times |                  Clear times |
-|                 Ctrl + X |                          N/A |                          N/A |                          Cut |
-|                 Ctrl + V |                          N/A |                          N/A |                        Paste |
+|                 Ctrl + X |                          N/A |            Cut all cell text |                          Cut |
+|                 Ctrl + V |                          N/A |    Overwrite cell with paste |                        Paste |
 |                 Ctrl + L |                   Load times |                   Load times |                   Load times |
 |                 Ctrl + S |                   Save times |                   Save times |                   Save times |
 |                 Ctrl + B |             Export to BBCode |             Export to BBCode |             Export to BBCode |
+|                 Ctrl + R |                          N/A |        Reset cell text color |        Reset cell text color |
 |                  Alt + C |         Swap veto text color |         Swap veto text color |         Swap veto text color |
 |             Shift + LEFT |                          N/A |                          N/A |                  Select char |
 |            Shift + RIGHT |                          N/A |                          N/A |                  Select char |

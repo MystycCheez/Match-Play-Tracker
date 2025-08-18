@@ -136,6 +136,9 @@ void EnterNavigationHandler()
 
 void CellOverwriteHandler()
 {
+    if (gapStrToStr(sheet[GVARS.selectedCellIndex].gapStr, CELL_TEXT_LENGTH)[0] == '#') {
+        setCellTextColor(gapStrToStr(sheet[GVARS.selectedCellIndex].gapStr, CELL_TEXT_LENGTH));
+    }
     if (GVARS.selectedCellIndex > 2 && GVARS.selectedCellIndex < CELL_COUNT - 3) {
         char *filteredText = filterCellText(sheet[GVARS.selectedCellIndex].gapStr.str);
         OverwriteStr(&sheet[GVARS.selectedCellIndex].gapStr, filteredText, 0, CELL_TEXT_LENGTH);
