@@ -43,8 +43,28 @@ void A_SelectAllAtCursorTowardsDir()
     printf("%s\n", __func__);
     #endif
     bool dir = getMoveDir();
-    while (selectChar(&sheet[GVARS.selectedCellIndex].gapStr, dir)) {
-        A_DoNothing();
+
+    if (GVARS.selection.exists) {
+        if (dir == DIR_RIGHT) {
+            if (GVARS.selection.end < gapStrLen(sheet[GVARS.selectedCellIndex].gapStr)) {
+                goto select;
+            } else {
+                MoveCursorToIndex(&sheet[GVARS.selectedCellIndex].gapStr, GVARS.selection.end);
+                Deselect();
+            }
+        } else if (dir == DIR_LEFT) {
+            if (GVARS.selection.end > sheet[GVARS.selectedCellIndex].gapStr.cStart) {
+                goto select;
+            } else {
+                MoveCursorToIndex(&sheet[GVARS.selectedCellIndex].gapStr, GVARS.selection.start);
+                Deselect();
+            }
+        }
+    } else {
+        select: 
+        while (selectChar(&sheet[GVARS.selectedCellIndex].gapStr, dir)) {
+            A_DoNothing();
+        }
     }
 }
 
@@ -53,7 +73,8 @@ void A_MoveCursor()
     #ifdef ACTION_DEBUG_
     printf("%s\n", __func__);
     #endif
-    if (CursorMoveDir(&sheet[GVARS.selectedCellIndex].gapStr, getMoveDir())) Deselect();
+    CursorMoveDir(&sheet[GVARS.selectedCellIndex].gapStr, getMoveDir());
+    Deselect();
 }
 
 void A_MoveCursorByToken()
