@@ -30,6 +30,7 @@ const char* GetHumanReadableActionText(int index);
 // functions.c
 void ClearTimes();
 Text_Type CompareSpecialText(char *text);
+size_t getOppositeCellIndex();
 Vector2 CalcTextPos(Vector2 pos, size_t index);
 size_t timeToSecs(char *time);
 char *secsToTime(size_t totalSecs);

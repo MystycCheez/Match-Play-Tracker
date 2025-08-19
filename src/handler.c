@@ -141,6 +141,9 @@ void CellOverwriteHandler()
     }
     if (GVARS.selectedCellIndex > 2 && GVARS.selectedCellIndex < CELL_COUNT - 3) {
         char *filteredText = filterCellText(sheet[GVARS.selectedCellIndex].gapStr.str);
+        if (CompareSpecialText(filteredText) == TEXT_VETO) {
+            OverwriteStr(&sheet[getOppositeCellIndex()].gapStr, filteredText, 0, CELL_TEXT_LENGTH);
+        }
         OverwriteStr(&sheet[GVARS.selectedCellIndex].gapStr, filteredText, 0, CELL_TEXT_LENGTH);
     }
 }

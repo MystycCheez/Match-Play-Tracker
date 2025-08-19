@@ -33,6 +33,13 @@ Text_Type CompareSpecialText(char *text)
     return returnVal;
 }
 
+size_t getOppositeCellIndex()
+{
+    if (GVARS.selectedCellIndex % 3 == 1) {
+        return GVARS.selectedCellIndex + 1;
+    } else return GVARS.selectedCellIndex - 1;
+}
+
 // TODO: check if this can utilize xy/cr functions
 Vector2 CalcTextPos(Vector2 pos, size_t index)
 {
