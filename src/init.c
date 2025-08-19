@@ -80,13 +80,18 @@ void initButtons()
     SetTextureFilter(UI.buttons[BTN_MINIMIZE].texture, TEXTURE_FILTER_BILINEAR);
 }
 
-void initSheetText(Cell *sheet)
+void setGameText()
 {
-    char **levelText = loadLevelText(GVARS.game);
+    char** levelText = loadLevelText(GVARS.game);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
-        placeString(&sheet[(i * 3) + 3].gapStr, levelText[i], CELL_TEXT_LENGTH);
+        OverwriteStr(&sheet[(i * 3) + 3].gapStr, levelText[i], 0, CELL_TEXT_LENGTH);
     }
     free(levelText);
+}
+
+void initSheetText()
+{
+    setGameText();
     char *s1 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     char *s2 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     sprintf(s1, "%lld", GVARS.players.s1);
@@ -99,9 +104,9 @@ void initSheetText(Cell *sheet)
     placeString(&sheet[CELL_COUNT - 1].gapStr, s2, CELL_TEXT_LENGTH);
 }
 
-Cell *initSheet()
+void initSheet()
 {
-    Cell *sheet = malloc(sizeof(Cell) * CELL_COUNT);
+    sheet = malloc(sizeof(Cell) * CELL_COUNT);
     for (size_t i = 0; i < CELL_COUNT; i++) {
         sheet[i].gapStr = initGapStr(CELL_TEXT_LENGTH);
         sheet[i].alignment = ALIGN_CENTER;
@@ -119,7 +124,6 @@ Cell *initSheet()
         sheet[3 + (i * COLUMNS)].selectable = false;
     }
     initSheetText(sheet);
-    return sheet;
 }
 
 void setBorderPositions()
@@ -198,6 +202,9 @@ void initActionTable()
 
     ActionTable[SCOPE_CELL][GetKeyComboIndex(K_R, M_CTRL)] = A_RESET_TEXT_COLOR;
     ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_R, M_CTRL)] = A_RESET_TEXT_COLOR;
+
+    ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_TAB, M_CTRL)] = A_SWAPGAME;
+    ActionTable[SCOPE_OVERVIEW][GetKeyComboIndex(K_TAB, M_CTRL)] = A_SWAPGAME;
 
     // Up, Down, Left, Right
     for (size_t i = K_LEFT; i < 4; i++) {

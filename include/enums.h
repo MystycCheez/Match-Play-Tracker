@@ -2,34 +2,28 @@
 #define ENUMS_H
 
 typedef enum Alignment {
-    ALIGN_LEFT = 0,
-    ALIGN_RIGHT = 1, // Not Currently used
-    ALIGN_CENTER = 2,
+    ALIGN_LEFT,
+    ALIGN_RIGHT, // Not Currently used
+    ALIGN_CENTER,
 } Alignment;
 
 typedef enum Texture_Mode {
-    TEXTURE_UNHIGHLIGHTED = 0,
-    TEXTURE_HIGHLIGHTED = 1,
-    TEXTURE_SELECTED = 2,
+    TEXTURE_UNHIGHLIGHTED,
+    TEXTURE_HIGHLIGHTED,
+    TEXTURE_SELECTED,
 } Texture_Mode;
 
 typedef enum Button_State {
-    STATE_BTN_UNHIGHLIGHTED = 0,
-    STATE_BTN_HIGHLIGHTED = 1,
-    STATE_BTN_PRESSED = 2,
+    STATE_BTN_UNHIGHLIGHTED,
+    STATE_BTN_HIGHLIGHTED,
+    STATE_BTN_PRESSED,
 } Button_State;
 
 typedef enum Button_List {
-    BTN_EXIT = 0,
-    BTN_MINIMIZE = 1,
+    BTN_EXIT,
+    BTN_MINIMIZE,
+    BTN_EXPORT,
 } Button_List;
-
-typedef enum Collision_List {
-    COLLISION_EXIT = 0,
-    COLLISION_MINIMIZE = 1,
-    COLLISION_TOP_BAR = 2,
-    COLLISION_SHEET = 3,
-} Collision_List;
 
 typedef enum Text_Type {
     TEXT_NA = -1,
@@ -38,14 +32,14 @@ typedef enum Text_Type {
 } Text_Type;
 
 typedef enum Game_Levels {
-    LEVELS_GE = 0,
-    LEVELS_PD = 1,
+    LEVELS_GE,
+    LEVELS_PD,
 } Game_Levels;
 
 typedef enum Scope_Level {
-    SCOPE_OVERVIEW = 0,
-    SCOPE_SHEET = 1,
-    SCOPE_CELL = 2,
+    SCOPE_OVERVIEW,
+    SCOPE_SHEET,
+    SCOPE_CELL,
 } Scope_Level;
 
 #endif

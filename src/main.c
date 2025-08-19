@@ -22,7 +22,7 @@ int main()
 
     Vector2 TextPos = {0}; 
 
-    sheet = initSheet();
+    initSheet();
 
     ExportActionTable();
 

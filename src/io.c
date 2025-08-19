@@ -39,7 +39,7 @@ bool loadTimes()
     return true;
 }
 
-char **loadLevelText(int game)
+char** loadLevelText(int game)
 {
     char *filename;
     if (game == LEVELS_GE) filename = "resources/levels-ge.txt";

@@ -7,8 +7,9 @@
 void initGlobals();
 void initWindow();
 void initButtons();
+void setGameText();
 void initSheetText();
-Cell *initSheet();
+void initSheet();
 void setBorderPositions();
 void initActionTable();
 
@@ -73,7 +74,7 @@ void CopyText(GapBuffer gapStr);
 // io.c
 void loadFont();
 bool loadTimes();
-char **loadLevelText();
+char **loadLevelText(int game);
 void loadSpecialText();
 void saveTimes();
 void ExportToBBCode();

@@ -346,6 +346,16 @@ void A_ResetTextColor()
     sheet[GVARS.selectedCellIndex].color = WHITE;
 }
 
+void A_SwapGameText()
+{
+    #ifdef ACTION_DEBUG_
+    printf("%s\n", __func__);
+    #endif
+    GVARS.game = !GVARS.game;
+    setGameText();
+}
+
+// Action function pointer list
 void (*Action_Function[ACTION_COUNT])() = {
     #define ACTION(a,b,c) b,
         ACTION_LIST

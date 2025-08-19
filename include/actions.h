@@ -2,7 +2,7 @@
 #define ACTIONS_H
 
 #define ACTION_LIST \
-    ACTION(A_DONOTHING, A_DoNothing, "N/A") \
+    ACTION(A_DONOTHING, A_DoNothing, "") \
     ACTION(A_SCOPEDECREASE, A_ScopeDecrease, "Scope decrease") \
     ACTION(A_SELECTCHAR, A_SelectChar, "Select char") \
     ACTION(A_SELECTALL, A_SelectAll, "Select all cell text") \
@@ -35,6 +35,7 @@
     ACTION(A_NAVIGATEDOWN, A_NavigateDown, "Navigate down") \
     ACTION(A_SWAPVETOCOLOR, A_SwapVetoColor, "Swap veto text color") \
     ACTION(A_RESET_TEXT_COLOR, A_ResetTextColor, "Reset cell text color") \
+    ACTION(A_SWAPGAME, A_SwapGameText, "Switch between PD/GE") \
 
 typedef enum Action {
     #define ACTION(a,b,c) a,

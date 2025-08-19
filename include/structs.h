@@ -88,7 +88,7 @@ typedef struct Globals {
     Selection selection;
     Scope_Level scope;
     Shader shader;
-    int game;
+    bool game;
     size_t selectedCellIndex;
     bool shouldExit;
     char* level_win;
