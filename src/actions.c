@@ -130,6 +130,7 @@ void A_ExportTimes()
     #endif
     ExportToBBCode();
     printf("Exported to BBCode\n");
+    printf("Copied to clipboard\n");
 }
 
 void A_ClearTimes()

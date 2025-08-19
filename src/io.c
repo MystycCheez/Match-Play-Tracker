@@ -252,6 +252,19 @@ void ExportToBBCode()
     );
 
     fclose(out_bb);
+
+    out_bb = fopen(bbFileName, "r");
+
+    fseek(out_bb, 0, SEEK_END);
+    long out_len = ftell(out_bb);
+    char* copy_bb = malloc(out_len);
+    fseek(out_bb, 0, SEEK_SET);
+    if (copy_bb) {
+        fread(copy_bb, 1, out_len, out_bb);
+    }
+    SetClipboardText(copy_bb);
+
+    fclose(out_bb);
 }
 
 void ExportActionTable()
