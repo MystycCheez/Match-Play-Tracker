@@ -18,14 +18,20 @@ Unzip and run tracker.exe.
 
 As of now, functions are used via hotkey. This is a small list of hotkeys:
 
-| Hotkey        | Functionality                                    | Alt Hotkey |
-| ------------- | ------------------------------------------------ | ---------- |
-| Ctrl + Del    | Clears times (Warning: Does not save!)           | Ctrl + D   |
-| Ctrl + L      | Loads times from times/times.txt (Clears times!) |            |
-| Ctrl + S      | Saves current times to times/times.txt           |            |
-| Ctrl + B      | Exports times to times/results.bbcode            |            |
+| Hotkey        | Functionality                                                    | Alt Hotkey |
+| ------------- | ---------------------------------------------------------------- | ---------- |
+| Ctrl + Del    | Clears times (Warning: Does not save!)                           | Ctrl + D   |
+| Ctrl + L      | Loads times from times/times.txt (Clears times!)                 |            |
+| Ctrl + S      | Saves current times to times/times.txt                           |            |
+| Ctrl + B      | Exports times to times/results.bbcode (also copies to clipboard) |            |
+| Ctrl + Tab    | Switch levels between PD/GE                                      |            |
+| Alt + C       | Switch veto text color between white and gold                    |            |
 
 An extensive list can be found in [ACTIONS.md](https://github.com/MystycCheez/Match-Play-Tracker/blob/main/ACTIONS.md)
+
+## Misc
+
+Entering # followed by a six-digit hex code will change that cell's text color
 
 ## Build Instructions
 
@@ -33,6 +39,11 @@ Run ```gcc -o nob.exe nob.c```
 Run ```nob.exe```
 
 Running nob.exe will compile and run tracker.exe located in the build folder.
+
+## Used Libraries
+
+* [Raylib](https://www.raylib.com/)
+* [Nob.h](https://github.com/tsoding/nob.h)
 
 ## References
 
@@ -44,8 +55,3 @@ Running nob.exe will compile and run tracker.exe located in the build folder.
 ### X-Macro
 * [Wikipedia](https://en.wikipedia.org/wiki/X_macro)
 * [Stack Overflow](https://stackoverflow.com/questions/6635851/real-world-use-of-x-macros)
-
-## Used Libraries
-
-* [Raylib](https://www.raylib.com/)
-* [Nob.h](https://github.com/tsoding/nob.h)
