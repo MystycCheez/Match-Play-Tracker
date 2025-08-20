@@ -72,10 +72,20 @@ int GetKeyIndex(int key)
     return -1;
 }
 
-const char* GetActionText(int index)
+const char* GetActionEnumName(int index)
 {
     switch (index) {
         #define ACTION(a,b,c) case a: return #a;
+            ACTION_LIST
+        #undef ACTION
+        default: assert(!"Not a valid action!\n");
+    }
+}
+
+const char* GetActionText(int index)
+{
+    switch (index) {
+        #define ACTION(a,b,c) case a: return #b;
             ACTION_LIST
         #undef ACTION
         default: assert(!"Not a valid action!\n");
@@ -122,6 +132,7 @@ const char* GetModifierText(Modifier modifier)
         case M_CTRL_ALT: return "Ctrl + Alt";
         case M_CTRL_SHIFT: return "Ctrl + Shift";
         case M_ALT_SHIFT: return "Alt + Shift";
+        case M_CTRL_ALT_SHIFT: return "Ctrl + Alt + Shift";
         default: assert(!"Not a valid modifier!\n");
     }
 }

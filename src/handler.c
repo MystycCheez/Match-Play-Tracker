@@ -181,7 +181,12 @@ void InputHandler()
     KeyData.shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
     KeyData.alt = IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT);
 
-    Action_Function[ActionTable[GVARS.scope][GetKeyComboIndex(GetKeyIndex(KeyData.pressed), GetModifier())]]();
+    Action CurrentAction = ActionTable[GVARS.scope][GetKeyComboIndex(GetKeyIndex(KeyData.pressed), GetModifier())];
+    Action_Function[CurrentAction]();
+
+    if (CurrentAction != A_DONOTHING) {
+        printf("%s\n", GetActionText(CurrentAction));
+    }
 
     MouseHandler();
 }

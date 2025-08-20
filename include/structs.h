@@ -110,6 +110,7 @@ typedef struct Window_Elements {
     float Height;
     Image Icon;
     Texture IconTexture;
+    bool expand;
 } Window_Elements;
 
 typedef struct TitleBar_Elements {

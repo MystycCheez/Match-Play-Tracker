@@ -36,6 +36,8 @@ void initWindow()
     Window.Width = SHEET_WIDTH * GVARS.scaleDPI.x;
     Window.Height = (SHEET_HEIGHT * GVARS.scaleDPI.y) + UI.topBarHeight;
 
+    Window.expand = false;
+
     int currentMonitor = GetCurrentMonitor();
     int monitorCount = 0;
     int monitorWorkareaX = 0;
@@ -206,6 +208,8 @@ void initActionTable()
 
     ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_TAB, M_CTRL)] = A_SWAPGAME;
     ActionTable[SCOPE_OVERVIEW][GetKeyComboIndex(K_TAB, M_CTRL)] = A_SWAPGAME;
+
+    ActionTable[SCOPE_OVERVIEW][GetKeyComboIndex(K_E, M_ALT)] = A_TOGGLE_EXPANSION;
 
     // Up, Down, Left, Right
     for (size_t i = K_LEFT; i < 4; i++) {

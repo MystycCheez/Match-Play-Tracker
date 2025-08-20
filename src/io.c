@@ -5,7 +5,7 @@
 
 void loadFont()
 {
-    const char *font_file = "C:/Windows/Fonts/trebuc.ttf";
+    const char* font_file = "C:/Windows/Fonts/trebuc.ttf";
     UI.font = LoadFontEx(font_file, UI.fontSize, 0, 0);
 }
 

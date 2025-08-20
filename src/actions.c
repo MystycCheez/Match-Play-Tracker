@@ -12,25 +12,19 @@ void A_DoNothing()
 
 void A_ScopeDecrease()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     if (GVARS.scope > 0) GVARS.scope -= 1;
 }
 
 void A_SelectChar()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     selectChar(&sheet[GVARS.selectedCellIndex].gapStr, getMoveDir());
 }
 
 void A_SelectAll()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     A_MoveCursorToStart();
     while (selectChar(&sheet[GVARS.selectedCellIndex].gapStr, DIR_RIGHT)) {
         A_DoNothing();
@@ -39,9 +33,7 @@ void A_SelectAll()
 
 void A_SelectAllAtCursorTowardsDir()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     bool dir = getMoveDir();
 
     if (GVARS.selection.exists) {
@@ -70,44 +62,34 @@ void A_SelectAllAtCursorTowardsDir()
 
 void A_MoveCursor()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     CursorMoveDir(&sheet[GVARS.selectedCellIndex].gapStr, getMoveDir());
     Deselect();
 }
 
 void A_MoveCursorByToken()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     assert(!"TODO: A_MoveCursor_Token");
 }
 
 void A_MoveCursorToStart()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     MoveCursorToIndex(&sheet[GVARS.selectedCellIndex].gapStr, 0);
     Deselect();
 }
 
 void A_MoveCursorToEnd()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     MoveCursorToIndex(&sheet[GVARS.selectedCellIndex].gapStr, strlen(gapStrToStr(sheet[GVARS.selectedCellIndex].gapStr, CELL_TEXT_LENGTH)));
     Deselect();
 }
 
 void A_LoadTimes()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     if (loadTimes()) {
         UpdateScores();
         printf("Loaded times from times/times.txt\n");
@@ -116,18 +98,14 @@ void A_LoadTimes()
 
 void A_SaveTimes()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     saveTimes();
     printf("Saved times to times/times.txt\n");
 }
 
 void A_ExportTimes()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     ExportToBBCode();
     printf("Exported to BBCode\n");
     printf("Copied to clipboard\n");
@@ -135,9 +113,7 @@ void A_ExportTimes()
 
 void A_ClearTimes()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     ClearTimes();
     UpdateScores();
     printf("Sheet Cleared\n");
@@ -145,9 +121,7 @@ void A_ClearTimes()
 
 void A_Deselect_Or_Undo_Backout()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     if (GVARS.selection.exists) {
         Deselect();
     } else {
@@ -158,9 +132,7 @@ void A_Deselect_Or_Undo_Backout()
 
 void A_Overwrite_UpdateScore()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     CellOverwriteHandler();
     A_NavigateToNextCell();
     UpdateScores();
@@ -172,25 +144,19 @@ void A_Overwrite_UpdateScore()
 
 void A_NavigateToNextCell()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     EnterNavigationHandler();
 }
 
 void A_Copy()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     CopyText(sheet[GVARS.selectedCellIndex].gapStr);
 }
 
 void A_Copy_All()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     A_SelectAll();
     A_Copy();
     Deselect();
@@ -198,18 +164,14 @@ void A_Copy_All()
 
 void A_Cut()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     CopyText(sheet[GVARS.selectedCellIndex].gapStr);
     DeleteSelection(&sheet[GVARS.selectedCellIndex].gapStr);
 }
 
 void A_Cut_All()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     A_SelectAll();
     A_Copy();
     Deselect();
@@ -218,9 +180,7 @@ void A_Cut_All()
 
 void A_Paste()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     DeleteSelection(&sheet[GVARS.selectedCellIndex].gapStr);
     placeString(&sheet[GVARS.selectedCellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
     Deselect();
@@ -228,9 +188,7 @@ void A_Paste()
 
 void A_PasteIntoCell()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif    
+        
     A_DeleteCellText();
     placeString(&sheet[GVARS.selectedCellIndex].gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
     GVARS.scope = SCOPE_CELL;
@@ -238,9 +196,7 @@ void A_PasteIntoCell()
 
 void A_DeleteCellText()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     OverwriteStr(&sheet[GVARS.selectedCellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
     CellOverwriteHandler();
     UpdateScores();
@@ -248,9 +204,7 @@ void A_DeleteCellText()
 
 void A_DeleteCellTextAndEnterInto()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     OverwriteStr(&sheet[GVARS.selectedCellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
     CellOverwriteHandler();
     UpdateScores();
@@ -259,63 +213,49 @@ void A_DeleteCellTextAndEnterInto()
 
 void A_DeleteSelection()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     DeleteSelection(&sheet[GVARS.selectedCellIndex].gapStr);
     Deselect();
 }
 
 void A_DeleteChar()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     if (GVARS.selection.exists) A_DeleteSelection();
     deleteCharAtCursor(&sheet[GVARS.selectedCellIndex].gapStr);
 }
 
 void A_NavigateLeft()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     if (GVARS.selectedCellIndex % 3 == 2)
     GVARS.selectedCellIndex = GVARS.selectedCellIndex - 1;
 }
 
 void A_NavigateRight()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     if (GVARS.selectedCellIndex % 3 == 1) 
     GVARS.selectedCellIndex = GVARS.selectedCellIndex + 1;
 }
 
 void A_NavigateUp()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     if (GVARS.selectedCellIndex < 3) return;
     GVARS.selectedCellIndex = GVARS.selectedCellIndex - 3;
 }
 
 void A_NavigateDown()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     if (GVARS.selectedCellIndex > CELL_COUNT - 6) return;
     GVARS.selectedCellIndex = GVARS.selectedCellIndex + 3;
 }
 
 void A_Delete()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     if (GVARS.selection.exists) {
         A_DeleteSelection();
     } else A_DeleteChar();
@@ -323,9 +263,7 @@ void A_Delete()
 
 void A_SwapVetoColor()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     GVARS.vetoFlag = !GVARS.vetoFlag;
     for (size_t i = 4; i < LEVEL_COUNT * 2; i++) {
         if (!(i % 3 == 0)) {
@@ -340,19 +278,27 @@ void A_SwapVetoColor()
 
 void A_ResetTextColor()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     sheet[GVARS.selectedCellIndex].color = WHITE;
 }
 
 void A_SwapGameText()
 {
-    #ifdef ACTION_DEBUG_
-    printf("%s\n", __func__);
-    #endif
+    
     GVARS.game = !GVARS.game;
     setGameText();
+}
+
+void A_ToggleExpansion()
+{
+    
+    Window.expand = !Window.expand;
+    if (Window.expand) {
+        Window.Height += BASE_CELL_HEIGHT * 2 * GVARS.scaleDPI.y;
+    } else {
+        Window.Height -= BASE_CELL_HEIGHT * 2 * GVARS.scaleDPI.y;
+    }
+    SetWindowSize(Window.Width, Window.Height);
 }
 
 // Action function pointer list
