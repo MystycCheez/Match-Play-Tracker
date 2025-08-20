@@ -94,13 +94,13 @@ void MouseHandler()
     CollisionMap Collision = {
         CheckCollisionPointRec(Mouse.pos, getButtonRect(UI.buttons[BTN_EXIT])),
         CheckCollisionPointRec(Mouse.pos, getButtonRect(UI.buttons[BTN_MINIMIZE])),
-        CheckCollisionPointRec(Mouse.pos, (Rectangle){0, 0, Window.Width, TOP_BAR_HEIGHT}),
+        CheckCollisionPointRec(Mouse.pos, (Rectangle){0, 0, Window.Width, UI.topBarHeight}),
         CheckCollisionPointRec(Mouse.pos, 
             (Rectangle){
                 UI.cellWidth, 
-                TOP_BAR_HEIGHT, 
+                UI.topBarHeight, 
                 UI.cellWidth * 2, 
-                Window.Height - TOP_BAR_HEIGHT
+                Window.Height - UI.topBarHeight
             })
     };
     MouseTitleBarHandler(Collision, windowPos);

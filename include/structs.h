@@ -101,6 +101,7 @@ typedef struct UI_Elements {
     float cellWidth;
     float cellHeight;
     float fontSize;
+    int topBarHeight;
     Font font;
 } UI_Elements;
 

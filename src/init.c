@@ -7,10 +7,6 @@ void initGlobals()
 {
     GVARS.scaleDPI = GetWindowScaleDPI();
 
-    UI.cellWidth = BASE_CELL_WIDTH * GVARS.scaleDPI.x;
-    UI.cellHeight = BASE_CELL_HEIGHT * GVARS.scaleDPI.y;
-    UI.fontSize = BASE_FONT_SIZE * GVARS.scaleDPI.x;
-
     Cursor.type = MOUSE_CURSOR_DEFAULT;
 
     GVARS.players = (Players){"Player 1", "Player 2", 0, 0};
@@ -32,8 +28,13 @@ void initWindow()
 
     GVARS.scaleDPI = GetWindowScaleDPI();
 
+    UI.cellWidth = BASE_CELL_WIDTH * GVARS.scaleDPI.x;
+    UI.cellHeight = BASE_CELL_HEIGHT * GVARS.scaleDPI.y;
+    UI.fontSize = BASE_FONT_SIZE * GVARS.scaleDPI.x;
+    UI.topBarHeight = TOP_BAR_HEIGHT;
+
     Window.Width = SHEET_WIDTH * GVARS.scaleDPI.x;
-    Window.Height = (SHEET_HEIGHT * GVARS.scaleDPI.y) + TOP_BAR_HEIGHT;
+    Window.Height = (SHEET_HEIGHT * GVARS.scaleDPI.y) + UI.topBarHeight;
 
     int currentMonitor = GetCurrentMonitor();
     int monitorCount = 0;
@@ -59,8 +60,8 @@ void initWindow()
     
     TitleBar.Image = LoadImage("resources/title-bar.png");
     TitleBar.Texture = LoadTextureFromImage(TitleBar.Image);
-    TitleBar.NPatch = (NPatchInfo){(Rectangle){0, 0, 1, TOP_BAR_HEIGHT}, 0, 0, 0, 0, NPATCH_THREE_PATCH_HORIZONTAL};
-    TitleBar.Rec = (Rectangle){0, 0, Window.Width, TOP_BAR_HEIGHT};
+    TitleBar.NPatch = (NPatchInfo){(Rectangle){0, 0, 1, UI.topBarHeight}, 0, 0, 0, 0, NPATCH_THREE_PATCH_HORIZONTAL};
+    TitleBar.Rec = (Rectangle){0, 0, Window.Width, UI.topBarHeight};
 }
 
 void initButtons()
@@ -70,11 +71,11 @@ void initButtons()
         UI.buttons[i].size.x = BASE_BUTTON_SIZE;
         UI.buttons[i].size.y = BASE_BUTTON_SIZE;
     }
-    UI.buttons[BTN_EXIT].pos = (Vector2){Window.Width - BASE_BUTTON_SIZE - (BASE_BUTTON_SIZE / 2), (TOP_BAR_HEIGHT / 2) - 13};
+    UI.buttons[BTN_EXIT].pos = (Vector2){Window.Width - BASE_BUTTON_SIZE - (BASE_BUTTON_SIZE / 2), (UI.topBarHeight / 2) - 13};
     UI.buttons[BTN_EXIT].texture = LoadTextureFromImage(LoadImage("resources/x.png"));
     UI.buttons[BTN_EXIT].state = STATE_BTN_UNHIGHLIGHTED;
     SetTextureFilter(UI.buttons[BTN_EXIT].texture, TEXTURE_FILTER_BILINEAR);
-    UI.buttons[BTN_MINIMIZE].pos = (Vector2){Window.Width - (BASE_BUTTON_SIZE * 3), (TOP_BAR_HEIGHT / 2) - 13};
+    UI.buttons[BTN_MINIMIZE].pos = (Vector2){Window.Width - (BASE_BUTTON_SIZE * 3), (UI.topBarHeight / 2) - 13};
     UI.buttons[BTN_MINIMIZE].texture = LoadTextureFromImage(LoadImage("resources/minimize.png"));
     UI.buttons[BTN_MINIMIZE].state = STATE_BTN_UNHIGHLIGHTED;
     SetTextureFilter(UI.buttons[BTN_MINIMIZE].texture, TEXTURE_FILTER_BILINEAR);
@@ -130,11 +131,11 @@ void setBorderPositions()
 {
     size_t index = 0;
     for (size_t i = 0; i < ROWS; i++) {
-        UI.borders[i] = (Line){0, (UI.cellHeight * i) + TOP_BAR_HEIGHT, Window.Width, (UI.cellHeight * i) + TOP_BAR_HEIGHT};
+        UI.borders[i] = (Line){0, (UI.cellHeight * i) + UI.topBarHeight, Window.Width, (UI.cellHeight * i) + UI.topBarHeight};
         index++;
     }
     for (size_t i = 0; i < COLUMNS; i++) {
-        UI.borders[i + index] = (Line){UI.cellWidth * i, TOP_BAR_HEIGHT, UI.cellWidth * i, Window.Height};
+        UI.borders[i + index] = (Line){UI.cellWidth * i, UI.topBarHeight, UI.cellWidth * i, Window.Height};
     }
 }
 

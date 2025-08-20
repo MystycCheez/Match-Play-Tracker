@@ -28,8 +28,8 @@ int main()
 
     setBorderPositions(UI.borders);
 
-    Rectangle gradTop = {0, TOP_BAR_HEIGHT, Window.Width, UI.cellHeight};
-    Rectangle gradBot = {0, (UI.cellHeight * 21) + TOP_BAR_HEIGHT, Window.Width, UI.cellHeight};
+    Rectangle gradTop = {0, UI.topBarHeight, Window.Width, UI.cellHeight};
+    Rectangle gradBot = {0, (UI.cellHeight * 21) + UI.topBarHeight, Window.Width, UI.cellHeight};
     
     const int RefreshRate = GetMonitorRefreshRate(GetCurrentMonitor());
     SetTargetFPS(RefreshRate);
