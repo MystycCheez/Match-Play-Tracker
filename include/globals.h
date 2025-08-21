@@ -10,6 +10,7 @@ extern TitleBar_Elements TitleBar;
 extern Cursor_Elements Cursor;
 extern MouseState Mouse;
 extern KeyboardState KeyData;
-extern Cell* sheet;
+// extern Cell* Sheet.cells;
+extern Sheet_Info Sheet;
 
 #endif

@@ -153,37 +153,37 @@ bool CursorMoveDir(GapBuffer *gapStr, bool dir)
 // return value indicates if movement occurred or not
 bool selectChar(GapBuffer *gapStr, bool dir)
 {
-    if (!GVARS.selection.exists) {
-        GVARS.selection.start = gapStr->cStart;
-        GVARS.selection.end = gapStr->cStart;
-        GVARS.selection.exists = true;
+    if (!Sheet.selection.exists) {
+        Sheet.selection.start = gapStr->cStart;
+        Sheet.selection.end = gapStr->cStart;
+        Sheet.selection.exists = true;
     }
     
     if (dir == DIR_LEFT) {
         if (!cursorLeft(gapStr)) {
-            if (GVARS.selection.start == GVARS.selection.end) {Deselect();}
+            if (Sheet.selection.start == Sheet.selection.end) {Deselect();}
             return false;
-        } else if (gapStr->cStart <= GVARS.selection.start && gapStr->cStart < GVARS.selection.start) {
-            GVARS.selection.start--;
-        } else GVARS.selection.end--;
+        } else if (gapStr->cStart <= Sheet.selection.start && gapStr->cStart < Sheet.selection.start) {
+            Sheet.selection.start--;
+        } else Sheet.selection.end--;
     } else if (dir == DIR_RIGHT) {
         if (!cursorRight(gapStr)) {
-            if (GVARS.selection.start == GVARS.selection.end) {Deselect();}
+            if (Sheet.selection.start == Sheet.selection.end) {Deselect();}
             return false;
-        } else if (gapStr->cStart >= GVARS.selection.start && gapStr->cStart > GVARS.selection.end) {
-            GVARS.selection.end++;
-        } else GVARS.selection.start++;
-    } else if (GVARS.selection.start == GVARS.selection.end) Deselect();
-    if (GVARS.selection.start == GVARS.selection.end) {Deselect();}
-    // printf("start: %lld, end: %lld\n", GVARS.selection.start, GVARS.selection.end);
+        } else if (gapStr->cStart >= Sheet.selection.start && gapStr->cStart > Sheet.selection.end) {
+            Sheet.selection.end++;
+        } else Sheet.selection.start++;
+    } else if (Sheet.selection.start == Sheet.selection.end) Deselect();
+    if (Sheet.selection.start == Sheet.selection.end) {Deselect();}
+    // printf("start: %lld, end: %lld\n", Sheet.selection.start, Sheet.selection.end);
     return true;
 }
 
 void Deselect()
 {
-    GVARS.selection.exists = false;
-    GVARS.selection.start = 0;
-    GVARS.selection.end = 0;
+    Sheet.selection.exists = false;
+    Sheet.selection.start = 0;
+    Sheet.selection.end = 0;
 }
 
 void MoveCursorToIndex(GapBuffer *gapStr, size_t index)
@@ -199,9 +199,9 @@ void MoveCursorToIndex(GapBuffer *gapStr, size_t index)
 
 void DeleteSelection(GapBuffer *gapStr)
 {
-    if (!GVARS.selection.exists) return;
-    MoveCursorToIndex(gapStr, GVARS.selection.end);
-    while (gapStr->cStart > GVARS.selection.start) {
+    if (!Sheet.selection.exists) return;
+    MoveCursorToIndex(gapStr, Sheet.selection.end);
+    while (gapStr->cStart > Sheet.selection.start) {
         deleteCharAtCursor(gapStr);
     }
     Deselect();
@@ -211,7 +211,7 @@ void replaceChar(GapBuffer *gapStr, char c)
 {
     char* tmp = gapStrToStr(*gapStr, CELL_TEXT_LENGTH);
     char* tmp2 = malloc(sizeof(char) * CELL_TEXT_LENGTH); 
-    tmp2 = strcpy(tmp2, &tmp[GVARS.selection.start]);
+    tmp2 = strcpy(tmp2, &tmp[Sheet.selection.start]);
     free(tmp);
     tmp2[0] = c;
     OverwriteStr(gapStr, tmp2, 0, CELL_TEXT_LENGTH);
@@ -222,7 +222,7 @@ void CopyText(GapBuffer gapStr)
     char *copy = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     char *tmp = gapStrToStr(gapStr, CELL_TEXT_LENGTH);
     memset(copy, 0, CELL_TEXT_LENGTH);
-    strncpy(copy, tmp + GVARS.selection.start, GVARS.selection.end - GVARS.selection.start);
+    strncpy(copy, tmp + Sheet.selection.start, Sheet.selection.end - Sheet.selection.start);
     SetClipboardText(copy);
     free(tmp);
     free(copy);

@@ -20,8 +20,6 @@ int main()
 
     SetExitKey(KEY_NULL);
 
-    Vector2 TextPos = {0}; 
-
     initSheet();
 
     ExportActionTable();
@@ -52,17 +50,17 @@ int main()
         DrawRectangleGradientEx(gradBot, GRADIENT_TOP, GRADIENT_BOTTOM, GRADIENT_BOTTOM, GRADIENT_TOP);
         // Draw Cell Highlights for win/loss
         for (size_t i = 0; i < CELL_COUNT; i++)
-            DrawRectangleV(indexToXY(i), (Vector2){UI.cellWidth, UI.cellHeight}, sheet[i].highlight);
+            DrawRectangleV(indexToXY(i), (Vector2){UI.cellWidth, UI.cellHeight}, Sheet.cellList[i].highlight);
         // Draw Borders
         for (size_t i = 0; i < COLUMNS + ROWS; i++) 
             DrawLine(UI.borders[i].x1, UI.borders[i].y1, UI.borders[i].x2, UI.borders[i].y2, BORDER_COLOR);
         // Draw text highlighting
-        if (GVARS.scope == SCOPE_CELL && GVARS.selection.exists) {
+        if (GVARS.scope == SCOPE_CELL && Sheet.selection.exists) {
             DrawTextHighlight();
         }
         // Draw Text :)
         for (size_t i = 0; i < CELL_COUNT; i++) {
-            DrawTextAligned(TextPos, sheet[i], i);
+            DrawTextAligned(UI.TextPos, Sheet.cellList[i], i);
         }
         if (GVARS.scope >= SCOPE_SHEET) {
             DrawSelectionBorders();

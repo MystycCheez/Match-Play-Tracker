@@ -27,7 +27,6 @@
 |                 Ctrl + B |             Export to BBCode |             Export to BBCode |             Export to BBCode |
 |                 Ctrl + R |                              |        Reset cell text color |        Reset cell text color |
 |                  Alt + C |         Swap veto text color |         Swap veto text color |         Swap veto text color |
-|                  Alt + E |             Toggle Expansion |                              |                              |
 |             Shift + LEFT |                              |                              |                  Select char |
 |            Shift + RIGHT |                              |                              |                  Select char |
 |           Shift + DELETE |                              |                              |             Delete cell text |

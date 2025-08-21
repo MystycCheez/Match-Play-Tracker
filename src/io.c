@@ -20,9 +20,9 @@ bool loadTimes()
         return false;
     }
 
-    ClearTimes(sheet);
-    OverwriteStr(&sheet[1].gapStr, "", 0, CELL_TEXT_LENGTH);
-    OverwriteStr(&sheet[2].gapStr, "", 0, CELL_TEXT_LENGTH);
+    ClearTimes(Sheet.cellList);
+    OverwriteStr(&Sheet.cellList[1].gapStr, "", 0, CELL_TEXT_LENGTH);
+    OverwriteStr(&Sheet.cellList[2].gapStr, "", 0, CELL_TEXT_LENGTH);
 
     int c = 0;
     
@@ -31,7 +31,7 @@ bool loadTimes()
             while (c != EOF) {
                 c = fgetc(file_ptr);
                 if (c == '\n') break;
-                placeChar(&sheet[i].gapStr, (char)c);
+                placeChar(&Sheet.cellList[i].gapStr, (char)c);
             }
         }
     }
@@ -100,8 +100,8 @@ void saveTimes()
 
     for (size_t i = 1; i < CELL_COUNT - 3; i++) {
         if ((i % 3 == 2) || (i % 3 == 1)) {
-            if (strlen(sheet[i].gapStr.str) > 0) {
-                fprintf(file_ptr, "%s\n", gapStrToStr(sheet[i].gapStr, CELL_TEXT_LENGTH));
+            if (strlen(Sheet.cellList[i].gapStr.str) > 0) {
+                fprintf(file_ptr, "%s\n", gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH));
             } else {
                 fprintf(file_ptr, "\n");
             }
@@ -128,19 +128,19 @@ void ExportToBBCode()
     for (size_t i = 0; i < CELL_COUNT; i++) {
         cellText[i] = malloc(CELL_COUNT * sizeof(char));
         colorText[i] = malloc(10 * sizeof(char));
-        cellText[i] = gapStrToStr(sheet[i].gapStr, CELL_TEXT_LENGTH);
+        cellText[i] = gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH);
         if (i < 3) {
-            colorText[i] = ColorToHexText(sheet[i].color);
+            colorText[i] = ColorToHexText(Sheet.cellList[i].color);
         } else {
-            if (ColorIsEqual(sheet[i].highlight, COLOR_WIN)) {
+            if (ColorIsEqual(Sheet.cellList[i].highlight, COLOR_WIN)) {
                 colorText[i] = "limegreen";
-            } else if (ColorIsEqual(sheet[i].highlight, COLOR_LOSE)) {
+            } else if (ColorIsEqual(Sheet.cellList[i].highlight, COLOR_LOSE)) {
                 colorText[i] = "red";
             } else {
                 colorText[i] = "white";
             }
             if (GVARS.vetoFlag) {
-                if (CompareSpecialText(gapStrToStr(sheet[i].gapStr, CELL_TEXT_LENGTH)) == TEXT_VETO) {
+                if (CompareSpecialText(gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH)) == TEXT_VETO) {
                     colorText[i] = ColorToHexText(COLOR_LEVEL);
                 }
             }
@@ -195,13 +195,13 @@ void ExportToBBCode()
         "Caverns\n"
         "Cradle"
     );
-    if (strlen(sheet[CELL_COUNT - 8].gapStr.str) > 0) {
+    if (strlen(Sheet.cellList[CELL_COUNT - 8].gapStr.str) > 0) {
         fprintf(out_bb,
             "\n"
             "Aztec"
         );
     }
-    if (strlen(sheet[CELL_COUNT - 5].gapStr.str) > 0) {
+    if (strlen(Sheet.cellList[CELL_COUNT - 5].gapStr.str) > 0) {
         fprintf(out_bb,
             "\n"
             "Egypt"
@@ -242,7 +242,7 @@ void ExportToBBCode()
         "[size=14pt][b]%s - %s[/b][/size] Win at %s\n\n",
         cellText[CELL_COUNT - 2],
         cellText[CELL_COUNT - 1],
-        GVARS.level_win
+        Sheet.level_win
     );
     fprintf(out_bb,
         "Put Twitch link here\n"

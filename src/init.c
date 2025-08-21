@@ -5,16 +5,11 @@
 
 void initGlobals()
 {
-    GVARS.scaleDPI = GetWindowScaleDPI();
-
     Cursor.type = MOUSE_CURSOR_DEFAULT;
 
-    GVARS.players = (Players){"Player 1", "Player 2", 0, 0};
     GVARS.game = LEVELS_GE;
-    GVARS.selectedCellIndex = 0;
     GVARS.scope = SCOPE_SHEET;
     GVARS.shouldExit = false;
-    GVARS.level_win = NULL;
 }
 
 void initWindow()
@@ -26,15 +21,15 @@ void initWindow()
     SetTextureFilter(Window.IconTexture, TEXTURE_FILTER_BILINEAR);
     SetWindowIcon(Window.Icon);
 
-    GVARS.scaleDPI = GetWindowScaleDPI();
+    Window.scaleDPI = GetWindowScaleDPI();
 
-    UI.cellWidth = BASE_CELL_WIDTH * GVARS.scaleDPI.x;
-    UI.cellHeight = BASE_CELL_HEIGHT * GVARS.scaleDPI.y;
-    UI.fontSize = BASE_FONT_SIZE * GVARS.scaleDPI.x;
+    UI.cellWidth = BASE_CELL_WIDTH * Window.scaleDPI.x;
+    UI.cellHeight = BASE_CELL_HEIGHT * Window.scaleDPI.y;
+    UI.fontSize = BASE_FONT_SIZE * Window.scaleDPI.x;
     UI.topBarHeight = TOP_BAR_HEIGHT;
 
-    Window.Width = SHEET_WIDTH * GVARS.scaleDPI.x;
-    Window.Height = (SHEET_HEIGHT * GVARS.scaleDPI.y) + UI.topBarHeight;
+    Window.Width = SHEET_WIDTH * Window.scaleDPI.x;
+    Window.Height = (SHEET_HEIGHT * Window.scaleDPI.y) + UI.topBarHeight;
 
     Window.expand = false;
 
@@ -87,7 +82,7 @@ void setGameText()
 {
     char** levelText = loadLevelText(GVARS.game);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
-        OverwriteStr(&sheet[(i * 3) + 3].gapStr, levelText[i], 0, CELL_TEXT_LENGTH);
+        OverwriteStr(&Sheet.cellList[(i * 3) + 3].gapStr, levelText[i], 0, CELL_TEXT_LENGTH);
     }
     free(levelText);
 }
@@ -97,36 +92,44 @@ void initSheetText()
     setGameText();
     char *s1 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     char *s2 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-    sprintf(s1, "%lld", GVARS.players.s1);
-    sprintf(s2, "%lld", GVARS.players.s2);
-    placeString(&sheet[0].gapStr, "Stage", CELL_TEXT_LENGTH);
-    placeString(&sheet[CELL_COUNT - 3].gapStr, "Points", CELL_TEXT_LENGTH);
-    placeString(&sheet[1].gapStr, GVARS.players.p1, CELL_TEXT_LENGTH);
-    placeString(&sheet[2].gapStr, GVARS.players.p2, CELL_TEXT_LENGTH);
-    placeString(&sheet[CELL_COUNT - 2].gapStr, s1, CELL_TEXT_LENGTH);
-    placeString(&sheet[CELL_COUNT - 1].gapStr, s2, CELL_TEXT_LENGTH);
+    sprintf(s1, "%lld", Sheet.players.s1);
+    sprintf(s2, "%lld", Sheet.players.s2);
+    placeString(&Sheet.cellList[0].gapStr, "Stage", CELL_TEXT_LENGTH);
+    placeString(&Sheet.cellList[CELL_COUNT - 3].gapStr, "Points", CELL_TEXT_LENGTH);
+    placeString(&Sheet.cellList[1].gapStr, Sheet.players.p1, CELL_TEXT_LENGTH);
+    placeString(&Sheet.cellList[2].gapStr, Sheet.players.p2, CELL_TEXT_LENGTH);
+    placeString(&Sheet.cellList[CELL_COUNT - 2].gapStr, s1, CELL_TEXT_LENGTH);
+    placeString(&Sheet.cellList[CELL_COUNT - 1].gapStr, s2, CELL_TEXT_LENGTH);
 }
 
 void initSheet()
 {
-    sheet = malloc(sizeof(Cell) * CELL_COUNT);
+    Sheet.cellList = malloc(sizeof(Cell) * CELL_COUNT);
+    Sheet.cell = malloc(sizeof(Cell));
+
     for (size_t i = 0; i < CELL_COUNT; i++) {
-        sheet[i].gapStr = initGapStr(CELL_TEXT_LENGTH);
-        sheet[i].alignment = ALIGN_CENTER;
-        sheet[i].color = WHITE;
-        sheet[i].highlight = TRANSPARENT;
-        sheet[i].selectable = true;
+        Sheet.cellList[i].gapStr = initGapStr(CELL_TEXT_LENGTH);
+        Sheet.cellList[i].alignment = ALIGN_CENTER;
+        Sheet.cellList[i].color = WHITE;
+        Sheet.cellList[i].highlight = TRANSPARENT;
+        Sheet.cellList[i].selectable = true;
     }
-    sheet[0].selectable = false;
-    sheet[CELL_COUNT - 1].selectable = false;
-    sheet[CELL_COUNT - 2].selectable = false;
-    sheet[CELL_COUNT - 3].selectable = false;
+    Sheet.cellList[0].selectable = false;
+    Sheet.cellList[CELL_COUNT - 1].selectable = false;
+    Sheet.cellList[CELL_COUNT - 2].selectable = false;
+    Sheet.cellList[CELL_COUNT - 3].selectable = false;
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
-        sheet[3 + (i * COLUMNS)].alignment = ALIGN_LEFT;
-        sheet[3 + (i * COLUMNS)].color = COLOR_LEVEL;
-        sheet[3 + (i * COLUMNS)].selectable = false;
+        Sheet.cellList[3 + (i * COLUMNS)].alignment = ALIGN_LEFT;
+        Sheet.cellList[3 + (i * COLUMNS)].color = COLOR_LEVEL;
+        Sheet.cellList[3 + (i * COLUMNS)].selectable = false;
     }
-    initSheetText(sheet);
+    
+    Sheet.index = 0;
+    Sheet.cell = &Sheet.cellList[Sheet.index];
+    Sheet.players = (Players){"Player 1", "Player 2", 0, 0};
+    Sheet.level_win = NULL;
+
+    initSheetText(Sheet.cellList);
 }
 
 void setBorderPositions()
@@ -209,7 +212,7 @@ void initActionTable()
     ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_TAB, M_CTRL)] = A_SWAPGAME;
     ActionTable[SCOPE_OVERVIEW][GetKeyComboIndex(K_TAB, M_CTRL)] = A_SWAPGAME;
 
-    ActionTable[SCOPE_OVERVIEW][GetKeyComboIndex(K_E, M_ALT)] = A_TOGGLE_EXPANSION;
+    // ActionTable[SCOPE_OVERVIEW][GetKeyComboIndex(K_E, M_ALT)] = A_TOGGLE_EXPANSION;
 
     // Up, Down, Left, Right
     for (size_t i = K_LEFT; i < 4; i++) {

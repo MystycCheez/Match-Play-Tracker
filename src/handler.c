@@ -30,10 +30,8 @@ void MouseTitleBarHandler(CollisionMap Collision, Vector2 windowPos)
         }
         if (!(Collision.exit || Collision.minimize) && (Drag.titleBar || Drag.minimize)) {
             buttonLeft = true;
-        }
-        else buttonLeft = false;
-    }
-    else {
+        } else buttonLeft = false;
+    } else {
         Drag.titleBar = Drag.minimize = false;
     }
 
@@ -41,8 +39,7 @@ void MouseTitleBarHandler(CollisionMap Collision, Vector2 windowPos)
         if (Collision.titleBar && !(Collision.exit || Collision.minimize)) {
             windowDrag = true;
             dragOffset = Mouse.pos;
-        }
-        else windowDrag = false;
+        } else windowDrag = false;
     }
     if (windowDrag) {
         windowPos.x += Mouse.pos.x - dragOffset.x;
@@ -66,19 +63,19 @@ void MouseSheetHandler(CollisionMap Collision)
 {
     if (!Mouse.pressed) return;
     if (Collision.sheet) {
-        if (xyToIndex(Mouse.pos) == GVARS.selectedCellIndex) {
+        if (xyToIndex(Mouse.pos) == Sheet.index) {
             GVARS.scope = SCOPE_CELL;
-        }
-        else {
+        } else {
             CellOverwriteHandler();
             UpdateScores();
-            GVARS.selectedCellIndex = xyToIndex(Mouse.pos);
-            GVARS.scope = sheet[GVARS.selectedCellIndex].selectable ? SCOPE_SHEET : SCOPE_OVERVIEW;
-            GVARS.selectedCellIndex = GVARS.scope > SCOPE_OVERVIEW ? GVARS.selectedCellIndex : 0;
+            updateSheetIndex(xyToIndex(Mouse.pos));
+            GVARS.scope = Sheet.cell->selectable ? SCOPE_SHEET : SCOPE_OVERVIEW;
+            size_t newIndex = GVARS.scope > SCOPE_OVERVIEW ? Sheet.index : 0;
+            updateSheetIndex(newIndex);
         }
     } else {
         GVARS.scope = SCOPE_OVERVIEW;
-        GVARS.selectedCellIndex = 0;
+        updateSheetIndex(0);
     }
 }
 
@@ -110,62 +107,62 @@ void MouseHandler()
 // Holy shit this is an eyesore
 void EnterNavigationHandler()
 {
-    if (GVARS.selectedCellIndex == CELL_COUNT - 5) {
-        if (sheet[GVARS.selectedCellIndex + 1].gapStr.str[0] != 0) {
-            GVARS.selectedCellIndex = 0;
+    if (Sheet.index == CELL_COUNT - 5) {
+        if (Sheet.cellList[Sheet.index + 1].gapStr.str[0] != 0) {
+            updateSheetIndex(0);
             GVARS.scope = SCOPE_OVERVIEW;
-        } else GVARS.selectedCellIndex = GVARS.selectedCellIndex + 1;
+        } else updateSheetIndex(Sheet.index + 1);
         return;
-    } else if (GVARS.selectedCellIndex == CELL_COUNT - 4) {
-        if (sheet[GVARS.selectedCellIndex - 1].gapStr.str[0] != 0) {
-            GVARS.selectedCellIndex = 0;
+    } else if (Sheet.index == CELL_COUNT - 4) {
+        if (Sheet.cellList[Sheet.index - 1].gapStr.str[0] != 0) {
+            updateSheetIndex(0);
             GVARS.scope = SCOPE_OVERVIEW;
-        } else GVARS.selectedCellIndex = GVARS.selectedCellIndex - 1;
+        } else updateSheetIndex(Sheet.index - 1);
         return;
     } 
-    if (GVARS.selectedCellIndex % 3 == 2) {
-        if (sheet[GVARS.selectedCellIndex - 1].gapStr.str[0] == 0) {
-            GVARS.selectedCellIndex = GVARS.selectedCellIndex - 1;
-        } else GVARS.selectedCellIndex = GVARS.selectedCellIndex + 2;
-    } else if (GVARS.selectedCellIndex % 3 == 1) {
-        if (sheet[GVARS.selectedCellIndex + 1].gapStr.str[0] == 0) {
-            GVARS.selectedCellIndex = GVARS.selectedCellIndex + 1;
-        } else GVARS.selectedCellIndex = GVARS.selectedCellIndex + 3;
+    if (Sheet.index % 3 == 2) {
+        if (Sheet.cellList[Sheet.index - 1].gapStr.str[0] == 0) {
+            updateSheetIndex(Sheet.index - 1);
+        } else updateSheetIndex(Sheet.index + 2);
+    } else if (Sheet.index % 3 == 1) {
+        if (Sheet.cellList[Sheet.index + 1].gapStr.str[0] == 0) {
+            updateSheetIndex(Sheet.index + 1);
+        } else updateSheetIndex(Sheet.index + 3);
     }
 }
 
 void CellOverwriteHandler()
 {
-    if (gapStrToStr(sheet[GVARS.selectedCellIndex].gapStr, CELL_TEXT_LENGTH)[0] == '#') {
-        setCellTextColor(gapStrToStr(sheet[GVARS.selectedCellIndex].gapStr, CELL_TEXT_LENGTH));
+    if (gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH)[0] == '#') {
+        setCellTextColor(gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH));
     }
-    if (GVARS.selectedCellIndex > 2 && GVARS.selectedCellIndex < CELL_COUNT - 3) {
-        char *filteredText = filterCellText(sheet[GVARS.selectedCellIndex].gapStr.str);
-        OverwriteStr(&sheet[GVARS.selectedCellIndex].gapStr, filteredText, 0, CELL_TEXT_LENGTH);
+    if (Sheet.index > 2 && Sheet.index < CELL_COUNT - 3) {
+        char *filteredText = filterCellText(Sheet.cell->gapStr.str);
+        OverwriteStr(&Sheet.cell->gapStr, filteredText, 0, CELL_TEXT_LENGTH);
     }
 }
 
 void CellInputHandler()
 {
     if (GVARS.scope == SCOPE_OVERVIEW) return;
-    if (GVARS.selectedCellIndex == 0) return;
+    if (Sheet.index == 0) return;
     int key_char = GetCharPressed();
 
     while (key_char > 0) {
         if ((key_char >= 32) && (key_char <= 125)) {
             if (GVARS.scope == SCOPE_CELL) {
-                if (GVARS.selection.exists) {
-                    DeleteSelection(&sheet[GVARS.selectedCellIndex].gapStr);
-                    placeChar(&sheet[GVARS.selectedCellIndex].gapStr, (char)key_char);
+                if (Sheet.selection.exists) {
+                    DeleteSelection(&Sheet.cell->gapStr);
+                    placeChar(&Sheet.cell->gapStr, (char)key_char);
                     Deselect();
-                } else placeChar(&sheet[GVARS.selectedCellIndex].gapStr, (char)key_char);
+                } else placeChar(&Sheet.cell->gapStr, (char)key_char);
             } else {
                 Deselect();
                 GVARS.scope = SCOPE_CELL;
-                OverwriteStr(&sheet[GVARS.selectedCellIndex].gapStr, "\0", 0, CELL_TEXT_LENGTH);
+                OverwriteStr(&Sheet.cell->gapStr, "\0", 0, CELL_TEXT_LENGTH);
                 CellOverwriteHandler();
                 UpdateScores();
-                placeChar(&sheet[GVARS.selectedCellIndex].gapStr, (char)key_char);
+                placeChar(&Sheet.cell->gapStr, (char)key_char);
             }
         }
         key_char = GetCharPressed();
@@ -181,7 +178,11 @@ void InputHandler()
     KeyData.shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
     KeyData.alt = IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT);
 
-    Action CurrentAction = ActionTable[GVARS.scope][GetKeyComboIndex(GetKeyIndex(KeyData.pressed), GetModifier())];
+    // The following was originally one line of code
+    // Now expanded for clarity
+    int KeyIndex = GetKeyIndex(KeyData.pressed);
+    int KeyCombo = GetKeyComboIndex(KeyIndex, GetModifier());
+    Action CurrentAction = ActionTable[GVARS.scope][KeyCombo];
     Action_Function[CurrentAction]();
 
     if (CurrentAction != A_DONOTHING) {
@@ -195,14 +196,14 @@ void CursorHandler()
 {
     if (Cursor.type == MOUSE_CURSOR_DEFAULT) {
             if (GVARS.scope == SCOPE_CELL) {
-                if (CheckCollisionPointRec(Mouse.pos, getCellRect(GVARS.selectedCellIndex))) {
+                if (CheckCollisionPointRec(Mouse.pos, getCellRect(Sheet.index))) {
                     SetMouseCursor(MOUSE_CURSOR_IBEAM);
                     Cursor.type = MOUSE_CURSOR_IBEAM;
                 }
             }
         } else if (
             (GVARS.scope != SCOPE_CELL) || 
-            (!CheckCollisionPointRec(Mouse.pos, getCellRect(GVARS.selectedCellIndex)))
+            (!CheckCollisionPointRec(Mouse.pos, getCellRect(Sheet.index)))
         ) {
             SetMouseCursor(MOUSE_CURSOR_DEFAULT);
             Cursor.type = MOUSE_CURSOR_DEFAULT;

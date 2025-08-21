@@ -10,6 +10,7 @@ TitleBar_Elements TitleBar;
 Cursor_Elements Cursor;
 MouseState Mouse;
 KeyboardState KeyData;
-Cell* sheet;
+// Cell* Sheet.cells;
+Sheet_Info Sheet;
 
 #endif

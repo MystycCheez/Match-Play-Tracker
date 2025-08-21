@@ -23,19 +23,19 @@ typedef struct MouseState {
     Vector2 pos;
 } MouseState;
 
-typedef struct CollisionMap {
-    bool exit;
-    bool minimize;
-    bool titleBar;
-    bool sheet;
-} CollisionMap;
-
 typedef struct KeyboardState {
     int pressed;
     bool shift;
     bool ctrl;
     bool alt;
 } KeyboardState;
+
+typedef struct CollisionMap {
+    bool exit;
+    bool minimize;
+    bool titleBar;
+    bool sheet;
+} CollisionMap;
 
 // 3 components: str, cStart, cEnd
 typedef struct GapBuffer {
@@ -54,9 +54,9 @@ typedef struct Selection {
 // 5 components: gapStr, color, highlight, alignment, selectable
 typedef struct Cell {
     GapBuffer gapStr;
+    Alignment alignment : 2;
     Color color;
     Color highlight;
-    Alignment alignment : 2;
     bool selectable;
 } Cell;
 
@@ -82,18 +82,23 @@ typedef struct Button {
 } Button;
 
 typedef struct Globals {
-    Players players;
-    Vector2 scaleDPI;
     Specials specials;
-    Selection selection;
     Scope_Level scope;
-    Shader shader;
     bool game;
-    size_t selectedCellIndex;
-    bool shouldExit;
-    char* level_win;
     bool vetoFlag;
+    bool shouldExit;
 } Globals;
+
+// Consider renaming struct
+// 6 components: cellList, cell, players, selection, index, level_win
+typedef struct Sheet_Info {
+    Cell* cellList;
+    Cell* cell;
+    size_t index;
+    Selection selection; // No need for more than one selection at a time
+    Players players;
+    char* level_win;
+} Sheet_Info;
 
 typedef struct UI_Elements {
     Line borders[COLUMNS + ROWS];
@@ -103,9 +108,11 @@ typedef struct UI_Elements {
     float fontSize;
     int topBarHeight;
     Font font;
+    Vector2 TextPos;
 } UI_Elements;
 
 typedef struct Window_Elements {
+    Vector2 scaleDPI;
     float Width;
     float Height;
     Image Icon;

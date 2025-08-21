@@ -7,12 +7,12 @@ void ClearTimes()
 {
     for (size_t i = 1; i < CELL_COUNT - 3; i++) {
         if ((i % 3 == 2) || (i % 3 == 1)) {
-            OverwriteStr(&sheet[i].gapStr, "\0", 0, CELL_TEXT_LENGTH);
-            CellOverwriteHandler(sheet, i);
+            OverwriteStr(&Sheet.cellList[i].gapStr, "\0", 0, CELL_TEXT_LENGTH);
+            CellOverwriteHandler(Sheet.cellList, i);
         }
     }
-    OverwriteStr(&sheet[1].gapStr, GVARS.players.p1, 0, CELL_TEXT_LENGTH);
-    OverwriteStr(&sheet[2].gapStr, GVARS.players.p2, 0, CELL_TEXT_LENGTH);
+    OverwriteStr(&Sheet.cellList[1].gapStr, Sheet.players.p1, 0, CELL_TEXT_LENGTH);
+    OverwriteStr(&Sheet.cellList[2].gapStr, Sheet.players.p2, 0, CELL_TEXT_LENGTH);
 }
 
 // Returns TEXT_VETO or TEXT_DNF if found
@@ -35,9 +35,9 @@ Text_Type CompareSpecialText(char *text)
 
 size_t getOppositeCellIndex()
 {
-    if (GVARS.selectedCellIndex % 3 == 1) {
-        return GVARS.selectedCellIndex + 1;
-    } else return GVARS.selectedCellIndex - 1;
+    if (Sheet.index % 3 == 1) {
+        return Sheet.index + 1;
+    } else return Sheet.index - 1;
 }
 
 // TODO: check if this can utilize xy/cr functions
@@ -94,7 +94,7 @@ size_t countChars(char *text, char c, size_t len)
 
 void setCellTextColor(char* text)
 {
-    sheet[GVARS.selectedCellIndex].color = HexToColor(text);
+    Sheet.cell->color = HexToColor(text);
 }
 
 // Filters string to be converted into time / Outputs "mm:ss" or "m:ss"
@@ -178,32 +178,32 @@ Int2 CompareTimes(size_t row)
     size_t cellL = crToIndex((Vector2){1, (float)row});
     size_t cellR = crToIndex((Vector2){2, (float)row});
 
-    Text_Type specialL = CompareSpecialText(sheet[cellL].gapStr.str);
-    Text_Type specialR = CompareSpecialText(sheet[cellR].gapStr.str);
+    Text_Type specialL = CompareSpecialText(Sheet.cellList[cellL].gapStr.str);
+    Text_Type specialR = CompareSpecialText(Sheet.cellList[cellR].gapStr.str);
 
     size_t timeL = -1;
     size_t timeR = -1;
-    if (specialL == -1) timeL = timeToSecs(sheet[cellL].gapStr.str);
-    if (specialR == -1) timeR = timeToSecs(sheet[cellR].gapStr.str);
+    if (specialL == -1) timeL = timeToSecs(Sheet.cellList[cellL].gapStr.str);
+    if (specialR == -1) timeR = timeToSecs(Sheet.cellList[cellR].gapStr.str);
 
-    if (sheet[cellL].gapStr.str[0] == 0 || sheet[cellR].gapStr.str[0] == 0 || specialL == TEXT_VETO || specialR == TEXT_VETO) {
-        sheet[cellL].highlight = TRANSPARENT;
-        sheet[cellR].highlight = TRANSPARENT;
+    if (Sheet.cellList[cellL].gapStr.str[0] == 0 || Sheet.cellList[cellR].gapStr.str[0] == 0 || specialL == TEXT_VETO || specialR == TEXT_VETO) {
+        Sheet.cellList[cellL].highlight = TRANSPARENT;
+        Sheet.cellList[cellR].highlight = TRANSPARENT;
         return (Int2){-1, -1}; // Indicates Veto
     }
     if ((timeL == timeR) || (specialL == TEXT_DNF && specialR == TEXT_DNF)) {
-        sheet[cellL].highlight = TRANSPARENT;
-        sheet[cellR].highlight = TRANSPARENT;
+        Sheet.cellList[cellL].highlight = TRANSPARENT;
+        Sheet.cellList[cellR].highlight = TRANSPARENT;
         return (Int2){0, 0}; // Indicates Tie
     }
     if ((timeL < timeR) || (specialR == TEXT_DNF)) { // Why doesn't this work????
-        sheet[cellL].highlight = COLOR_WIN;
-        sheet[cellR].highlight = COLOR_LOSE;
+        Sheet.cellList[cellL].highlight = COLOR_WIN;
+        Sheet.cellList[cellR].highlight = COLOR_LOSE;
         return (Int2){1, 0};
     }
     if ((timeL > timeR) || (specialL == TEXT_DNF)) {
-        sheet[cellL].highlight = COLOR_LOSE;
-        sheet[cellR].highlight = COLOR_WIN;
+        Sheet.cellList[cellL].highlight = COLOR_LOSE;
+        Sheet.cellList[cellR].highlight = COLOR_WIN;
         return (Int2){0, 1};
     }
     // TODO: player gets WR as time and is highlighted GOLD (unlikely, but would like this feature) - UNTIEDS too
@@ -217,8 +217,8 @@ void UpdateScores()
 {
     size_t tieCounter = 0;
     bool win_set = false;
-    OverwriteStr(&sheet[CELL_COUNT - 2].gapStr, "0", 0, CELL_TEXT_LENGTH);
-    OverwriteStr(&sheet[CELL_COUNT - 1].gapStr, "0", 0, CELL_TEXT_LENGTH);
+    OverwriteStr(&Sheet.cellList[CELL_COUNT - 2].gapStr, "0", 0, CELL_TEXT_LENGTH);
+    OverwriteStr(&Sheet.cellList[CELL_COUNT - 1].gapStr, "0", 0, CELL_TEXT_LENGTH);
     Int2 *wins = malloc(sizeof(Int2) * LEVEL_COUNT);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
         wins[i] = CompareTimes(i + 1);
@@ -226,20 +226,20 @@ void UpdateScores()
             tieCounter++;
         }
         if (wins[i].a > 0 && tieCounter > 0) {
-            OverwriteStr(&sheet[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(sheet[CELL_COUNT - 2].gapStr.str) + tieCounter), 0, CELL_TEXT_LENGTH);
+            OverwriteStr(&Sheet.cellList[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(Sheet.cellList[CELL_COUNT - 2].gapStr.str) + tieCounter), 0, CELL_TEXT_LENGTH);
             tieCounter = 0;
         }
         else if (wins[i].b > 0 && tieCounter > 0) {
-            OverwriteStr(&sheet[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(sheet[CELL_COUNT - 1].gapStr.str) + tieCounter), 0, CELL_TEXT_LENGTH);
+            OverwriteStr(&Sheet.cellList[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(Sheet.cellList[CELL_COUNT - 1].gapStr.str) + tieCounter), 0, CELL_TEXT_LENGTH);
             tieCounter = 0;
         }
         else if (wins[i].a > 0 || wins[i].b > 0) {
-            OverwriteStr(&sheet[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(sheet[CELL_COUNT - 2].gapStr.str)), 0, CELL_TEXT_LENGTH);
-            OverwriteStr(&sheet[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(sheet[CELL_COUNT - 1].gapStr.str)), 0, CELL_TEXT_LENGTH);
+            OverwriteStr(&Sheet.cellList[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(Sheet.cellList[CELL_COUNT - 2].gapStr.str)), 0, CELL_TEXT_LENGTH);
+            OverwriteStr(&Sheet.cellList[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(Sheet.cellList[CELL_COUNT - 1].gapStr.str)), 0, CELL_TEXT_LENGTH);
         }
         if (!win_set) {
-            if ((atoi(gapStrToStr(sheet[CELL_COUNT - 1].gapStr, CELL_TEXT_LENGTH)) >= 9) || (atoi(gapStrToStr(sheet[CELL_COUNT - 2].gapStr, CELL_TEXT_LENGTH)) >= 9)) {
-                GVARS.level_win = gapStrToStr(sheet[crToIndex((Vector2){0, i + 1})].gapStr, CELL_TEXT_LENGTH);
+            if ((atoi(gapStrToStr(Sheet.cellList[CELL_COUNT - 1].gapStr, CELL_TEXT_LENGTH)) >= 9) || (atoi(gapStrToStr(Sheet.cellList[CELL_COUNT - 2].gapStr, CELL_TEXT_LENGTH)) >= 9)) {
+                Sheet.level_win = gapStrToStr(Sheet.cellList[crToIndex((Vector2){0, i + 1})].gapStr, CELL_TEXT_LENGTH);
                 win_set = true;
             }
         }
@@ -320,6 +320,12 @@ char* i_toStr(int num)
     char* str = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     sprintf(str, "%d", num);
     return str;
+}
+
+void updateSheetIndex(size_t newIndex)
+{
+    Sheet.index = newIndex;
+    Sheet.cell = &Sheet.cellList[Sheet.index];
 }
 
 #endif
