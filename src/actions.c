@@ -12,19 +12,16 @@ void A_DoNothing()
 
 void A_ScopeDecrease()
 {
-    
     if (GVARS.scope > 0) GVARS.scope -= 1;
 }
 
 void A_SelectChar()
 {
-    
     selectChar(&Sheet.cell->gapStr, getMoveDir());
 }
 
 void A_SelectAll()
 {
-    
     A_MoveCursorToStart();
     while (selectChar(&Sheet.cell->gapStr, DIR_RIGHT)) {
         A_DoNothing();
@@ -33,7 +30,6 @@ void A_SelectAll()
 
 void A_SelectAllAtCursorTowardsDir()
 {
-    
     bool dir = getMoveDir();
 
     if (Sheet.selection.exists) {
@@ -62,34 +58,29 @@ void A_SelectAllAtCursorTowardsDir()
 
 void A_MoveCursor()
 {
-    
     CursorMoveDir(&Sheet.cell->gapStr, getMoveDir());
     Deselect();
 }
 
 void A_MoveCursorByToken()
 {
-    
     assert(!"TODO: A_MoveCursor_Token");
 }
 
 void A_MoveCursorToStart()
 {
-    
     MoveCursorToIndex(&Sheet.cell->gapStr, 0);
     Deselect();
 }
 
 void A_MoveCursorToEnd()
 {
-    
     MoveCursorToIndex(&Sheet.cell->gapStr, strlen(gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH)));
     Deselect();
 }
 
 void A_LoadTimes()
 {
-    
     if (loadTimes()) {
         UpdateScores();
         printf("Loaded times from times/times.txt\n");
@@ -98,14 +89,12 @@ void A_LoadTimes()
 
 void A_SaveTimes()
 {
-    
     saveTimes();
     printf("Saved times to times/times.txt\n");
 }
 
 void A_ExportTimes()
 {
-    
     ExportToBBCode();
     printf("Exported to BBCode\n");
     printf("Copied to clipboard\n");
@@ -113,7 +102,6 @@ void A_ExportTimes()
 
 void A_ClearTimes()
 {
-    
     ClearTimes();
     UpdateScores();
     printf("Sheet Cleared\n");
@@ -121,7 +109,6 @@ void A_ClearTimes()
 
 void A_Deselect_Or_Undo_Backout()
 {
-    
     if (Sheet.selection.exists) {
         Deselect();
     } else {
@@ -132,7 +119,6 @@ void A_Deselect_Or_Undo_Backout()
 
 void A_Overwrite_UpdateScore()
 {
-    
     CellOverwriteHandler();
     A_NavigateToNextCell();
     UpdateScores();
@@ -144,19 +130,16 @@ void A_Overwrite_UpdateScore()
 
 void A_NavigateToNextCell()
 {
-    
     EnterNavigationHandler();
 }
 
 void A_Copy()
 {
-    
     CopyText(Sheet.cell->gapStr);
 }
 
 void A_Copy_All()
 {
-    
     A_SelectAll();
     A_Copy();
     Deselect();
@@ -164,14 +147,12 @@ void A_Copy_All()
 
 void A_Cut()
 {
-    
     CopyText(Sheet.cell->gapStr);
     DeleteSelection(&Sheet.cell->gapStr);
 }
 
 void A_Cut_All()
 {
-    
     A_SelectAll();
     A_Copy();
     Deselect();
@@ -180,7 +161,6 @@ void A_Cut_All()
 
 void A_Paste()
 {
-    
     DeleteSelection(&Sheet.cell->gapStr);
     placeString(&Sheet.cell->gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
     Deselect();
@@ -188,7 +168,6 @@ void A_Paste()
 
 void A_PasteIntoCell()
 {
-        
     A_DeleteCellText();
     placeString(&Sheet.cell->gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
     GVARS.scope = SCOPE_CELL;
@@ -196,7 +175,6 @@ void A_PasteIntoCell()
 
 void A_DeleteCellText()
 {
-    
     OverwriteStr(&Sheet.cell->gapStr, "\0", 0, CELL_TEXT_LENGTH);
     CellOverwriteHandler();
     UpdateScores();
@@ -204,7 +182,6 @@ void A_DeleteCellText()
 
 void A_DeleteCellTextAndEnterInto()
 {
-    
     OverwriteStr(&Sheet.cell->gapStr, "\0", 0, CELL_TEXT_LENGTH);
     CellOverwriteHandler();
     UpdateScores();
@@ -213,49 +190,50 @@ void A_DeleteCellTextAndEnterInto()
 
 void A_DeleteSelection()
 {
-    
     DeleteSelection(&Sheet.cell->gapStr);
     Deselect();
 }
 
 void A_DeleteChar()
 {
-    
     if (Sheet.selection.exists) A_DeleteSelection();
     deleteCharAtCursor(&Sheet.cell->gapStr);
 }
 
 void A_NavigateLeft()
 {
-    
-    if (Sheet.index % 3 == 2)
-    updateSheetIndex(Sheet.index - 1);
+    if (
+        (Sheet.cellList[Sheet.index - 1].selectable == true) &&
+        (Sheet.index % 3 >= 1)
+    ) updateSheetIndex(Sheet.index - 1);
 }
 
 void A_NavigateRight()
 {
-    
-    if (Sheet.index % 3 == 1) 
-    updateSheetIndex(Sheet.index + 1);
+    if (
+        (Sheet.cellList[Sheet.index + 1].selectable == true) &&
+        (Sheet.index % 3 <= 1) 
+    ) updateSheetIndex(Sheet.index + 1);
 }
 
 void A_NavigateUp()
 {
-    
-    if (Sheet.index < 3) return;
-    updateSheetIndex(Sheet.index - 3);
+    if (
+        (Sheet.cellList[Sheet.index - 3].selectable == true) &&
+        (Sheet.index >= 3)
+    ) updateSheetIndex(Sheet.index - 3);
 }
 
 void A_NavigateDown()
 {
-    
-    if (Sheet.index > CELL_COUNT - 6) return;
-    updateSheetIndex(Sheet.index + 3);
+    if (
+        (Sheet.cellList[Sheet.index + 3].selectable == true) &&
+        (Sheet.index <= CELL_COUNT - 6)
+    ) updateSheetIndex(Sheet.index + 3);
 }
 
 void A_Delete()
 {
-    
     if (Sheet.selection.exists) {
         A_DeleteSelection();
     } else A_DeleteChar();
@@ -263,7 +241,6 @@ void A_Delete()
 
 void A_SwapVetoColor()
 {
-    
     GVARS.vetoFlag = !GVARS.vetoFlag;
     for (size_t i = 4; i < LEVEL_COUNT * 2; i++) {
         if (!(i % 3 == 0)) {
@@ -278,20 +255,17 @@ void A_SwapVetoColor()
 
 void A_ResetTextColor()
 {
-    
     Sheet.cell->color = WHITE;
 }
 
 void A_SwapGameText()
 {
-    
     GVARS.game = !GVARS.game;
     setGameText();
 }
 
 void A_ToggleExpansion()
 {
-    
     Window.expand = !Window.expand;
     if (Window.expand) {
         Window.Height += BASE_CELL_HEIGHT * 2 * Window.scaleDPI.y;

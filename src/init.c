@@ -114,15 +114,15 @@ void initSheet()
         Sheet.cellList[i].highlight = TRANSPARENT;
         Sheet.cellList[i].selectable = true;
     }
+    for (size_t i = 0; i < LEVEL_COUNT; i++) {
+        Sheet.cellList[3 + (i * COLUMNS)].alignment = ALIGN_LEFT;
+        Sheet.cellList[3 + (i * COLUMNS)].color = COLOR_LEVEL;
+        Sheet.cellList[3 + (i * COLUMNS)].selectable = true;
+    }
     Sheet.cellList[0].selectable = false;
     Sheet.cellList[CELL_COUNT - 1].selectable = false;
     Sheet.cellList[CELL_COUNT - 2].selectable = false;
     Sheet.cellList[CELL_COUNT - 3].selectable = false;
-    for (size_t i = 0; i < LEVEL_COUNT; i++) {
-        Sheet.cellList[3 + (i * COLUMNS)].alignment = ALIGN_LEFT;
-        Sheet.cellList[3 + (i * COLUMNS)].color = COLOR_LEVEL;
-        Sheet.cellList[3 + (i * COLUMNS)].selectable = false;
-    }
     
     Sheet.index = 0;
     Sheet.cell = &Sheet.cellList[Sheet.index];

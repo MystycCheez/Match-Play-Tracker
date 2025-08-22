@@ -63,17 +63,21 @@ void MouseSheetHandler(CollisionMap Collision)
 {
     if (!Mouse.pressed) return;
     if (Collision.sheet) {
-        if (xyToIndex(Mouse.pos) == Sheet.index) {
-            GVARS.scope = SCOPE_CELL;
-        } else {
-            CellOverwriteHandler();
-            UpdateScores();
-            updateSheetIndex(xyToIndex(Mouse.pos));
-            GVARS.scope = Sheet.cell->selectable ? SCOPE_SHEET : SCOPE_OVERVIEW;
-            size_t newIndex = GVARS.scope > SCOPE_OVERVIEW ? Sheet.index : 0;
-            updateSheetIndex(newIndex);
-        }
+        size_t index = xyToIndex(Mouse.pos);
+        if (Sheet.cellList[index].selectable) {
+            if (index == Sheet.index) {
+                GVARS.scope = SCOPE_CELL;
+            } else {
+                GVARS.scope = SCOPE_SHEET;
+                if ((Sheet.index % 3 != 0) && (Sheet.index > 3)) {
+                    CellOverwriteHandler();
+                    UpdateScores();
+                }
+                updateSheetIndex(index);
+            }
+        } else goto reset;
     } else {
+        reset:
         GVARS.scope = SCOPE_OVERVIEW;
         updateSheetIndex(0);
     }
@@ -94,29 +98,28 @@ void MouseHandler()
         CheckCollisionPointRec(Mouse.pos, (Rectangle){0, 0, Window.Width, UI.topBarHeight}),
         CheckCollisionPointRec(Mouse.pos, 
             (Rectangle){
-                UI.cellWidth, 
+                0, 
                 UI.topBarHeight, 
-                UI.cellWidth * 2, 
-                Window.Height - UI.topBarHeight
+                UI.cellWidth * 3, 
+                UI.cellHeight * ROWS
             })
     };
     MouseTitleBarHandler(Collision, windowPos);
     MouseSheetHandler(Collision);
 }
 
-// Holy shit this is an eyesore
 void EnterNavigationHandler()
 {
     if (Sheet.index == CELL_COUNT - 5) {
         if (Sheet.cellList[Sheet.index + 1].gapStr.str[0] != 0) {
-            updateSheetIndex(0);
             GVARS.scope = SCOPE_OVERVIEW;
+            updateSheetIndex(0);
         } else updateSheetIndex(Sheet.index + 1);
         return;
     } else if (Sheet.index == CELL_COUNT - 4) {
         if (Sheet.cellList[Sheet.index - 1].gapStr.str[0] != 0) {
-            updateSheetIndex(0);
             GVARS.scope = SCOPE_OVERVIEW;
+            updateSheetIndex(0);
         } else updateSheetIndex(Sheet.index - 1);
         return;
     } 
@@ -146,9 +149,9 @@ void CellInputHandler()
 {
     if (GVARS.scope == SCOPE_OVERVIEW) return;
     if (Sheet.index == 0) return;
-    int key_char = GetCharPressed();
+    int key_char = 0;
 
-    while (key_char > 0) {
+    while ((key_char = GetCharPressed()) > 0) {
         if ((key_char >= 32) && (key_char <= 125)) {
             if (GVARS.scope == SCOPE_CELL) {
                 if (Sheet.selection.exists) {
@@ -165,7 +168,6 @@ void CellInputHandler()
                 placeChar(&Sheet.cell->gapStr, (char)key_char);
             }
         }
-        key_char = GetCharPressed();
     }
 }
 
@@ -195,19 +197,19 @@ void InputHandler()
 void CursorHandler()
 {
     if (Cursor.type == MOUSE_CURSOR_DEFAULT) {
-            if (GVARS.scope == SCOPE_CELL) {
-                if (CheckCollisionPointRec(Mouse.pos, getCellRect(Sheet.index))) {
-                    SetMouseCursor(MOUSE_CURSOR_IBEAM);
-                    Cursor.type = MOUSE_CURSOR_IBEAM;
-                }
+        if (GVARS.scope == SCOPE_CELL) {
+            if (CheckCollisionPointRec(Mouse.pos, getCellRect(Sheet.index))) {
+                SetMouseCursor(MOUSE_CURSOR_IBEAM);
+                Cursor.type = MOUSE_CURSOR_IBEAM;
             }
-        } else if (
-            (GVARS.scope != SCOPE_CELL) || 
-            (!CheckCollisionPointRec(Mouse.pos, getCellRect(Sheet.index)))
-        ) {
-            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-            Cursor.type = MOUSE_CURSOR_DEFAULT;
-        } 
+        }
+    } else if (
+        (GVARS.scope != SCOPE_CELL) || 
+        (!CheckCollisionPointRec(Mouse.pos, getCellRect(Sheet.index)))
+    ) {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+        Cursor.type = MOUSE_CURSOR_DEFAULT;
+    } 
 }
 
 #endif
