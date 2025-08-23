@@ -119,9 +119,13 @@ void A_Deselect_Or_Undo_Backout()
 
 void A_Overwrite_UpdateScore()
 {
-    CellOverwriteHandler();
+    if (Sheet.index % 3 == 0) {
+
+    } else {
+        CellOverwriteHandler();
+        UpdateScores();
+    }
     A_NavigateToNextCell();
-    UpdateScores();
     A_ScopeDecrease();
     if (Sheet.index == 0) {
         GVARS.scope = SCOPE_OVERVIEW;
@@ -255,7 +259,11 @@ void A_SwapVetoColor()
 
 void A_ResetTextColor()
 {
-    Sheet.cell->color = WHITE;
+    if (Sheet.index % 3 == 0) {
+        Sheet.cell->color = COLOR_LEVEL;
+    } else {
+        Sheet.cell->color = WHITE;
+    }
 }
 
 void A_SwapGameText()
@@ -273,6 +281,12 @@ void A_ToggleExpansion()
         Window.Height -= BASE_CELL_HEIGHT * 2 * Window.scaleDPI.y;
     }
     SetWindowSize(Window.Width, Window.Height);
+}
+
+void A_ReloadGameText()
+{
+    setGameText();
+    unselectCells();
 }
 
 // Action function pointer list

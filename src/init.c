@@ -59,6 +59,9 @@ void initWindow()
     TitleBar.Texture = LoadTextureFromImage(TitleBar.Image);
     TitleBar.NPatch = (NPatchInfo){(Rectangle){0, 0, 1, UI.topBarHeight}, 0, 0, 0, 0, NPATCH_THREE_PATCH_HORIZONTAL};
     TitleBar.Rec = (Rectangle){0, 0, Window.Width, UI.topBarHeight};
+
+    UnloadImage(Window.Icon);
+    UnloadImage(TitleBar.Image);
 }
 
 void initButtons()
@@ -161,6 +164,7 @@ void initActionTable()
         ActionTable[scope][GetKeyComboIndex(K_D, M_CTRL)] = A_CLEARTIMES;
         ActionTable[scope][GetKeyComboIndex(K_ESCAPE, M_NONE)] = A_SCOPEDECREASE;
         ActionTable[scope][GetKeyComboIndex(K_C, M_ALT)] = A_SWAPVETOCOLOR;
+        ActionTable[scope][GetKeyComboIndex(K_R, M_ALT)] = A_RELOAD_GAME_TEXT;
     }
 
     ActionTable[SCOPE_SHEET][GetKeyComboIndex(K_ENTER, M_NONE)] = A_NAVIGATETONEXTCELL;

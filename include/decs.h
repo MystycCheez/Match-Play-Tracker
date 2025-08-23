@@ -49,6 +49,8 @@ Color HexToColor(char* text);
 void chrswap(char* ptr1, char* ptr2);
 char* i_toStr(int num);
 void updateSheetIndex(size_t newIndex);
+void CleanUp();
+void unselectCells();
 
 // gap_buffer.c
 GapBuffer initGapStr(size_t len);

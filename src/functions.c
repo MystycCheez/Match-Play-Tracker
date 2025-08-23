@@ -328,4 +328,19 @@ void updateSheetIndex(size_t newIndex)
     Sheet.cell = &Sheet.cellList[Sheet.index];
 }
 
+void CleanUp()
+{
+    UnloadFont(UI.font);
+    UnloadTexture(TitleBar.Texture);
+    for (size_t i = 0; i < 2; i++) {
+        UnloadTexture(UI.buttons[i].texture);
+    }   
+}
+
+void unselectCells()
+{
+    GVARS.scope = SCOPE_OVERVIEW;
+    updateSheetIndex(0);
+}
+
 #endif

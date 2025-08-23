@@ -75,11 +75,9 @@ void MouseSheetHandler(CollisionMap Collision)
                 }
                 updateSheetIndex(index);
             }
-        } else goto reset;
+        } else unselectCells();
     } else {
-        reset:
-        GVARS.scope = SCOPE_OVERVIEW;
-        updateSheetIndex(0);
+        unselectCells();
     }
 }
 
@@ -110,16 +108,20 @@ void MouseHandler()
 
 void EnterNavigationHandler()
 {
+    if (Sheet.index % 3 == 0) {
+        if (Sheet.index + 3 == CELL_COUNT - 3) {
+            unselectCells();
+        } else updateSheetIndex(Sheet.index + 3);
+        return;
+    }
     if (Sheet.index == CELL_COUNT - 5) {
         if (Sheet.cellList[Sheet.index + 1].gapStr.str[0] != 0) {
-            GVARS.scope = SCOPE_OVERVIEW;
-            updateSheetIndex(0);
+            unselectCells();
         } else updateSheetIndex(Sheet.index + 1);
         return;
     } else if (Sheet.index == CELL_COUNT - 4) {
         if (Sheet.cellList[Sheet.index - 1].gapStr.str[0] != 0) {
-            GVARS.scope = SCOPE_OVERVIEW;
-            updateSheetIndex(0);
+            unselectCells();
         } else updateSheetIndex(Sheet.index - 1);
         return;
     } 

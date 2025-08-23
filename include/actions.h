@@ -37,6 +37,7 @@
     ACTION(A_RESET_TEXT_COLOR, A_ResetTextColor, "Reset cell text color") \
     ACTION(A_SWAPGAME, A_SwapGameText, "Switch between PD/GE") \
     ACTION(A_TOGGLE_EXPANSION, A_ToggleExpansion, "Toggle Expansion") \
+    ACTION(A_RELOAD_GAME_TEXT, A_ReloadGameText, "Reload game text") \
 
 typedef enum Action {
     #define ACTION(a,b,c) a,

@@ -24,7 +24,7 @@ int main()
 
     ExportActionTable();
 
-    setBorderPositions(UI.borders);
+    setBorderPositions();
 
     Rectangle gradTop = {0, UI.topBarHeight, Window.Width, UI.cellHeight};
     Rectangle gradBot = {0, (UI.cellHeight * 21) + UI.topBarHeight, Window.Width, UI.cellHeight};
@@ -77,8 +77,7 @@ int main()
     }
     
     CloseWindow();
-    UnloadFont(UI.font);
-    UnloadImage(Window.Icon);
+    CleanUp();
     
     return 0;
 }
