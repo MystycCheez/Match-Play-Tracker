@@ -115,23 +115,23 @@ void EnterNavigationHandler()
         return;
     }
     if (Sheet.index == CELL_COUNT - 5) {
-        if (Sheet.cellList[Sheet.index + 1].gapStr.str[0] != 0) {
+        if (getOppositeCell().gapStr.str[0] != 0) {
             unselectCells();
-        } else updateSheetIndex(Sheet.index + 1);
+        } else updateSheetIndex(getOppositeCellIndex());
         return;
     } else if (Sheet.index == CELL_COUNT - 4) {
-        if (Sheet.cellList[Sheet.index - 1].gapStr.str[0] != 0) {
+        if (getOppositeCell().gapStr.str[0] != 0) {
             unselectCells();
-        } else updateSheetIndex(Sheet.index - 1);
+        } else updateSheetIndex(getOppositeCellIndex());
         return;
     } 
     if (Sheet.index % 3 == 2) {
-        if (Sheet.cellList[Sheet.index - 1].gapStr.str[0] == 0) {
-            updateSheetIndex(Sheet.index - 1);
+        if (getOppositeCell().gapStr.str[0] == 0) {
+            updateSheetIndex(getOppositeCellIndex());
         } else updateSheetIndex(Sheet.index + 2);
     } else if (Sheet.index % 3 == 1) {
-        if (Sheet.cellList[Sheet.index + 1].gapStr.str[0] == 0) {
-            updateSheetIndex(Sheet.index + 1);
+        if (getOppositeCell().gapStr.str[0] == 0) {
+            updateSheetIndex(getOppositeCellIndex());
         } else updateSheetIndex(Sheet.index + 3);
     }
 }

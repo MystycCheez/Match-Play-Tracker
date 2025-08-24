@@ -33,11 +33,18 @@ Text_Type CompareSpecialText(char *text)
     return returnVal;
 }
 
+// Gets the index of the opposite cell (same row) of the current cell index
 size_t getOppositeCellIndex()
 {
     if (Sheet.index % 3 == 1) {
         return Sheet.index + 1;
     } else return Sheet.index - 1;
+}
+
+// Gets the opposite cell (same row) of the current cell
+Cell getOppositeCell()
+{
+    return Sheet.cellList[getOppositeCellIndex()];
 }
 
 // TODO: check if this can utilize xy/cr functions
@@ -158,7 +165,7 @@ char *filterCellText(char* text)
             return dummy;
         }
         return secsToTime(timeToSecs(filtered));
-    case 2: // TODO:
+    case 2: // TODO: two colons (xx:xx:xx)
         if (text[textLen - 6] != ':')
             return dummy;
         if (!(textLen <= 8 && textLen >= 6))
