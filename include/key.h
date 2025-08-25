@@ -28,7 +28,7 @@ typedef enum Key {
     #define KEY(a,b,c) a,
         KEY_LIST
     #undef KEY
-    KEY_COUNT
+        KEY_COUNT
 } Key;
 
 typedef enum Modifier {

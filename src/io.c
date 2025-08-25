@@ -146,34 +146,35 @@ void ExportToBBCode()
             }
         }
     }
-
-    fprintf(out_bb, // Player 1
-        "[size=6][color=%s]%s[/color] VS [color=", 
-        colorText[1], 
-        cellText[1]
-    );
-    fprintf(out_bb, // Player 2
-        "%s]%s[/color] results:[/size]\n",
-        colorText[2],
-        cellText[2]
-    );
     fprintf(out_bb, 
+        "[size=6]"
+    );
+    for (size_t i = 1; i <= 2; i++) {
+        fprintf(out_bb, // Player 1
+            "[color=%s]%s[/color]", 
+            colorText[1], 
+            cellText[1]
+        );
+        if (i == 2) break;
+        fprintf(out_bb,
+            " VS "
+        );
+    }
+    fprintf(out_bb,
+        " results:[/size]\n"
         "[spoiler]\n"
         "[table][tr][td][size=4][color=white]Level[/color]\n"
         "[/size][/td]\n"
     );
-    fprintf(out_bb, // Player 1
-        "[td][size=4][color=%s]%s[/color]\n"
-        "[/size][/td]\n",
-        colorText[1],
-        cellText[1]
-    );
-    fprintf(out_bb, // Player 2
-        "[td][size=4][color=%s]%s[/color]\n"
-        "[/size][/td]\n",
-        colorText[2],
-        cellText[2]
-    );
+    // Player 1 & 2
+    for (size_t i = 1; i <= 2; i++) {
+        fprintf(out_bb, 
+            "[td][size=4][color=%s]%s[/color]\n"
+            "[/size][/td]\n",
+            colorText[i],
+            cellText[i]
+        );
+    }
     fprintf(out_bb,
         "[/tr]\n"
         "[tr][td][size=4][color=#fc0]Dam\n"

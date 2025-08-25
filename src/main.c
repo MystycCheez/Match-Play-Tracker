@@ -1,8 +1,3 @@
-// #define GAP_DEBUG
-// #define ACTION_DEBUG
-
-#include <stdlib.h>
-
 #include "headers.h"
 
 int main()
