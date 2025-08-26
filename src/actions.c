@@ -125,6 +125,7 @@ void A_Overwrite_UpdateScore()
         CellOverwriteHandler();
         UpdateScores();
     }
+    Deselect();
     A_NavigateToNextCell();
     A_ScopeDecrease();
     if (Sheet.index == 0) {

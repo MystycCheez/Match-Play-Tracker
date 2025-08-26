@@ -29,7 +29,9 @@ int main()
     
     while (!GVARS.shouldExit && !WindowShouldClose())
     {
-        InputHandler();
+        CellInputHandler();
+        KeyHandler();
+        MouseHandler();
         CursorHandler();
         
         BeginDrawing();

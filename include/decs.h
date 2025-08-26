@@ -98,7 +98,7 @@ void MouseHandler();
 void EnterNavigationHandler();
 void CellOverwriteHandler();
 void CellInputHandler();
-void InputHandler();
+void KeyHandler();
 void CursorHandler();
 
 #define ACTION(a,b,c) void b();

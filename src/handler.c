@@ -69,6 +69,7 @@ void MouseSheetHandler(CollisionMap Collision)
                 GVARS.scope = SCOPE_CELL;
             } else {
                 GVARS.scope = SCOPE_SHEET;
+                Deselect();
                 if ((Sheet.index % 3 != 0) && (Sheet.index > 3)) {
                     CellOverwriteHandler();
                     UpdateScores();
@@ -151,49 +152,42 @@ void CellInputHandler()
 {
     if (GVARS.scope == SCOPE_OVERVIEW) return;
     if (Sheet.index == 0) return;
-    int key_char = 0;
+    char key_char = 0;
 
     while ((key_char = GetCharPressed()) > 0) {
         if ((key_char >= 32) && (key_char <= 125)) {
             if (GVARS.scope == SCOPE_CELL) {
                 if (Sheet.selection.exists) {
                     DeleteSelection(&Sheet.cell->gapStr);
-                    placeChar(&Sheet.cell->gapStr, (char)key_char);
+                    placeChar(&Sheet.cell->gapStr, key_char);
                     Deselect();
-                } else placeChar(&Sheet.cell->gapStr, (char)key_char);
+                } else placeChar(&Sheet.cell->gapStr, key_char);
             } else {
-                Deselect();
                 GVARS.scope = SCOPE_CELL;
                 OverwriteStr(&Sheet.cell->gapStr, "\0", 0, CELL_TEXT_LENGTH);
                 CellOverwriteHandler();
                 UpdateScores();
-                placeChar(&Sheet.cell->gapStr, (char)key_char);
+                placeChar(&Sheet.cell->gapStr, key_char);
             }
         }
     }
 }
 
 
-void InputHandler()
+void KeyHandler()
 {
-    CellInputHandler();
-    KeyData.pressed = GetKeyPressed();
-    KeyData.ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
-    KeyData.shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
-    KeyData.alt = IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT);
-
-    // The following was originally one line of code
-    // Now expanded for clarity
-    int KeyIndex = GetKeyIndex(KeyData.pressed);
-    int KeyCombo = GetKeyComboIndex(KeyIndex, GetModifier());
-    Action CurrentAction = ActionTable[GVARS.scope][KeyCombo];
-    Action_Function[CurrentAction]();
-
-    if (CurrentAction != A_DONOTHING) {
+    while ((KeyData.pressed = GetKeyPressed()) > 0) {
+        KeyData.ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
+        KeyData.shift = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
+        KeyData.alt = IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT);
+        
+        int KeyIndex = GetKeyIndex(KeyData.pressed);
+        int KeyCombo = GetKeyComboIndex(KeyIndex, GetModifier());
+        Action CurrentAction = ActionTable[GVARS.scope][KeyCombo];
+        Action_Function[CurrentAction]();
+        
         printf("%s\n", GetActionText(CurrentAction));
     }
-
-    MouseHandler();
 }
 
 void CursorHandler()

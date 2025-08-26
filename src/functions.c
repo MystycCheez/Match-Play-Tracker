@@ -235,12 +235,10 @@ void UpdateScores()
         if (wins[i].a > 0 && tieCounter > 0) {
             OverwriteStr(&Sheet.cellList[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(Sheet.cellList[CELL_COUNT - 2].gapStr.str) + tieCounter), 0, CELL_TEXT_LENGTH);
             tieCounter = 0;
-        }
-        else if (wins[i].b > 0 && tieCounter > 0) {
+        } else if (wins[i].b > 0 && tieCounter > 0) {
             OverwriteStr(&Sheet.cellList[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(Sheet.cellList[CELL_COUNT - 1].gapStr.str) + tieCounter), 0, CELL_TEXT_LENGTH);
             tieCounter = 0;
-        }
-        else if (wins[i].a > 0 || wins[i].b > 0) {
+        } else if (wins[i].a > 0 || wins[i].b > 0) {
             OverwriteStr(&Sheet.cellList[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(Sheet.cellList[CELL_COUNT - 2].gapStr.str)), 0, CELL_TEXT_LENGTH);
             OverwriteStr(&Sheet.cellList[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(Sheet.cellList[CELL_COUNT - 1].gapStr.str)), 0, CELL_TEXT_LENGTH);
         }

@@ -64,21 +64,16 @@ int GetModifier()
     return modifier;
 }
 
-int GetKeyIndex(int key)
-{
-    for (size_t i = 0; i < KEY_COUNT; i++) {
-        if (GetRaylibKey(i) == key) return i;
-    }
-    return -1;
-}
-
 const char* GetActionEnumName(int index)
 {
     switch (index) {
         #define ACTION(a,b,c) case a: return #a;
             ACTION_LIST
         #undef ACTION
-        default: assert(!"Not a valid action!\n");
+        default:
+            fprintf(stderr, "Not a valid action: %d!\n", index);
+            fprintf(stderr, "%s:%d, %s\n", __FILE__, __LINE__, __func__);
+            exit(1);
     }
 }
 
@@ -88,7 +83,10 @@ const char* GetActionText(int index)
         #define ACTION(a,b,c) case a: return #b;
             ACTION_LIST
         #undef ACTION
-        default: assert(!"Not a valid action!\n");
+        default: 
+            fprintf(stderr, "Not a valid action: %d!\n", index);
+            fprintf(stderr, "%s:%d, %s\n", __FILE__, __LINE__, __func__);
+            exit(1);
     }
 }
 
@@ -98,17 +96,36 @@ const char* GetHumanReadableActionText(int index)
         #define ACTION(a,b,c) case a: return c;
             ACTION_LIST
         #undef ACTION
-        default: assert(!"Not a valid action!\n");
+        default: 
+            fprintf(stderr, "Not a valid action: %d!\n", index);
+            fprintf(stderr, "%s:%d, %s\n", __FILE__, __LINE__, __func__);
+            exit(1);
+    }
+}
+
+int GetKeyIndex(int key)
+{
+    switch (key) {
+        #define KEY(a,b,c) case b: return a;
+            KEY_LIST
+        #undef KEY
+        default: 
+            return -1;
     }
 }
 
 const char* GetKeyText(int key)
 {
     switch (key) {
+        case -1:
+            return "";
         #define KEY(a,b,c) case a: return c;
             KEY_LIST
         #undef KEY
-        default: assert(!"Not a valid key!\n");
+        default: 
+            fprintf(stderr, "Not a valid key: %d!\n", key);
+            fprintf(stderr, "%s:%d, %s\n", __FILE__, __LINE__, __func__);
+            exit(1);
     }
 }
 
@@ -118,7 +135,10 @@ int GetRaylibKey(size_t index)
         #define KEY(a,b,c) case a: return b;
             KEY_LIST
         #undef KEY
-        default: assert(!"Not a valid key!\n");
+        default: 
+            fprintf(stderr, "Not a valid key: %lld!\n", index);
+            fprintf(stderr, "%s:%d, %s\n", __FILE__, __LINE__, __func__);
+            exit(1);
     }
 }
 
@@ -133,7 +153,10 @@ const char* GetModifierText(Modifier modifier)
         case M_CTRL_SHIFT: return "Ctrl + Shift";
         case M_ALT_SHIFT: return "Alt + Shift";
         case M_CTRL_ALT_SHIFT: return "Ctrl + Alt + Shift";
-        default: assert(!"Not a valid modifier!\n");
+        default: 
+            fprintf(stderr, "Not a valid modifier: %d!\n", modifier);
+            fprintf(stderr, "%s:%d, %s\n", __FILE__, __LINE__, __func__);
+            exit(1);
     }
 }
 

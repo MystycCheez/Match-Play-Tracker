@@ -3,6 +3,7 @@
 #define INCLUDE_DIR "include/"
 
 #define NOB_IMPLEMENTATION
+#define NOB_EXPERIMENTAL_DELETE_OLD
 
 #include "include/nob.h"
 
