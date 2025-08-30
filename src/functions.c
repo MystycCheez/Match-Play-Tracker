@@ -337,6 +337,9 @@ void CleanUp()
 {
     UnloadFont(UI.font);
     UnloadTexture(TitleBar.Texture);
+    UnloadTexture(Window.IconTexture);
+    UnloadTexture(UI.buttons[BTN_EXIT].texture);
+    UnloadTexture(UI.buttons[BTN_MINIMIZE].texture);
     for (size_t i = 0; i < 2; i++) {
         UnloadTexture(UI.buttons[i].texture);
     }   

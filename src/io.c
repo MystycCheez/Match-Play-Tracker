@@ -84,6 +84,7 @@ void loadSpecialText()
     }
     GVARS.specials.text = specialText;
     GVARS.specials.count = specialCount;
+    fclose(file_ptr);
 }
 
 void saveTimes()

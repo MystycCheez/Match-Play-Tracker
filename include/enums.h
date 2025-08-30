@@ -40,6 +40,8 @@ typedef enum Scope_Level {
     SCOPE_OVERVIEW,
     SCOPE_SHEET,
     SCOPE_CELL,
+
+    SCOPE_COUNT
 } Scope_Level;
 
 #endif

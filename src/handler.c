@@ -173,7 +173,9 @@ void CellInputHandler()
     }
 }
 
-
+// GetKeyPressed() does not act the same as GetCharPressed()
+// GetCharPressed() handles holding down a key to repeated an input
+// GetKeyPressed() does not do this!
 void KeyHandler()
 {
     while ((KeyData.pressed = GetKeyPressed()) > 0) {
@@ -182,8 +184,11 @@ void KeyHandler()
         KeyData.alt = IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT);
         
         int KeyIndex = GetKeyIndex(KeyData.pressed);
+        if (KeyIndex == -1) break;
         int KeyCombo = GetKeyComboIndex(KeyIndex, GetModifier());
+        if (KeyCombo == UNUSED_KEY_COMBO) break;
         Action CurrentAction = ActionTable[GVARS.scope][KeyCombo];
+        if (CurrentAction == A_DONOTHING) break;
         Action_Function[CurrentAction]();
         
         printf("%s\n", GetActionText(CurrentAction));

@@ -149,14 +149,14 @@ void setBorderPositions()
 
 void initActionTable()
 {
-    for (size_t x = 0; x < 3; x++) {
+    for (size_t x = 0; x < SCOPE_COUNT; x++) {
         for (size_t y = 0; y < KEY_COMBO_COUNT; y++) {
             ActionTable[x][y] = A_DONOTHING;
         }
     }
 
     // For all scopes
-    for (size_t scope = 0; scope < 3; scope++) {
+    for (size_t scope = 0; scope < SCOPE_COUNT; scope++) {
         ActionTable[scope][GetKeyComboIndex(K_S, M_CTRL)] = A_SAVETIMES;
         ActionTable[scope][GetKeyComboIndex(K_L, M_CTRL)] = A_LOADTIMES;
         ActionTable[scope][GetKeyComboIndex(K_B, M_CTRL)] = A_EXPORTTIMES;
