@@ -3,7 +3,10 @@
 
 #include "headers.h"
 
+void* my_malloc(size_t size, const char *file, int line, const char *func);
+
 // init.c
+void initMNode();
 void initGlobals();
 void initWindow();
 void initButtons();
@@ -100,6 +103,15 @@ void CellOverwriteHandler();
 void CellInputHandler();
 void KeyHandler();
 void CursorHandler();
+
+#include "linked_list.h"
+// linked_list.c
+bool TraverseNodeForward(Node** currentNode);
+bool TraverseNodeBackward(Node** currentNode);
+Node* NewNode(void* data);
+void RemoveTailNode(Node* tail);
+void RemoveHeadNode(Node* currentNode);
+void ReplaceNextNode(Node** currentNode, void* data);
 
 #define ACTION(a,b,c) void b();
     ACTION_LIST

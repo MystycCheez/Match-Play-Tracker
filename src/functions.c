@@ -3,6 +3,26 @@
 
 #include "headers.h"
 
+void* my_malloc(size_t size, const char *file, int line, const char *func)
+{
+    #undef malloc
+    void *p = malloc(size);
+    #define malloc(X) my_malloc( X, __FILE__, __LINE__, __FUNCTION__)
+    printf ("Allocated = %s, %d, %s, %p[%lld]\n", file, line, func, p, size);
+    
+    if (MNode->data == NULL) {
+        MNode->data = p;
+        printf("Created new list\n");
+    } else {
+        ReplaceNextNode(&MNode, p);
+        printf("Replaced NULL pointer with new node\n");
+        TraverseNodeForward(&MNode);
+        printf("Traversed node forward\n");
+    }
+    
+    return p;
+}
+
 void ClearTimes()
 {
     for (size_t i = 1; i < CELL_COUNT - 3; i++) {

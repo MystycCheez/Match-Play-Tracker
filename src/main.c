@@ -3,6 +3,8 @@
 int main()
 {
     SetTraceLogLevel(LOG_NONE);
+
+    initMNode();
     
     initWindow();
     initGlobals();

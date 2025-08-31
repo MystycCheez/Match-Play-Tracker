@@ -3,6 +3,11 @@
 
 #include "headers.h"
 
+void initMNode()
+{
+    MNode = NewNode(NULL);
+}
+
 void initGlobals()
 {
     Cursor.type = MOUSE_CURSOR_DEFAULT;
