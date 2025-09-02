@@ -75,8 +75,10 @@ void A_MoveCursorToStart()
 
 void A_MoveCursorToEnd()
 {
-    MoveCursorToIndex(&Sheet.cell->gapStr, strlen(gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH)));
+    char* text = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH);
+    MoveCursorToIndex(&Sheet.cell->gapStr, strlen(text));
     Deselect();
+    free(text);
 }
 
 void A_LoadTimes()
@@ -250,9 +252,11 @@ void A_SwapVetoColor()
     for (size_t i = 4; i < LEVEL_COUNT * 2; i++) {
         if (!(i % 3 == 0)) {
             for (size_t n = 0; n < 3; n++) {
-                if (CompareSpecialText(gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH)) == TEXT_VETO) {
+                char* cellText = gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH);
+                if (CompareSpecialText(cellText) == TEXT_VETO) {
                     Sheet.cellList[i].color = GVARS.vetoFlag ? COLOR_LEVEL : WHITE;  
                 }
+                free(cellText);
             }
         }
     }   

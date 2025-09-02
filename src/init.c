@@ -3,9 +3,12 @@
 
 #include "headers.h"
 
-void initMNode()
+void initLinkedList(void* data)
 {
-    MNode = NewNode(NULL);
+    MNode = NewNode(data, NULL, NULL);
+    MNode->next = MNode;
+    MNode->prev = MNode;
+    printf("Created new list\n");
 }
 
 void initGlobals()
@@ -67,6 +70,8 @@ void initWindow()
 
     UnloadImage(Window.Icon);
     UnloadImage(TitleBar.Image);
+
+    SetExitKey(KEY_NULL);
 }
 
 void initButtons()
@@ -91,8 +96,8 @@ void setGameText()
     char** levelText = loadLevelText(GVARS.game);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
         OverwriteStr(&Sheet.cellList[(i * 3) + 3].gapStr, levelText[i], 0, CELL_TEXT_LENGTH);
+        free(levelText[i]);
     }
-    free(levelText);
 }
 
 void initSheetText()
@@ -135,9 +140,8 @@ void initSheet()
     Sheet.index = 0;
     Sheet.cell = &Sheet.cellList[Sheet.index];
     Sheet.players = (Players){"Player 1", "Player 2", 0, 0};
-    Sheet.level_win = NULL;
-
-    initSheetText(Sheet.cellList);
+    Sheet.level_win = malloc(1);
+    Sheet.level_win[0] = 0;
 }
 
 void setBorderPositions()

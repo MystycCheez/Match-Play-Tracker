@@ -71,8 +71,12 @@ void MouseSheetHandler(CollisionMap Collision)
                 GVARS.scope = SCOPE_SHEET;
                 Deselect();
                 if ((Sheet.index % 3 != 0) && (Sheet.index > 3)) {
-                    CellOverwriteHandler();
-                    UpdateScores();
+                    char* cellText = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH);
+                    if (strlen(cellText) > 0) {
+                        CellOverwriteHandler();
+                        UpdateScores();
+                    }
+                    free(cellText);
                 }
                 updateSheetIndex(index);
             }
@@ -139,13 +143,20 @@ void EnterNavigationHandler()
 
 void CellOverwriteHandler()
 {
-    if (gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH)[0] == '#') {
-        setCellTextColor(gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH));
+    char* cellText = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH);
+    if (cellText[0] == '\0') {
+        free(cellText);
+        return;
+    }
+    if (cellText[0] == '#') {
+        setCellTextColor(cellText);
     }
     if (Sheet.index > 2 && Sheet.index < CELL_COUNT - 3) {
         char *filteredText = filterCellText(Sheet.cell->gapStr.str);
         OverwriteStr(&Sheet.cell->gapStr, filteredText, 0, CELL_TEXT_LENGTH);
+        free(filteredText);
     }
+    free (cellText);
 }
 
 void CellInputHandler()

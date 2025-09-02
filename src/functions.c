@@ -3,24 +3,50 @@
 
 #include "headers.h"
 
-void* my_malloc(size_t size, const char *file, int line, const char *func)
+void* debug_malloc(size_t size, const char *file, int line, const char *func)
 {
     #undef malloc
     void *p = malloc(size);
-    #define malloc(X) my_malloc( X, __FILE__, __LINE__, __FUNCTION__)
-    printf ("Allocated = %s, %d, %s, %p[%lld]\n", file, line, func, p, size);
+    #define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
+    // printf("Allocating: %s, %d, %s, %p[%lld]\n", file, line, func, p, size);
+    (void)file;
+    (void)line;
+    (void)func;
     
-    if (MNode->data == NULL) {
-        MNode->data = p;
-        printf("Created new list\n");
+    if (MNode == NULL) {
+        initLinkedList(p);
+    } else if (MNode->next == MNode) {
+        MNode->next = NewNode(p, MNode, MNode);
     } else {
-        ReplaceNextNode(&MNode, p);
-        printf("Replaced NULL pointer with new node\n");
-        TraverseNodeForward(&MNode);
-        printf("Traversed node forward\n");
+        MNode->next = NewNode(p, MNode->next, MNode);
     }
-    
+    MNode = MNode->next;
     return p;
+}
+
+void debug_free(void* p, const char *file, int line, const char *func)
+{
+    // printf("Mnode->data: %s\n", (char*)MNode->data);
+    // printf("p:           %s\n", (char*)p);
+    // printf("De-allocating: %p, %s, %d, %s\n", p, file, line, func);
+    (void)file;
+    (void)line;
+    (void)func;
+
+    Node* current = MNode;
+    while (current->data != p) {
+        current = current->next;
+    }
+    if (current->next != current) {
+        current->next->prev = current->prev;
+        current->prev->next = current->next;
+        MNode = current->next;
+    }
+
+    #undef free
+    free(current);
+    free(p);
+    #define free(X) debug_free(X, __FILE__, __LINE__, __FUNCTION__)
 }
 
 void ClearTimes()
@@ -28,7 +54,7 @@ void ClearTimes()
     for (size_t i = 1; i < CELL_COUNT - 3; i++) {
         if ((i % 3 == 2) || (i % 3 == 1)) {
             OverwriteStr(&Sheet.cellList[i].gapStr, "\0", 0, CELL_TEXT_LENGTH);
-            CellOverwriteHandler(Sheet.cellList, i);
+            CellOverwriteHandler();
         }
     }
     OverwriteStr(&Sheet.cellList[1].gapStr, Sheet.players.p1, 0, CELL_TEXT_LENGTH);
@@ -90,6 +116,8 @@ size_t timeToSecs(char *time)
         strcpy(b, time + timeLen - 2);
         size_t minutes = atoi(a);
         size_t seconds = atoi(b);
+        free(a);
+        free(b);
         return seconds + (minutes * 60);
     }
 }
@@ -128,11 +156,19 @@ void setCellTextColor(char* text)
 char *filterCellText(char* text)
 {
     // Do these need to be static?
-    static char *dummy = "\0";
-    static char *text_veto = "Veto";
-    static char *text_dnf = "DNF";
+    static char* static_dummy = "\0";
+    static char* static_text_veto = "Veto";
+    static char* static_text_dnf = "DNF";
 
-    char *filtered = malloc(sizeof(char) * 5);
+    char* dummy = malloc(strlen(static_dummy));
+    char* text_veto = malloc(strlen(static_text_veto));
+    char* text_dnf = malloc(strlen(static_text_dnf));
+
+    sprintf(dummy, "%s", static_dummy);
+    sprintf(text_veto, "%s", static_text_veto);
+    sprintf(text_dnf, "%s", static_text_dnf);
+
+    char* filtered = malloc(5);
 
     int special = CompareSpecialText(text);
     if (special == TEXT_VETO) return text_veto;
@@ -140,6 +176,7 @@ char *filterCellText(char* text)
 
     size_t textLen = strlen(text);
 
+    start:
     if (strpbrk(text, ":1234567890") == NULL)
         return dummy;
 
@@ -184,15 +221,16 @@ char *filterCellText(char* text)
         default:
             return dummy;
         }
-        return secsToTime(timeToSecs(filtered));
+        char* converted = secsToTime(timeToSecs(filtered));
+        free(filtered);
+        return converted;
     case 2: // TODO: two colons (xx:xx:xx)
         if (text[textLen - 6] != ':')
             return dummy;
         if (!(textLen <= 8 && textLen >= 6))
             return dummy;
         sprintf(filtered, "%s", text + textLen - 5);
-        // TODO: Is this a memory leak?
-        return filterCellText(filtered);
+        goto start;
     default:
         return dummy;
     }
@@ -234,8 +272,8 @@ Int2 CompareTimes(size_t row)
         return (Int2){0, 1};
     }
     // TODO: player gets WR as time and is highlighted GOLD (unlikely, but would like this feature) - UNTIEDS too
-    // fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
     fprintf(stderr, "Shouldn't have reached here!\n");
+    fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
     exit(-1);
 }
 
@@ -252,23 +290,37 @@ void UpdateScores()
         if (wins[i].a == 0 && wins[i].b == 0) {
             tieCounter++;
         }
+        char* scoreAtieBreak = i_toStr(wins[i].a + atoi(Sheet.cellList[CELL_COUNT - 2].gapStr.str) + tieCounter);
+        char* scoreBtieBreak = i_toStr(wins[i].b + atoi(Sheet.cellList[CELL_COUNT - 1].gapStr.str) + tieCounter);
+        char* scoreA = i_toStr(wins[i].a + atoi(Sheet.cellList[CELL_COUNT - 2].gapStr.str));
+        char* scoreB = i_toStr(wins[i].b + atoi(Sheet.cellList[CELL_COUNT - 1].gapStr.str));
         if (wins[i].a > 0 && tieCounter > 0) {
-            OverwriteStr(&Sheet.cellList[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(Sheet.cellList[CELL_COUNT - 2].gapStr.str) + tieCounter), 0, CELL_TEXT_LENGTH);
+            OverwriteStr(&Sheet.cellList[CELL_COUNT - 2].gapStr, scoreAtieBreak, 0, CELL_TEXT_LENGTH);
             tieCounter = 0;
         } else if (wins[i].b > 0 && tieCounter > 0) {
-            OverwriteStr(&Sheet.cellList[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(Sheet.cellList[CELL_COUNT - 1].gapStr.str) + tieCounter), 0, CELL_TEXT_LENGTH);
+            OverwriteStr(&Sheet.cellList[CELL_COUNT - 1].gapStr, scoreBtieBreak, 0, CELL_TEXT_LENGTH);
             tieCounter = 0;
         } else if (wins[i].a > 0 || wins[i].b > 0) {
-            OverwriteStr(&Sheet.cellList[CELL_COUNT - 2].gapStr, i_toStr(wins[i].a + atoi(Sheet.cellList[CELL_COUNT - 2].gapStr.str)), 0, CELL_TEXT_LENGTH);
-            OverwriteStr(&Sheet.cellList[CELL_COUNT - 1].gapStr, i_toStr(wins[i].b + atoi(Sheet.cellList[CELL_COUNT - 1].gapStr.str)), 0, CELL_TEXT_LENGTH);
+            OverwriteStr(&Sheet.cellList[CELL_COUNT - 2].gapStr, scoreA, 0, CELL_TEXT_LENGTH);
+            OverwriteStr(&Sheet.cellList[CELL_COUNT - 1].gapStr, scoreB, 0, CELL_TEXT_LENGTH);
         }
         if (!win_set) {
-            if ((atoi(gapStrToStr(Sheet.cellList[CELL_COUNT - 1].gapStr, CELL_TEXT_LENGTH)) >= 9) || (atoi(gapStrToStr(Sheet.cellList[CELL_COUNT - 2].gapStr, CELL_TEXT_LENGTH)) >= 9)) {
+            char* a = gapStrToStr(Sheet.cellList[CELL_COUNT - 2].gapStr, CELL_TEXT_LENGTH);
+            char* b = gapStrToStr(Sheet.cellList[CELL_COUNT - 1].gapStr, CELL_TEXT_LENGTH);
+            if ((atoi(b) >= 9) || (atoi(a) >= 9)) {
+                free(Sheet.level_win);
                 Sheet.level_win = gapStrToStr(Sheet.cellList[crToIndex((Vector2){0, i + 1})].gapStr, CELL_TEXT_LENGTH);
                 win_set = true;
             }
+            free(a);
+            free(b);
         }
+        free(scoreA);
+        free(scoreB);
+        free(scoreAtieBreak);
+        free(scoreBtieBreak);
     }
+    free(wins);
 }
 
 // XY being the top left corner of the cell index
@@ -329,6 +381,9 @@ Color HexToColor(char* text)
     int G = strtol(g, NULL, 16);
     int B = strtol(b, NULL, 16);
     Color color = {R, G, B, 0xFF};
+    free(r);
+    free(g);
+    free(b);
     return color;
 }
 
@@ -362,7 +417,24 @@ void CleanUp()
     UnloadTexture(UI.buttons[BTN_MINIMIZE].texture);
     for (size_t i = 0; i < 2; i++) {
         UnloadTexture(UI.buttons[i].texture);
-    }   
+    }
+    free(Sheet.level_win);
+
+    Node* current = MNode;
+    size_t nodeCount = 0;
+    #undef free
+    while (current->next != MNode) {
+        current = current->next;
+        free(current->prev);
+        nodeCount++;
+    }
+    if (current->next == MNode) {
+        free(current);
+        nodeCount++;
+    }
+
+    printf("%lld nodes remain unfreed.\n", nodeCount);
+    #define free(X) debug_free(X, __FILE__, __LINE__, __FUNCTION__)
 }
 
 void unselectCells()

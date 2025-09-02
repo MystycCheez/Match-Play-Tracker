@@ -84,7 +84,7 @@ GapBuffer strToGapStr(char* str, size_t cursor)
     size_t len = strlen(str);
     gapStr.str = malloc(sizeof(char) * len);
     memset(gapStr.str, 0, len);
-    snprintf(gapStr.str, cursor, str);
+    snprintf(gapStr.str, cursor, "%s", str);
     gapStr.cStart = 0;
     gapStr.cEnd = cursor;
     return gapStr;
@@ -163,14 +163,14 @@ bool selectChar(GapBuffer *gapStr, bool dir)
         if (!cursorLeft(gapStr)) {
             if (Sheet.selection.start == Sheet.selection.end) {Deselect();}
             return false;
-        } else if (gapStr->cStart <= Sheet.selection.start && gapStr->cStart < Sheet.selection.start) {
+        } else if (gapStr->cStart < Sheet.selection.start) {
             Sheet.selection.start--;
         } else Sheet.selection.end--;
     } else if (dir == DIR_RIGHT) {
         if (!cursorRight(gapStr)) {
             if (Sheet.selection.start == Sheet.selection.end) {Deselect();}
             return false;
-        } else if (gapStr->cStart >= Sheet.selection.start && gapStr->cStart > Sheet.selection.end) {
+        } else if (gapStr->cStart > Sheet.selection.end) {
             Sheet.selection.end++;
         } else Sheet.selection.start++;
     } else if (Sheet.selection.start == Sheet.selection.end) Deselect();

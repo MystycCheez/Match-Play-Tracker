@@ -3,10 +3,11 @@
 
 #include "headers.h"
 
-void* my_malloc(size_t size, const char *file, int line, const char *func);
+void* debug_malloc(size_t size, const char *file, int line, const char *func);
+void debug_free(void* p, const char *file, int line, const char *func);
 
 // init.c
-void initMNode();
+void initLinkedList(void* data);
 void initGlobals();
 void initWindow();
 void initButtons();
@@ -88,9 +89,9 @@ void ExportActionTable();
 // draw.c
 void DrawSelectionBorders();
 void DrawCursor();
-void DrawTextCentered();
-void DrawTextLeftAligned();
-void DrawTextAligned();
+void DrawTextCentered(Vector2 pos, Cell cell);
+void DrawTextLeftAligned(Vector2 pos, Cell cell);
+void DrawTextAligned(Vector2 pos, Cell cell, size_t cellIndex);
 void DrawTextHighlight();
 
 // handler.c
@@ -104,14 +105,8 @@ void CellInputHandler();
 void KeyHandler();
 void CursorHandler();
 
-#include "linked_list.h"
 // linked_list.c
-bool TraverseNodeForward(Node** currentNode);
-bool TraverseNodeBackward(Node** currentNode);
-Node* NewNode(void* data);
-void RemoveTailNode(Node* tail);
-void RemoveHeadNode(Node* currentNode);
-void ReplaceNextNode(Node** currentNode, void* data);
+Node* NewNode(void* data, Node* next, Node* prev);
 
 #define ACTION(a,b,c) void b();
     ACTION_LIST

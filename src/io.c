@@ -20,7 +20,7 @@ bool loadTimes()
         return false;
     }
 
-    ClearTimes(Sheet.cellList);
+    ClearTimes();
     OverwriteStr(&Sheet.cellList[1].gapStr, "", 0, CELL_TEXT_LENGTH);
     OverwriteStr(&Sheet.cellList[2].gapStr, "", 0, CELL_TEXT_LENGTH);
 
@@ -72,8 +72,7 @@ void loadSpecialText()
     }
     size_t specialCount = 0;
     char *tmp = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-    while (fgets(tmp, CELL_TEXT_LENGTH, file_ptr) != NULL) 
-        specialCount++;
+    while (fgets(tmp, CELL_TEXT_LENGTH, file_ptr) != NULL) specialCount++;
     free(tmp);
     rewind(file_ptr);
     char **specialText = malloc(sizeof(char *) * specialCount);
@@ -102,7 +101,9 @@ void saveTimes()
     for (size_t i = 1; i < CELL_COUNT - 3; i++) {
         if ((i % 3 == 2) || (i % 3 == 1)) {
             if (strlen(Sheet.cellList[i].gapStr.str) > 0) {
-                fprintf(file_ptr, "%s\n", gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH));
+                char* cellText = gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH);
+                fprintf(file_ptr, "%s\n", cellText);
+                free (cellText);
             } else {
                 fprintf(file_ptr, "\n");
             }
@@ -131,19 +132,23 @@ void ExportToBBCode()
         colorText[i] = malloc(10 * sizeof(char));
         cellText[i] = gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH);
         if (i < 3) {
+            free(colorText[i]);
             colorText[i] = ColorToHexText(Sheet.cellList[i].color);
         } else {
             if (ColorIsEqual(Sheet.cellList[i].highlight, COLOR_WIN)) {
-                colorText[i] = "limegreen";
+                sprintf(colorText[i], "limegreen");
             } else if (ColorIsEqual(Sheet.cellList[i].highlight, COLOR_LOSE)) {
-                colorText[i] = "red";
+                sprintf(colorText[i], "red");
             } else {
-                colorText[i] = "white";
+                sprintf(colorText[i], "white");
             }
             if (GVARS.vetoFlag) {
-                if (CompareSpecialText(gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH)) == TEXT_VETO) {
+                char* cellText = gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH);
+                if (CompareSpecialText(cellText) == TEXT_VETO) {
+                    free(colorText[i]);
                     colorText[i] = ColorToHexText(COLOR_LEVEL);
                 }
+                free(cellText);
             }
         }
     }
@@ -267,6 +272,10 @@ void ExportToBBCode()
     SetClipboardText(copy_bb);
 
     fclose(out_bb);
+
+    for (size_t i = 0; i < CELL_COUNT; i++) {
+        free(colorText[i]);
+    }
 }
 
 void ExportActionTable()

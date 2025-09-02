@@ -3,8 +3,6 @@
 int main()
 {
     SetTraceLogLevel(LOG_NONE);
-
-    initMNode();
     
     initWindow();
     initGlobals();
@@ -12,15 +10,14 @@ int main()
     
     loadSpecialText();
     loadFont();
-
+    
     initActionTable();
-
-    SetExitKey(KEY_NULL);
-
+    
     initSheet();
-
+    initSheetText();
+    
     ExportActionTable();
-
+    
     setBorderPositions();
 
     Rectangle gradTop = {0, UI.topBarHeight, Window.Width, UI.cellHeight};

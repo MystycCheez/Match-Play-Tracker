@@ -51,7 +51,7 @@ char* GetKeyComboText(int index)
     }
     index = (index % KEY_COUNT);
     const char* tmp = GetKeyText(index);
-    snprintf(buffer + pos, pos - size, tmp);
+    snprintf(buffer + pos, pos - size, "%s", tmp);
     return buffer;
 }
 
