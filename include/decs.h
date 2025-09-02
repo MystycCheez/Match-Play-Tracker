@@ -3,11 +3,7 @@
 
 #include "headers.h"
 
-void* debug_malloc(size_t size, const char *file, int line, const char *func);
-void debug_free(void* p, const char *file, int line, const char *func);
-
 // init.c
-void initLinkedList(void* data);
 void initGlobals();
 void initWindow();
 void initButtons();
@@ -54,8 +50,8 @@ Color HexToColor(char* text);
 void chrswap(char* ptr1, char* ptr2);
 char* i_toStr(int num);
 void updateSheetIndex(size_t newIndex);
-void CleanUp();
 void unselectCells();
+void CleanUp();
 
 // gap_buffer.c
 GapBuffer initGapStr(size_t len);
@@ -106,7 +102,11 @@ void KeyHandler();
 void CursorHandler();
 
 // linked_list.c
-Node* NewNode(void* data, Node* next, Node* prev);
+void initLinkedList(void* data, const char *file, int line, const char *func);
+void* debug_malloc(size_t size, const char *file, int line, const char *func);
+void debug_free(void* p, const char *file, int line, const char *func);
+void checkUnfreed();
+Node* NewNode(void* data, Node* next, Node* prev, const char *file, int line, const char *func);
 
 #define ACTION(a,b,c) void b();
     ACTION_LIST

@@ -74,6 +74,8 @@ int main()
     
     CloseWindow();
     CleanUp();
+
+    checkUnfreed();
     
     return 0;
 }

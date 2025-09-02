@@ -3,52 +3,6 @@
 
 #include "headers.h"
 
-void* debug_malloc(size_t size, const char *file, int line, const char *func)
-{
-    #undef malloc
-    void *p = malloc(size);
-    #define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
-    // printf("Allocating: %s, %d, %s, %p[%lld]\n", file, line, func, p, size);
-    (void)file;
-    (void)line;
-    (void)func;
-    
-    if (MNode == NULL) {
-        initLinkedList(p);
-    } else if (MNode->next == MNode) {
-        MNode->next = NewNode(p, MNode, MNode);
-    } else {
-        MNode->next = NewNode(p, MNode->next, MNode);
-    }
-    MNode = MNode->next;
-    return p;
-}
-
-void debug_free(void* p, const char *file, int line, const char *func)
-{
-    // printf("Mnode->data: %s\n", (char*)MNode->data);
-    // printf("p:           %s\n", (char*)p);
-    // printf("De-allocating: %p, %s, %d, %s\n", p, file, line, func);
-    (void)file;
-    (void)line;
-    (void)func;
-
-    Node* current = MNode;
-    while (current->data != p) {
-        current = current->next;
-    }
-    if (current->next != current) {
-        current->next->prev = current->prev;
-        current->prev->next = current->next;
-        MNode = current->next;
-    }
-
-    #undef free
-    free(current);
-    free(p);
-    #define free(X) debug_free(X, __FILE__, __LINE__, __FUNCTION__)
-}
-
 void ClearTimes()
 {
     for (size_t i = 1; i < CELL_COUNT - 3; i++) {
@@ -174,9 +128,11 @@ char *filterCellText(char* text)
     if (special == TEXT_VETO) return text_veto;
     if (special == TEXT_DNF) return text_dnf;
 
+    free(text_veto);
+    free(text_dnf);
+
     size_t textLen = strlen(text);
 
-    start:
     if (strpbrk(text, ":1234567890") == NULL)
         return dummy;
 
@@ -223,6 +179,7 @@ char *filterCellText(char* text)
         }
         char* converted = secsToTime(timeToSecs(filtered));
         free(filtered);
+        free(dummy);
         return converted;
     case 2: // TODO: two colons (xx:xx:xx)
         if (text[textLen - 6] != ':')
@@ -230,7 +187,8 @@ char *filterCellText(char* text)
         if (!(textLen <= 8 && textLen >= 6))
             return dummy;
         sprintf(filtered, "%s", text + textLen - 5);
-        goto start;
+        free(dummy);
+        return filterCellText(filtered);
     default:
         return dummy;
     }
@@ -408,6 +366,12 @@ void updateSheetIndex(size_t newIndex)
     Sheet.cell = &Sheet.cellList[Sheet.index];
 }
 
+void unselectCells()
+{
+    GVARS.scope = SCOPE_OVERVIEW;
+    updateSheetIndex(0);
+}
+
 void CleanUp()
 {
     UnloadFont(UI.font);
@@ -418,29 +382,16 @@ void CleanUp()
     for (size_t i = 0; i < 2; i++) {
         UnloadTexture(UI.buttons[i].texture);
     }
+    for (size_t i = 0; i < CELL_COUNT; i++) {
+        free(Sheet.cellList[i].gapStr.str);
+    }
+    free(UI.buttons);
     free(Sheet.level_win);
-
-    Node* current = MNode;
-    size_t nodeCount = 0;
-    #undef free
-    while (current->next != MNode) {
-        current = current->next;
-        free(current->prev);
-        nodeCount++;
+    free(Sheet.cellList);
+    for (size_t i = 0; i < GVARS.specials.count; i++) {
+        free(GVARS.specials.text[i]);
     }
-    if (current->next == MNode) {
-        free(current);
-        nodeCount++;
-    }
-
-    printf("%lld nodes remain unfreed.\n", nodeCount);
-    #define free(X) debug_free(X, __FILE__, __LINE__, __FUNCTION__)
-}
-
-void unselectCells()
-{
-    GVARS.scope = SCOPE_OVERVIEW;
-    updateSheetIndex(0);
+    free(GVARS.specials.text);
 }
 
 #endif

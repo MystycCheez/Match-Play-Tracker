@@ -3,14 +3,6 @@
 
 #include "headers.h"
 
-void initLinkedList(void* data)
-{
-    MNode = NewNode(data, NULL, NULL);
-    MNode->next = MNode;
-    MNode->prev = MNode;
-    printf("Created new list\n");
-}
-
 void initGlobals()
 {
     Cursor.type = MOUSE_CURSOR_DEFAULT;
@@ -113,12 +105,13 @@ void initSheetText()
     placeString(&Sheet.cellList[2].gapStr, Sheet.players.p2, CELL_TEXT_LENGTH);
     placeString(&Sheet.cellList[CELL_COUNT - 2].gapStr, s1, CELL_TEXT_LENGTH);
     placeString(&Sheet.cellList[CELL_COUNT - 1].gapStr, s2, CELL_TEXT_LENGTH);
+    free(s1);
+    free(s2);
 }
 
 void initSheet()
 {
     Sheet.cellList = malloc(sizeof(Cell) * CELL_COUNT);
-    Sheet.cell = malloc(sizeof(Cell));
 
     for (size_t i = 0; i < CELL_COUNT; i++) {
         Sheet.cellList[i].gapStr = initGapStr(CELL_TEXT_LENGTH);
