@@ -41,10 +41,6 @@ void* debug_malloc(size_t size, const char *file, int line, const char *func)
     #undef malloc
     void *p = malloc(size);
     #define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
-    // fprintf(log, "Allocating: %s, %d, %s, %p[%lld]\n", file, line, func, p, size);
-    (void)file;
-    (void)line;
-    (void)func;
     
     if (MNode == NULL) {
         initLinkedList(p, file, line, func);
@@ -57,14 +53,9 @@ void* debug_malloc(size_t size, const char *file, int line, const char *func)
     return p;
 }
 
-void debug_free(void* p, const char *file, int line, const char *func)
+void debug_free(void* p)
 {
-    // printf("Mnode->data: %s\n", (char*)MNode->data);
-    // printf("p:           %s\n", (char*)p);
-    // printf("De-allocating: %p, %s, %d, %s\n", p, file, line, func);
-    (void)file;
-    (void)line;
-    (void)func;
+    bool flag = false;
 
     Node* current = MNode;
     while (current->data != p) {
@@ -74,16 +65,30 @@ void debug_free(void* p, const char *file, int line, const char *func)
         current->next->prev = current->prev;
         current->prev->next = current->next;
         MNode = current->next;
-    }
+    } else if (current->next == current) flag = true;
+    if (current->next == NULL || current->prev == NULL) {
+        printf("next: %p, prev: %p\n", current->next, current->prev);
+        printf("How did you get here?\n");
+        exit(1);
+    } 
 
     #undef free
     free(current);
     free(p);
-    #define free(X) debug_free(X, __FILE__, __LINE__, __FUNCTION__)
+    #define free(X) debug_free(X)
+
+    if (flag) {
+        current = NULL;
+        MNode = NULL;
+    }
 }
 
 void checkUnfreed()
 {
+    if (MNode == NULL) {
+        printf("No nodes remain.\n");
+        return;
+    }
     char* filename = "malloc_log.txt";
     FILE* log = fopen(filename, "w");
     if (log == NULL) {

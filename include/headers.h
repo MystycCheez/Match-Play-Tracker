@@ -13,7 +13,7 @@
 #include "linked_list.h"
 
 #define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
-#define free(X) debug_free(X, __FILE__, __LINE__, __FUNCTION__)
+#define free(X) debug_free(X)
 
 #include "key.h"
 

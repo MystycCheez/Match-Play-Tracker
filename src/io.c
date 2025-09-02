@@ -41,20 +41,20 @@ bool loadTimes()
 
 char** loadLevelText(int game)
 {
-    char *filename;
+    char* filename;
     if (game == LEVELS_GE) filename = "resources/levels-ge.txt";
     if (game == LEVELS_PD) filename = "resources/levels-pd.txt";
-    FILE *file_ptr = fopen(filename, "r");
+    FILE* file_ptr = fopen(filename, "r");
     if (file_ptr == NULL) {
         fprintf(stderr, "Error: Could not open file: %s\n", filename);
         fprintf(stderr, "%s:%d\n", __FILE__, __LINE__);
         exit(1);
     }
-    char **levelText = malloc(sizeof(char *) * LEVEL_COUNT);
+    char** levelText = malloc(sizeof(char*) * LEVEL_COUNT);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
         levelText[i] = malloc(sizeof(char) * CELL_TEXT_LENGTH);
         fgets(levelText[i], CELL_TEXT_LENGTH, file_ptr);
-        memset(strchr(levelText[i], '\n'), 0, 1);
+        memset(strchr(levelText[i], '\n'), '\0', 1);
     }
 
     fclose(file_ptr);
@@ -128,7 +128,6 @@ void ExportToBBCode()
     char* colorText[CELL_COUNT];
 
     for (size_t i = 0; i < CELL_COUNT; i++) {
-        cellText[i] = malloc(CELL_COUNT * sizeof(char));
         colorText[i] = malloc(10 * sizeof(char));
         cellText[i] = gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH);
         if (i < 3) {
@@ -270,11 +269,13 @@ void ExportToBBCode()
         fread(copy_bb, 1, out_len, out_bb);
     }
     SetClipboardText(copy_bb);
+    free(copy_bb);
 
     fclose(out_bb);
 
     for (size_t i = 0; i < CELL_COUNT; i++) {
         free(colorText[i]);
+        free(cellText[i]);
     }
 }
 

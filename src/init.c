@@ -90,6 +90,7 @@ void setGameText()
         OverwriteStr(&Sheet.cellList[(i * 3) + 3].gapStr, levelText[i], 0, CELL_TEXT_LENGTH);
         free(levelText[i]);
     }
+    free(levelText);
 }
 
 void initSheetText()
