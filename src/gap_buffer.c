@@ -92,16 +92,16 @@ GapBuffer strToGapStr(char* str, size_t cursor)
 
 char* gapStrToStr(GapBuffer gapStr, size_t maxLen)
 {
-    if (maxLen == 0) return "\0";
+    if (maxLen == 0) return NULL;
     size_t initLenL = strlen(gapStr.str);
-    size_t initLenR = strlen(gapStr.str + gapStr.cEnd + 1);
-    size_t len = min(maxLen, initLenL + initLenR);
-    char* str = malloc(sizeof(char) * len + 1);
-    memset(str, 0, len + 1);
-    size_t lenL = min(len, initLenL);
+    size_t lenR = strlen(gapStr.str + gapStr.cEnd + 1);
+    size_t len = min(maxLen, initLenL + lenR) + 1;
+    char* str = malloc(sizeof(char) * len);
+    memset(str, 0, len);
+    size_t lenL = min(len - 1, initLenL);
     strncpy(str, gapStr.str, lenL);
-    if (initLenR > 0 && len > initLenL) {
-        size_t lenR = len - lenL;
+    if (lenR > 0 && len - 1 > initLenL) {
+        size_t lenR = len - 1 - lenL;
         strncpy(str + lenL, gapStr.str + gapStr.cEnd + 1, lenR);
     }
     return str;

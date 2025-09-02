@@ -74,33 +74,27 @@ void DrawTextHighlight()
     Vector2 pos = {0};
     pos = CalcTextPos(pos, Sheet.index);
 
-    // char* cellText = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH);
-    // float cellTextSpan = MeasureTextEx(UI.font, cellText, UI.fontSize, 1).x;
+    char* cellText = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH);
 
-    // size_t selectionLen = Sheet.selection.end - Sheet.selection.start;
-    // char *selectedText = malloc(selectionLen);
-    // memset(selectedText, 0, selectionLen);
-    // strncpy(selectedText, cellText + Sheet.selection.start, selectionLen + 1);
-    // float selectionSpan = MeasureTextEx(UI.font, selectedText, UI.fontSize, 1).x;
-
-    // // char* prefix = gapStrToStr(Sheet.cell->gapStr, Sheet.selection.start);
-    // float offset = cellTextSpan - selectionSpan;
-
-    // --------------------------------------------------------------------------------------------------------------- //
     size_t selectionLen = Sheet.selection.end - Sheet.selection.start;
-    char *selectedText = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH) + Sheet.selection.start;
-    selectedText[selectionLen] = 0;
-    float selectionSpan = MeasureTextEx(UI.font, selectedText, UI.fontSize, 1).x;
+    char *selectedText = malloc(selectionLen + 1);
+    snprintf(selectedText, selectionLen + 1, "%s", cellText + Sheet.selection.start);
+    snprintf(selectedText + selectionLen, 1, "%s", "\0");
 
-    float cellTextSpan = MeasureTextEx(UI.font, gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH), UI.fontSize, 1).x;
-    float offset = MeasureTextEx(UI.font, gapStrToStr(Sheet.cell->gapStr, Sheet.selection.start), UI.fontSize, 1).x;
-    // --------------------------------------------------------------------------------------------------------------- //
+    float selectionSpan = MeasureTextEx(UI.font, selectedText, UI.fontSize, 1).x;
+    float cellTextSpan = MeasureTextEx(UI.font, cellText, UI.fontSize, 1).x;
+
+    char* prefix = malloc(Sheet.selection.start + 1);
+    memset(prefix, 0, Sheet.selection.start + 1);
+    snprintf(prefix, Sheet.selection.start + 1, "%s", cellText);
+    float offset = MeasureTextEx(UI.font, prefix, UI.fontSize, 1).x;
 
     pos.x += (UI.cellWidth / 2) - (cellTextSpan / 2) + offset;
     DrawRectangleRec((Rectangle){pos.x, pos.y, selectionSpan + 2, UI.cellHeight}, COLOR_HIGHLIGHT);
 
-    // free(cellText);
+    free(cellText);
     free(selectedText);
+    free(prefix);
 }
 
 #endif
