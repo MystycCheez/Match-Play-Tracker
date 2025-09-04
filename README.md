@@ -1,7 +1,7 @@
 # Match Play Tracker
 
 Program for keeping track of Goldeneye Match Play matches.  
-Designed for use in place of alternatives such as Google Sheets.  
+Designed as an alternative to Google Sheets or notepad, etc.  
 Can export to BBCode for posting to [The-Elite.net forums](https://forums.the-elite.net/).
 
 ## Disclaimer
@@ -25,9 +25,10 @@ As of now, functions are used via hotkey. This is a small list of hotkeys:
 | Ctrl + S      | Saves current times to times/times.txt                           |            |
 | Ctrl + B      | Exports times to times/results.bbcode (also copies to clipboard) |            |
 | Ctrl + Tab    | Switch levels between PD/GE                                      |            |
-| Alt + C       | Switch veto text color between white and gold                    |            |
+| Alt  + C      | Switch veto text color between white and gold                    |            |
 
-An extensive list can be found in [ACTIONS.md](https://github.com/MystycCheez/Match-Play-Tracker/blob/main/ACTIONS.md)
+An extensive list can be found in [ACTIONS.md](https://github.com/MystycCheez/Match-Play-Tracker/blob/main/ACTIONS.md)  
+The action list is also auto-generated and found in the main folder as ACTIONS.md
 
 ## Misc
 
@@ -35,10 +36,11 @@ Entering # followed by a six-digit hex code will change that cell's text color
 
 ## Build Instructions
 
-Run ```gcc -o nob.exe nob.c```  
+Run ```clang -o nob.exe nob.c```  
 Run ```nob.exe```
 
-Running nob.exe will compile and run tracker.exe located in the build folder.
+Running nob.exe will compile and run tracker.exe located in the build folder.  
+Note: As of now, changing nob.c will require a manual recompile of nob.exe via the command above.
 
 ## Used Libraries
 

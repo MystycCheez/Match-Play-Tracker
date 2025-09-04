@@ -1,8 +1,6 @@
 #ifndef ACTIONS_C
 #define ACTIONS_C
 
-#define ACTION_DEBUG_
-
 #include "headers.h"
 
 void A_DoNothing()

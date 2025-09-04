@@ -18,7 +18,7 @@ int main(int argc, char** argv)
     nob_cmd_append(&cmd, 
         "clang", 
         "-g3", 
-        "-O2",
+        "-O3",
         // "-fsanitize=address",
         "-o",
         BUILD_DIR"tracker.exe", 
