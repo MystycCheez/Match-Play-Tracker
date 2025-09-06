@@ -30,8 +30,8 @@ void DrawTextCentered(Vector2 pos, Cell cell)
     char* text = gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH);
     Vector2 size = MeasureTextEx(UI.font, text, UI.fontSize, 1);
 
-    pos.x = pos.x + (UI.cellWidth / 2) - (size.x / 2);
-    pos.y = pos.y + (UI.cellHeight / 2) - (size.y / 2);
+    pos.x = round(pos.x + (UI.cellWidth / 2) - (size.x / 2) + UI.TextPos.x);
+    pos.y = round(pos.y + (UI.cellHeight / 2) - (size.y / 2) + UI.TextPos.y);
 
     DrawTextEx(UI.font, text, pos, UI.fontSize, 1, cell.color);
 
@@ -43,8 +43,8 @@ void DrawTextLeftAligned(Vector2 pos, Cell cell)
     char* text = gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH);
     Vector2 size = MeasureTextEx(UI.font, text, UI.fontSize, 1);
 
-    pos.x = pos.x + UI.fontSize / 2;
-    pos.y = pos.y + (UI.cellHeight / 2) - (size.y / 2);
+    pos.x = round(pos.x + UI.fontSize / 2);
+    pos.y = round(pos.y + (UI.cellHeight / 2) - (size.y / 2));
 
     DrawTextEx(UI.font, text, pos, UI.fontSize, 1, cell.color);
 
