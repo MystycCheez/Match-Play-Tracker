@@ -40,7 +40,6 @@ Run ```clang -o nob.exe nob.c```
 Run ```nob.exe```
 
 Running nob.exe will compile and run tracker.exe located in the build folder.  
-Note: As of now, changing nob.c will require a manual recompile of nob.exe via the command above.
 
 ## Used Libraries
 

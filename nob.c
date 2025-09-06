@@ -3,7 +3,7 @@
 #define INCLUDE_DIR "include/"
 
 #define NOB_IMPLEMENTATION
-#define NOB_EXPERIMENTAL_DELETE_OLD
+#define NOB_EXPERIMENTAL_DELETE_OLD // This works 50% of the time, every time
 
 #include "include/nob.h"
 
@@ -19,7 +19,6 @@ int main(int argc, char** argv)
         "clang", 
         "-g3", 
         "-O3",
-        // "-fsanitize=address",
         "-o",
         BUILD_DIR"tracker.exe", 
         SRC_DIR"*.c", 

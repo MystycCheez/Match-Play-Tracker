@@ -570,18 +570,21 @@ NOBDEF bool nob_set_current_dir(const char *path);
 //   https://github.com/tsoding/musializer/blob/b7578cc76b9ecb573d239acc9ccf5a04d3aba2c9/src_build/nob_win64_mingw.c#L3-L9
 // TODO: Maybe instead NOB_REBUILD_URSELF macro, the Go Rebuild Urself™ Technology should use the
 //   user defined nob_cc_* macros instead?
-#ifndef NOB_REBUILD_URSELF
-#  if defined(_WIN32)
-#    if defined(__GNUC__)
-#       define NOB_REBUILD_URSELF(binary_path, source_path) "gcc", "-o", binary_path, source_path
-#    elif defined(__clang__)
-#       define NOB_REBUILD_URSELF(binary_path, source_path) "clang", "-o", binary_path, source_path
-#    elif defined(_MSC_VER)
-#       define NOB_REBUILD_URSELF(binary_path, source_path) "cl.exe", nob_temp_sprintf("/Fe:%s", (binary_path)), source_path
-#    endif
-#  else
-#    define NOB_REBUILD_URSELF(binary_path, source_path) "cc", "-o", binary_path, source_path
-#  endif
+#ifdef __GNUC__
+    #undef __GNUC__
+    #ifndef NOB_REBUILD_URSELF
+    #  if defined(_WIN32)
+    #    if defined(__GNUC__)
+    #       define NOB_REBUILD_URSELF(binary_path, source_path) "gcc", "-o", binary_path, source_path
+    #    elif defined(__clang__)
+    #       define NOB_REBUILD_URSELF(binary_path, source_path) "clang", "-o", binary_path, source_path
+    #    elif defined(_MSC_VER)
+    #       define NOB_REBUILD_URSELF(binary_path, source_path) "cl.exe", nob_temp_sprintf("/Fe:%s", (binary_path)), source_path
+    #    endif
+    #  else
+    #    define NOB_REBUILD_URSELF(binary_path, source_path) "cc", "-o", binary_path, source_path
+    #  endif
+    #endif
 #endif
 
 // Go Rebuild Urself™ Technology
