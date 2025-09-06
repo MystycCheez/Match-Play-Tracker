@@ -572,19 +572,26 @@ NOBDEF bool nob_set_current_dir(const char *path);
 //   user defined nob_cc_* macros instead?
 #ifdef __GNUC__
     #undef __GNUC__
-    #ifndef NOB_REBUILD_URSELF
-    #  if defined(_WIN32)
-    #    if defined(__GNUC__)
-    #       define NOB_REBUILD_URSELF(binary_path, source_path) "gcc", "-o", binary_path, source_path
-    #    elif defined(__clang__)
-    #       define NOB_REBUILD_URSELF(binary_path, source_path) "clang", "-o", binary_path, source_path
-    #    elif defined(_MSC_VER)
-    #       define NOB_REBUILD_URSELF(binary_path, source_path) "cl.exe", nob_temp_sprintf("/Fe:%s", (binary_path)), source_path
-    #    endif
-    #  else
-    #    define NOB_REBUILD_URSELF(binary_path, source_path) "cc", "-o", binary_path, source_path
-    #  endif
-    #endif
+    #define GNU_UNDEFED
+#endif
+
+#ifndef NOB_REBUILD_URSELF
+#  if defined(_WIN32)
+#    if defined(__GNUC__)
+#       define NOB_REBUILD_URSELF(binary_path, source_path) "gcc", "-o", binary_path, source_path
+#    elif defined(__clang__)
+#       define NOB_REBUILD_URSELF(binary_path, source_path) "clang", "-o", binary_path, source_path
+#    elif defined(_MSC_VER)
+#       define NOB_REBUILD_URSELF(binary_path, source_path) "cl.exe", nob_temp_sprintf("/Fe:%s", (binary_path)), source_path
+#    endif
+#  else
+#    define NOB_REBUILD_URSELF(binary_path, source_path) "cc", "-o", binary_path, source_path
+#  endif
+#endif
+
+#ifdef GNU_UNDEFED
+    #define __GNUC__
+    #undef GNU_UNDEFED
 #endif
 
 // Go Rebuild Urself™ Technology

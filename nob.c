@@ -14,7 +14,6 @@ int main(int argc, char** argv)
     if (!nob_mkdir_if_not_exists(BUILD_DIR)) return 1;
 
     Nob_Cmd cmd = {0};
-
     nob_cmd_append(&cmd, 
         "clang", 
         "-g3", 
