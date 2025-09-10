@@ -86,6 +86,113 @@ void MouseSheetHandler(CollisionMap Collision)
     }
 }
 
+void MouseHoverHandler()
+{
+    for (int i = 0; i < BTN_COUNT; i++) {
+        if (i == Mouse.current) {
+            UI.buttons[i].state = STATE_BTN_HIGHLIGHTED;
+        } else UI.buttons[i].state = STATE_BTN_UNHIGHLIGHTED;
+    }
+}
+
+void WindowDragHandler()
+{
+    Vector2 windowPos = GetWindowPosition();
+    windowPos.x += Mouse.pos.x - Mouse.startDragPos.x;
+    windowPos.y += Mouse.pos.y - Mouse.startDragPos.y;
+    SetWindowPosition(windowPos.x, windowPos.y);
+}
+
+void MouseDragHandler()
+{
+    if (Mouse.current == TITLEBAR) {
+            WindowDragHandler();
+    } else if (Mouse.current == SHEET) {
+        // TODO: Dragging cells
+    }
+}
+
+void MouseSheetHandler_()
+{
+    size_t index = xyToIndex(Mouse.pos);
+    if (Sheet.cellList[index].selectable) {
+        if (index == Sheet.index) {
+            GVARS.scope = SCOPE_CELL;
+        } else {
+            GVARS.scope = SCOPE_SHEET;
+            Deselect();
+            if ((Sheet.index % 3 != 0) && (Sheet.index > 3)) {
+                char* cellText = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH);
+                if (strlen(cellText) > 0) {
+                    CellOverwriteHandler();
+                    UpdateScores();
+                }
+                free(cellText);
+            }
+            updateSheetIndex(index);
+        }
+    } else unselectCells();
+}
+
+void MouseReleaseHandler()
+{
+    if (Mouse.current == EXIT) {
+        UI.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
+        ExitHandler();
+    } else if (Mouse.current == MINIMIZE) {
+        UI.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
+        MinimizeWindow();
+    } else if (Mouse.current == TITLEBAR) {
+        unselectCells();
+        A_ScopeDecrease();
+    } else if (Mouse.current == SHEET) {
+        // TODO: Multiple cell selection?
+    }
+}
+
+void MouseCollisionHandler(CollisionMap Collision)
+{
+    if (Mouse.pressed) {
+        if (Mouse.current == SHEET) {
+            MouseSheetHandler_();
+            printf("test\n");
+        }
+    } else if (Mouse.pressed && Mouse.down) {
+        Mouse.startDrag = Mouse.current;
+        Mouse.startDragPos = Mouse.pos;
+    } else if (Mouse.down && !Mouse.pressed) {
+        MouseDragHandler();
+    } else if (Mouse.released) {
+        if (Mouse.current == Mouse.startDrag) {
+            MouseReleaseHandler();
+        }
+        Mouse.startDrag = Mouse.current;
+        Mouse.startDragPos = Mouse.pos;
+    } else {
+        if      (Collision.exit)     {Mouse.current = EXIT;}
+        else if (Collision.minimize) {Mouse.current = MINIMIZE;}
+        else if (Collision.titleBar) {Mouse.current = TITLEBAR;}
+        else                         {Mouse.current = SHEET;}
+        MouseHoverHandler();
+    }
+}
+
+void MH()
+{
+    Mouse.pos = GetMousePosition();
+    Mouse.down = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
+    Mouse.pressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+    Mouse.released = IsMouseButtonReleased(MOUSE_BUTTON_LEFT);
+
+    CollisionMap Collision = {
+        CheckCollisionPointRec(Mouse.pos, getButtonRect(BTN_EXIT)),
+        CheckCollisionPointRec(Mouse.pos, getButtonRect(BTN_MINIMIZE)),
+        CheckCollisionPointRec(Mouse.pos, TitleBar.Rec),
+        CheckCollisionPointRec(Mouse.pos, getSheetRect())
+    };
+    MouseCollisionHandler(Collision);
+}
+
 void MouseHandler()
 {
     Mouse.pos = GetMousePosition();
@@ -96,16 +203,10 @@ void MouseHandler()
     Mouse.released = IsMouseButtonReleased(MOUSE_BUTTON_LEFT);
 
     CollisionMap Collision = {
-        CheckCollisionPointRec(Mouse.pos, getButtonRect(UI.buttons[BTN_EXIT])),
-        CheckCollisionPointRec(Mouse.pos, getButtonRect(UI.buttons[BTN_MINIMIZE])),
-        CheckCollisionPointRec(Mouse.pos, (Rectangle){0, 0, Window.Width, UI.topBarHeight}),
-        CheckCollisionPointRec(Mouse.pos, 
-            (Rectangle){
-                0, 
-                UI.topBarHeight, 
-                UI.cellWidth * 3, 
-                UI.cellHeight * ROWS
-            })
+        CheckCollisionPointRec(Mouse.pos, getButtonRect(BTN_EXIT)),
+        CheckCollisionPointRec(Mouse.pos, getButtonRect(BTN_MINIMIZE)),
+        CheckCollisionPointRec(Mouse.pos, TitleBar.Rec),
+        CheckCollisionPointRec(Mouse.pos, getSheetRect())
     };
     MouseTitleBarHandler(Collision, windowPos);
     MouseSheetHandler(Collision);
@@ -185,7 +286,7 @@ void CellInputHandler()
 }
 
 // GetKeyPressed() does not act the same as GetCharPressed()
-// GetCharPressed() handles holding down a key to repeated an input
+// GetCharPressed() handles holding down a key to repeat an input
 // GetKeyPressed() does not do this!
 void KeyHandler()
 {

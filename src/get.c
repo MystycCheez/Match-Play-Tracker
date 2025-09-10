@@ -12,9 +12,29 @@ Color getStateColor(Button_State state)
     return WHITE;
 }
 
-Rectangle getButtonRect(Button button)
+Rectangle getButtonRect(int BTN)
 {
-    return (Rectangle){button.pos.x, button.pos.y, button.size.x, button.size.y};
+    return (Rectangle) {
+        UI.buttons[BTN].pos.x, 
+        UI.buttons[BTN].pos.y, 
+        UI.buttons[BTN].size.x, 
+        UI.buttons[BTN].size.y
+    };
+}
+
+Rectangle getSheetRect()
+{
+    return (Rectangle) {
+        0, 
+        UI.topBarHeight, 
+        UI.cellWidth * 3, 
+        UI.cellHeight * ROWS
+    };
+}
+
+Rectangle getTitleBarRect()
+{
+    return (Rectangle){0, 0, Window.Width, UI.topBarHeight};
 }
 
 Rectangle getCellRect(size_t cellIndex)

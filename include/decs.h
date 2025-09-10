@@ -15,7 +15,9 @@ void initActionTable();
 
 // get.c
 Color getStateColor(Button_State state);
-Rectangle getButtonRect(Button button);
+Rectangle getButtonRect(int BTN);
+Rectangle getSheetRect();
+Rectangle getTitleBarRect();
 Rectangle getCellRect(size_t cellIndex);
 bool getMoveDir();
 int GetKeyComboIndex(int key, int modifier);
@@ -95,6 +97,7 @@ void ExitHandler();
 void MouseTitleBarHandler(CollisionMap Collision, Vector2 windowPos);
 void MouseSheetHandler(CollisionMap Collision);
 void MouseHandler();
+void MH();
 void EnterNavigationHandler();
 void CellOverwriteHandler();
 void CellInputHandler();

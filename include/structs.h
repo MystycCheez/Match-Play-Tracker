@@ -17,10 +17,13 @@ typedef struct Int2 {
 } Int2;
 
 typedef struct MouseState {
+    int current;
+    int startDrag;
     bool down;
     bool pressed;
     bool released;
     Vector2 pos;
+    Vector2 startDragPos;
 } MouseState;
 
 typedef struct KeyboardState {
@@ -30,6 +33,10 @@ typedef struct KeyboardState {
     bool alt;
 } KeyboardState;
 
+// EXIT
+// MINIMIZE
+// TITLEBAR
+// SHEET
 typedef struct CollisionMap {
     bool exit;
     bool minimize;
