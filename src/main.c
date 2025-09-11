@@ -31,8 +31,7 @@ int main()
     {
         CellInputHandler();
         KeyHandler();
-        // MouseHandler();
-        MH();
+        MouseHandler();
         CursorHandler();
         
         BeginDrawing();

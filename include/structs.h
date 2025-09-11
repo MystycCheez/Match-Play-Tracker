@@ -16,23 +16,6 @@ typedef struct Int2 {
     int b;
 } Int2;
 
-typedef struct MouseState {
-    int current;
-    int startDrag;
-    bool down;
-    bool pressed;
-    bool released;
-    Vector2 pos;
-    Vector2 startDragPos;
-} MouseState;
-
-typedef struct KeyboardState {
-    int pressed;
-    bool shift;
-    bool ctrl;
-    bool alt;
-} KeyboardState;
-
 // EXIT
 // MINIMIZE
 // TITLEBAR
@@ -43,6 +26,24 @@ typedef struct CollisionMap {
     bool titleBar;
     bool sheet;
 } CollisionMap;
+
+typedef struct MouseState {
+    enum Collider current;
+    enum Collider startDrag;
+    bool down;
+    bool pressed;
+    bool released;
+    Vector2 pos;
+    Vector2 startDragPos;
+    CollisionMap Collision;
+} MouseState;
+
+typedef struct KeyboardState {
+    int pressed;
+    bool shift;
+    bool ctrl;
+    bool alt;
+} KeyboardState;
 
 // 3 components: str, cStart, cEnd
 typedef struct GapBuffer {

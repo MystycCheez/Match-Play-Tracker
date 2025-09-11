@@ -46,12 +46,12 @@ typedef enum Scope_Level {
     SCOPE_COUNT
 } Scope_Level;
 
-typedef enum ActiveControl {
+typedef enum Collider {
     NONE = -1,
     EXIT,
     MINIMIZE,
     TITLEBAR,
     SHEET,
-} ActiveControl;
+} Collider;
 
 #endif

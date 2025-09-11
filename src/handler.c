@@ -105,9 +105,9 @@ void WindowDragHandler()
 
 void MouseDragHandler()
 {
-    if (Mouse.current == TITLEBAR) {
+    if (Mouse.startDrag == TITLEBAR) {
             WindowDragHandler();
-    } else if (Mouse.current == SHEET) {
+    } else if (Mouse.startDrag == SHEET) {
         // TODO: Dragging cells
     }
 }
@@ -150,17 +150,17 @@ void MouseReleaseHandler()
     }
 }
 
-void MouseCollisionHandler(CollisionMap Collision)
+void MouseCollisionHandler()
 {
     if (Mouse.pressed) {
         if (Mouse.current == SHEET) {
             MouseSheetHandler_();
-            printf("test\n");
         }
-    } else if (Mouse.pressed && Mouse.down) {
         Mouse.startDrag = Mouse.current;
         Mouse.startDragPos = Mouse.pos;
     } else if (Mouse.down && !Mouse.pressed) {
+        updateCollisionMap();
+        updateCollider();
         MouseDragHandler();
     } else if (Mouse.released) {
         if (Mouse.current == Mouse.startDrag) {
@@ -169,47 +169,38 @@ void MouseCollisionHandler(CollisionMap Collision)
         Mouse.startDrag = Mouse.current;
         Mouse.startDragPos = Mouse.pos;
     } else {
-        if      (Collision.exit)     {Mouse.current = EXIT;}
-        else if (Collision.minimize) {Mouse.current = MINIMIZE;}
-        else if (Collision.titleBar) {Mouse.current = TITLEBAR;}
-        else                         {Mouse.current = SHEET;}
+        updateCollider();
         MouseHoverHandler();
     }
 }
 
-void MH()
+void updateCollider()
 {
-    Mouse.pos = GetMousePosition();
-    Mouse.down = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
-    Mouse.pressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
-    Mouse.released = IsMouseButtonReleased(MOUSE_BUTTON_LEFT);
+    if      (Mouse.Collision.exit)     {Mouse.current = EXIT;}
+    else if (Mouse.Collision.minimize) {Mouse.current = MINIMIZE;}
+    else if (Mouse.Collision.titleBar) {Mouse.current = TITLEBAR;}
+    else                               {Mouse.current = SHEET;}
+}
 
-    CollisionMap Collision = {
+void updateCollisionMap()
+{
+    Mouse.Collision = (CollisionMap) {
         CheckCollisionPointRec(Mouse.pos, getButtonRect(BTN_EXIT)),
         CheckCollisionPointRec(Mouse.pos, getButtonRect(BTN_MINIMIZE)),
         CheckCollisionPointRec(Mouse.pos, TitleBar.Rec),
         CheckCollisionPointRec(Mouse.pos, getSheetRect())
     };
-    MouseCollisionHandler(Collision);
 }
 
 void MouseHandler()
 {
     Mouse.pos = GetMousePosition();
-    Vector2 windowPos = GetWindowPosition();
-
     Mouse.down = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
     Mouse.pressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
     Mouse.released = IsMouseButtonReleased(MOUSE_BUTTON_LEFT);
 
-    CollisionMap Collision = {
-        CheckCollisionPointRec(Mouse.pos, getButtonRect(BTN_EXIT)),
-        CheckCollisionPointRec(Mouse.pos, getButtonRect(BTN_MINIMIZE)),
-        CheckCollisionPointRec(Mouse.pos, TitleBar.Rec),
-        CheckCollisionPointRec(Mouse.pos, getSheetRect())
-    };
-    MouseTitleBarHandler(Collision, windowPos);
-    MouseSheetHandler(Collision);
+    updateCollisionMap();
+    MouseCollisionHandler();
 }
 
 void EnterNavigationHandler()
