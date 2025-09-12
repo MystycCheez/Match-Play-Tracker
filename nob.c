@@ -24,6 +24,9 @@ int main(int argc, char** argv)
         "-std=c99", 
         "-Wall", 
         "-Wextra", 
+        #ifdef RELEASE
+        "-mwindows",
+        #endif
         "-lraylib", 
         "-lglfw3", 
         "-I"INCLUDE_DIR

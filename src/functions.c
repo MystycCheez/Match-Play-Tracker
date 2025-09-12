@@ -125,7 +125,10 @@ char *filterCellText(char* text)
     char* filtered = malloc(5);
 
     int special = CompareSpecialText(text);
-    if (special == TEXT_VETO) return text_veto;
+    if (special == TEXT_VETO) {
+        SetVetoColor(Sheet.cell);
+        return text_veto;
+    }
     if (special == TEXT_DNF) return text_dnf;
 
     free(text_veto);
@@ -392,6 +395,11 @@ void CleanUp()
         free(GVARS.specials.text[i]);
     }
     free(GVARS.specials.text);
+}
+
+void SetVetoColor(Cell* cell)
+{
+    cell->color = GVARS.vetoFlag ? COLOR_LEVEL : WHITE;
 }
 
 #endif

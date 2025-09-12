@@ -252,12 +252,12 @@ void A_SwapVetoColor()
             for (size_t n = 0; n < 3; n++) {
                 char* cellText = gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH);
                 if (CompareSpecialText(cellText) == TEXT_VETO) {
-                    Sheet.cellList[i].color = GVARS.vetoFlag ? COLOR_LEVEL : WHITE;  
+                    SetVetoColor(&Sheet.cellList[i]);
                 }
                 free(cellText);
             }
         }
-    }   
+    }
 }
 
 void A_ResetTextColor()

@@ -54,6 +54,7 @@ char* i_toStr(int num);
 void updateSheetIndex(size_t newIndex);
 void unselectCells();
 void CleanUp();
+void SetVetoColor(Cell* cell);
 
 // gap_buffer.c
 GapBuffer initGapStr(size_t len);
