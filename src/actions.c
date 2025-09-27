@@ -15,13 +15,13 @@ void A_ScopeDecrease()
 
 void A_SelectChar()
 {
-    selectChar(&Sheet.cell->gapStr, getMoveDir());
+    SelectChar(&Sheet.cell->gapStr, getMoveDir());
 }
 
 void A_SelectAll()
 {
     A_MoveCursorToStart();
-    while (selectChar(&Sheet.cell->gapStr, DIR_RIGHT)) {
+    while (SelectChar(&Sheet.cell->gapStr, DIR_RIGHT)) {
         A_DoNothing();
     }
 }
@@ -48,7 +48,7 @@ void A_SelectAllAtCursorTowardsDir()
         }
     } else {
         select: 
-        while (selectChar(&Sheet.cell->gapStr, dir)) {
+        while (SelectChar(&Sheet.cell->gapStr, dir)) {
             A_DoNothing();
         }
     }

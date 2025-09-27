@@ -52,6 +52,13 @@ bool getMoveDir()
     assert(!"Shouldn't be trying to get a direction when not pressing left or right!");
 }
 
+bool getMouseMoveDir()
+{
+    if (Mouse.startDragPos.x > Mouse.pos.x) return DIR_LEFT;
+    if (Mouse.startDragPos.x < Mouse.pos.x) return DIR_RIGHT;
+    assert(!"Shouldn't be trying to get a direction when not moving mouse!");
+}
+
 int GetKeyComboIndex(int key, int modifier)
 {
     if (key == -1) return UNUSED_KEY_COMBO;

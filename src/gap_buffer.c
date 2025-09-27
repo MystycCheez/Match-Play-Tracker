@@ -151,7 +151,7 @@ bool CursorMoveDir(GapBuffer *gapStr, bool dir)
 
 // boy this is another mess
 // return value indicates if movement occurred or not
-bool selectChar(GapBuffer *gapStr, bool dir)
+bool SelectChar(GapBuffer *gapStr, bool dir)
 {
     if (!Sheet.selection.exists) {
         Sheet.selection.start = gapStr->cStart;
@@ -177,6 +177,13 @@ bool selectChar(GapBuffer *gapStr, bool dir)
     if (Sheet.selection.start == Sheet.selection.end) {Deselect();}
     // printf("start: %lld, end: %lld\n", Sheet.selection.start, Sheet.selection.end);
     return true;
+}
+
+void SelectToIndex(GapBuffer *gapStr, bool dir, size_t index)
+{
+    while (Sheet.selection.end != index || Sheet.selection.start != index) {
+        SelectChar(gapStr, dir);
+    }
 }
 
 void Deselect()

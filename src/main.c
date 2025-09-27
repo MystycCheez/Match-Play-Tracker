@@ -69,7 +69,7 @@ int main()
         }
         // Draw Text :)
         for (size_t i = 0; i < CELL_COUNT; i++) {
-            DrawTextAligned(UI.TextPos, Sheet.cellList[i], i);
+            DrawTextAligned(Sheet.cellList[i], i);
         }
         if (GVARS.scope >= SCOPE_SHEET) {
             DrawSelectionBorders();

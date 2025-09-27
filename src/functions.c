@@ -47,11 +47,12 @@ Cell getOppositeCell()
     return Sheet.cellList[getOppositeCellIndex()];
 }
 
-// TODO: check if this can utilize xy/cr functions
-Vector2 CalcTextPos(Vector2 pos, size_t index)
+// Returns top left corner of cell
+Vector2 GetCellPos(size_t index)
 {
-    pos.x = pos.x + (UI.cellWidth * (index % 3));
-    pos.y = 1 + pos.y + (UI.cellHeight * (index / 3) + UI.topBarHeight);
+    Vector2 pos;
+    pos.x = UI.cellWidth * (index % 3);
+    pos.y = (UI.cellHeight * (index / 3)) + UI.topBarHeight;
     return pos;
 }
 
@@ -311,6 +312,29 @@ size_t xyToIndex(Vector2 xy)
     rounded.x = rounded.x / UI.cellWidth;
     rounded.y = rounded.y / UI.cellHeight;
     index = rounded.x + (rounded.y * COLUMNS);
+    return index;
+}
+
+size_t xToCursorIndex(float inputX)
+{
+    float charX = GetCellPos(Sheet.index).x;
+    char* text = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH);
+    float span = MeasureTextEx(UI.font, text, UI.fontSize, 1).x;
+    charX += (UI.cellWidth / 2) - (span / 2);
+    
+    size_t index = 0;
+    char* tmp = malloc(2);
+    memset(tmp, 0, 2);
+    for (size_t i = 0; text[i] != '\0'; i++) {
+        if (inputX >= charX) {
+            index = i;
+        }
+        sprintf(tmp, "%c", text[i]);
+        charX += MeasureTextEx(UI.font, tmp, UI.fontSize, 1).x;
+    }
+    
+    free(text);
+    free(tmp);
     return index;
 }
 

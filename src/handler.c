@@ -9,83 +9,6 @@ void ExitHandler()
     GVARS.shouldExit = true;
 }
 
-void MouseTitleBarHandler(CollisionMap Collision, Vector2 windowPos)
-{
-    static bool buttonLeft = false;
-    static bool windowDrag = false;
-    static CollisionMap Drag = {false};
-    static Vector2 dragOffset = {0};
-
-    for (size_t i = 0; i < 2; i++) {
-        UI.buttons[i].state = ((bool *)(&Collision))[i] ? STATE_BTN_HIGHLIGHTED : STATE_BTN_UNHIGHLIGHTED;
-    }
-    if (Mouse.down) {
-        if (Collision.exit && !Drag.titleBar) {
-            Drag.titleBar = true;
-            UI.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
-        }
-        if (Collision.minimize && !Drag.minimize) {
-            Drag.minimize = true;
-            UI.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
-        }
-        if (!(Collision.exit || Collision.minimize) && (Drag.titleBar || Drag.minimize)) {
-            buttonLeft = true;
-        } else buttonLeft = false;
-    } else {
-        Drag.titleBar = Drag.minimize = false;
-    }
-
-    if (Mouse.down && !windowDrag && !(Drag.titleBar || Drag.minimize)) {
-        if (Collision.titleBar && !(Collision.exit || Collision.minimize)) {
-            windowDrag = true;
-            dragOffset = Mouse.pos;
-        } else windowDrag = false;
-    }
-    if (windowDrag) {
-        windowPos.x += Mouse.pos.x - dragOffset.x;
-        windowPos.y += Mouse.pos.y - dragOffset.y;
-        SetWindowPosition(windowPos.x, windowPos.y);
-        if (!Mouse.down) windowDrag = false;
-    }
-    if (Mouse.released && !windowDrag && !(Drag.titleBar || Drag.minimize) && !buttonLeft) {
-        if (Collision.exit) {
-            UI.buttons[BTN_EXIT].state = STATE_BTN_PRESSED;
-            ExitHandler();
-        }
-        if (Collision.minimize) {
-            UI.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
-            MinimizeWindow();
-        }
-    }
-}
-
-void MouseSheetHandler(CollisionMap Collision)
-{
-    if (!Mouse.pressed) return;
-    if (Collision.sheet) {
-        size_t index = xyToIndex(Mouse.pos);
-        if (Sheet.cellList[index].selectable) {
-            if (index == Sheet.index) {
-                GVARS.scope = SCOPE_CELL;
-            } else {
-                GVARS.scope = SCOPE_SHEET;
-                Deselect();
-                if ((Sheet.index % 3 != 0) && (Sheet.index > 3)) {
-                    char* cellText = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH);
-                    if (strlen(cellText) > 0) {
-                        CellOverwriteHandler();
-                        UpdateScores();
-                    }
-                    free(cellText);
-                }
-                updateSheetIndex(index);
-            }
-        } else unselectCells();
-    } else {
-        unselectCells();
-    }
-}
-
 void MouseHoverHandler()
 {
     for (int i = 0; i < BTN_COUNT; i++) {
@@ -103,16 +26,27 @@ void WindowDragHandler()
     SetWindowPosition(windowPos.x, windowPos.y);
 }
 
+void TextDragHandler()
+{
+    size_t index = xToCursorIndex(Mouse.pos.x);
+    SelectToIndex(&Sheet.cell->gapStr, getMouseMoveDir(), index);
+}
+
 void MouseDragHandler()
 {
     if (Mouse.startDrag == TITLEBAR) {
-            WindowDragHandler();
+        WindowDragHandler();
     } else if (Mouse.startDrag == SHEET) {
-        // TODO: Dragging cells
-    }
+        if (GVARS.scope == SCOPE_SHEET) {
+            // TODO: Dragging cells
+        } else {
+            if (Mouse.pos.x != Mouse.startDragPos.x)
+            TextDragHandler();
+        }
+    } 
 }
 
-void MouseSheetHandler_()
+void MouseSheetHandler()
 {
     size_t index = xyToIndex(Mouse.pos);
     if (Sheet.cellList[index].selectable) {
@@ -154,10 +88,14 @@ void MouseCollisionHandler()
 {
     if (Mouse.pressed) {
         if (Mouse.current == SHEET) {
-            MouseSheetHandler_();
+            MouseSheetHandler();
         }
         Mouse.startDrag = Mouse.current;
         Mouse.startDragPos = Mouse.pos;
+        if (GVARS.scope == SCOPE_CELL) {
+            size_t start_index = xToCursorIndex(Mouse.pos.x);
+            MoveCursorToIndex(&Sheet.cell->gapStr, start_index);
+        }
     } else if (Mouse.down && !Mouse.pressed) {
         updateCollisionMap();
         updateCollider();

@@ -14,13 +14,13 @@ void DrawCursor()
 {
     if (Sheet.index == 0) return;
     Vector2 pos = {0};
-    pos = CalcTextPos(pos, Sheet.index);
+    pos = GetCellPos(Sheet.index);
     char* text = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH);
     float span = MeasureTextEx(UI.font, text, UI.fontSize, 1).x;
     float offset = MeasureTextEx(UI.font, Sheet.cell->gapStr.str, UI.fontSize, 1).x;
     pos.x += (UI.cellWidth / 2) - (span / 2) + offset + 1;
-    pos.y += 2;
-    DrawLineEx(pos, (Vector2){pos.x, pos.y + UI.cellHeight - 6}, 1.0, LIGHTGRAY);
+    pos.y += 3;
+    DrawLineEx(pos, (Vector2){pos.x, pos.y + UI.cellHeight - 5}, 1.0, LIGHTGRAY);
 
     free(text);
 }
@@ -30,8 +30,8 @@ void DrawTextCentered(Vector2 pos, Cell cell)
     char* text = gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH);
     Vector2 size = MeasureTextEx(UI.font, text, UI.fontSize, 1);
 
-    pos.x = round(pos.x + (UI.cellWidth / 2) - (size.x / 2) + UI.TextPos.x);
-    pos.y = round(pos.y + (UI.cellHeight / 2) - (size.y / 2) + UI.TextPos.y);
+    pos.x = round(pos.x + (UI.cellWidth / 2) - (size.x / 2));
+    pos.y = round(pos.y + (UI.cellHeight / 2) - (size.y / 2));
 
     DrawTextEx(UI.font, text, pos, UI.fontSize, 1, cell.color);
 
@@ -51,14 +51,14 @@ void DrawTextLeftAligned(Vector2 pos, Cell cell)
     free(text);
 }
 
-void DrawTextAligned(Vector2 pos, Cell cell, size_t cellIndex)
+void DrawTextAligned(Cell cell, size_t cellIndex)
 {
     switch (cell.alignment) {
     case ALIGN_LEFT:
-        DrawTextLeftAligned(CalcTextPos(pos, cellIndex), cell);
+        DrawTextLeftAligned(GetCellPos(cellIndex), cell);
         break;
     case ALIGN_CENTER:
-        DrawTextCentered(CalcTextPos(pos, cellIndex), cell);
+        DrawTextCentered(GetCellPos(cellIndex), cell);
         break;
     case ALIGN_RIGHT:
         assert(!"TODO: ALIGN_RIGHT");
@@ -72,7 +72,7 @@ void DrawTextAligned(Vector2 pos, Cell cell, size_t cellIndex)
 void DrawTextHighlight()
 {
     Vector2 pos = {0};
-    pos = CalcTextPos(pos, Sheet.index);
+    pos = GetCellPos(Sheet.index);
 
     char* cellText = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH);
 
@@ -90,7 +90,8 @@ void DrawTextHighlight()
     float offset = MeasureTextEx(UI.font, prefix, UI.fontSize, 1).x;
 
     pos.x += (UI.cellWidth / 2) - (cellTextSpan / 2) + offset;
-    DrawRectangleRec((Rectangle){pos.x, pos.y, selectionSpan + 2, UI.cellHeight}, COLOR_HIGHLIGHT);
+    pos.y += 1;
+    DrawRectangleRec((Rectangle){pos.x, pos.y, selectionSpan + 2, UI.cellHeight - 2}, COLOR_HIGHLIGHT);
 
     free(cellText);
     free(selectedText);
