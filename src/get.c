@@ -163,7 +163,7 @@ int GetRaylibKey(size_t index)
             KEY_LIST
         #undef KEY
         default: 
-            fprintf(stderr, "Not a valid key: %lld!\n", index);
+            fprintf(stderr, "Not a valid key: %zu!\n", index);
             fprintf(stderr, "%s:%d, %s\n", __FILE__, __LINE__, __func__);
             exit(1);
     }

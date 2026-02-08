@@ -98,8 +98,8 @@ void initSheetText()
     setGameText();
     char *s1 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
     char *s2 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-    sprintf(s1, "%lld", Sheet.players.s1);
-    sprintf(s2, "%lld", Sheet.players.s2);
+    sprintf(s1, "%zu", Sheet.players.s1);
+    sprintf(s2, "%zu", Sheet.players.s2);
     placeString(&Sheet.cellList[0].gapStr, "Stage", CELL_TEXT_LENGTH);
     placeString(&Sheet.cellList[CELL_COUNT - 3].gapStr, "Points", CELL_TEXT_LENGTH);
     placeString(&Sheet.cellList[1].gapStr, Sheet.players.p1, CELL_TEXT_LENGTH);

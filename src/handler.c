@@ -77,8 +77,8 @@ void MouseReleaseHandler()
         UI.buttons[BTN_MINIMIZE].state = STATE_BTN_PRESSED;
         MinimizeWindow();
     } else if (Mouse.current == TITLEBAR) {
+        A_Deselect_Or_Undo_Backout();
         unselectCells();
-        A_ScopeDecrease();
     } else if (Mouse.current == SHEET) {
         // TODO: Multiple cell selection?
     }

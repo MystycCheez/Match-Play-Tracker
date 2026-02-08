@@ -109,7 +109,7 @@ void checkUnfreed()
         fprintf(log, "%s:%d, %s\n", current->file, current->line, current->func);
     }
 
-    printf("%lld nodes remain unfreed.\n", nodeCount);
+    printf("%zu nodes remain unfreed.\n", nodeCount);
     #define free(X) debug_free(X, __FILE__, __LINE__, __FUNCTION__)
     fclose(log);
 }

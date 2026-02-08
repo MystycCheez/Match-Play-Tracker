@@ -85,7 +85,7 @@ char *secsToTime(size_t totalSecs)
     memset(time, 0, CELL_TEXT_LENGTH);
     size_t minutes = totalSecs / 60 < 100 ? totalSecs / 60 : 59;
     size_t secs = totalSecs % 60;
-    sprintf(time, "%lld:%02lld", minutes, secs);
+    sprintf(time, "%zu:%02zu", minutes, secs);
     return time;
 }
 

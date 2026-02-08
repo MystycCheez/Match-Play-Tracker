@@ -175,7 +175,7 @@ bool SelectChar(GapBuffer *gapStr, bool dir)
         } else Sheet.selection.start++;
     } else if (Sheet.selection.start == Sheet.selection.end) Deselect();
     if (Sheet.selection.start == Sheet.selection.end) {Deselect();}
-    // printf("start: %lld, end: %lld\n", Sheet.selection.start, Sheet.selection.end);
+    // printf("start: %zu, end: %zu\n", Sheet.selection.start, Sheet.selection.end);
     return true;
 }
 

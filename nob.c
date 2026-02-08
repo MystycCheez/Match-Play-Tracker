@@ -19,7 +19,7 @@ int main(int argc, char** argv)
         "-g3", 
         "-O3",
         "-o",
-        BUILD_DIR"tracker.exe", 
+        BUILD_DIR"tracker", 
         SRC_DIR"*.c", 
         "-std=c99", 
         "-Wall", 
@@ -35,7 +35,7 @@ int main(int argc, char** argv)
 
     nob_set_current_dir(BUILD_DIR);
 
-    nob_cmd_append(&cmd, "tracker.exe");
+    nob_cmd_append(&cmd, "tracker");
     if (!nob_cmd_run_sync_and_reset(&cmd)) return 1;
 
     return 0;
