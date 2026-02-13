@@ -20,7 +20,7 @@ int main(int argc, char** argv)
         "-O3",
         "-o",
         BUILD_DIR"tracker", 
-        SRC_DIR, 
+        SRC_DIR"*.src", 
         "-std=c99", 
         "-Wall", 
         "-Wextra", 

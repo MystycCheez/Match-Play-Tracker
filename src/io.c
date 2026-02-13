@@ -53,7 +53,7 @@ char** loadLevelText(int game)
     }
     char** levelText = malloc(sizeof(char*) * LEVEL_COUNT);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
-        levelText[i] = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+        levelText[i] = strCreate(CELL_TEXT_LENGTH);
         fgets(levelText[i], CELL_TEXT_LENGTH, file_ptr);
         memset(strchr(levelText[i], '\n'), '\0', 1);
     }
@@ -72,13 +72,13 @@ void loadSpecialText()
         exit(1);
     }
     size_t specialCount = 0;
-    char *tmp = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    char *tmp = strCreate(CELL_TEXT_LENGTH);
     while (fgets(tmp, CELL_TEXT_LENGTH, file_ptr) != NULL) specialCount++;
     free(tmp);
     rewind(file_ptr);
     char **specialText = malloc(sizeof(char *) * specialCount);
     for (size_t i = 0; i < specialCount; i++) {
-        specialText[i] = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+        specialText[i] = strCreate(CELL_TEXT_LENGTH);
         fgets(specialText[i], CELL_TEXT_LENGTH, file_ptr);
         memset(strchr(specialText[i], '\n'), 0, 1);
     }
@@ -129,7 +129,7 @@ void ExportToBBCode()
     char* colorText[CELL_COUNT];
 
     for (size_t i = 0; i < CELL_COUNT; i++) {
-        colorText[i] = malloc(10 * sizeof(char));
+        colorText[i] = strCreate(10);
         cellText[i] = gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH);
         if (i < 3) {
             free(colorText[i]);
@@ -264,7 +264,7 @@ void ExportToBBCode()
 
     fseek(out_bb, 0, SEEK_END);
     long out_len = ftell(out_bb);
-    char* copy_bb = malloc(out_len);
+    char* copy_bb = strCreate(out_len);
     fseek(out_bb, 0, SEEK_SET);
     if (copy_bb) {
         fread(copy_bb, 1, out_len, out_bb);

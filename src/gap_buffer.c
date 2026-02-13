@@ -8,7 +8,7 @@
 GapBuffer initGapStr(size_t len)
 {
     GapBuffer gapStr = {0};
-    gapStr.str = malloc(sizeof(char) * len + 1);
+    gapStr.str = strCreate(len + 1);
     memset(gapStr.str, 0, len + 1);
     gapStr.cStart = 0;
     gapStr.cEnd = len - 1;
@@ -82,8 +82,8 @@ GapBuffer strToGapStr(char* str, size_t cursor)
 {
     GapBuffer gapStr = {0};
     size_t len = strlen(str);
-    gapStr.str = malloc(sizeof(char) * len);
-    memset(gapStr.str, 0, len);
+    gapStr.str = strCreate(len + 1);
+    memset(gapStr.str, 0, len + 1);
     snprintf(gapStr.str, cursor, "%s", str);
     gapStr.cStart = 0;
     gapStr.cEnd = cursor;
@@ -96,7 +96,7 @@ char* gapStrToStr(GapBuffer gapStr, size_t maxLen)
     size_t initLenL = strlen(gapStr.str);
     size_t lenR = strlen(gapStr.str + gapStr.cEnd + 1);
     size_t len = min(maxLen, initLenL + lenR) + 1;
-    char* str = malloc(sizeof(char) * len);
+    char* str = strCreate(len);
     memset(str, 0, len);
     size_t lenL = min(len - 1, initLenL);
     strncpy(str, gapStr.str, lenL);
@@ -217,7 +217,7 @@ void DeleteSelection(GapBuffer *gapStr)
 void replaceChar(GapBuffer *gapStr, char c)
 {
     char* tmp = gapStrToStr(*gapStr, CELL_TEXT_LENGTH);
-    char* tmp2 = malloc(sizeof(char) * CELL_TEXT_LENGTH); 
+    char* tmp2 = strCreate(CELL_TEXT_LENGTH); 
     tmp2 = strcpy(tmp2, &tmp[Sheet.selection.start]);
     free(tmp);
     tmp2[0] = c;
@@ -226,7 +226,7 @@ void replaceChar(GapBuffer *gapStr, char c)
 
 void CopyText(GapBuffer gapStr)
 {
-    char *copy = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    char *copy = strCreate(CELL_TEXT_LENGTH);
     char *tmp = gapStrToStr(gapStr, CELL_TEXT_LENGTH);
     memset(copy, 0, CELL_TEXT_LENGTH);
     strncpy(copy, tmp + Sheet.selection.start, Sheet.selection.end - Sheet.selection.start);

@@ -65,8 +65,8 @@ size_t timeToSecs(char *time)
         return atoi(time);
     }
     else {
-        char *a = malloc(sizeof(char) * timeLen - 2);
-        char *b = malloc(sizeof(char) * 2);
+        char *a = strCreate(timeLen - 2);
+        char *b = strCreate(2);
         strncpy(a, time, timeLen - 2);
         strcpy(b, time + timeLen - 2);
         size_t minutes = atoi(a);
@@ -81,7 +81,7 @@ size_t timeToSecs(char *time)
 char *secsToTime(size_t totalSecs)
 {
     if (totalSecs == 0) return "\0";
-    char *time = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    char *time = strCreate(CELL_TEXT_LENGTH);
     memset(time, 0, CELL_TEXT_LENGTH);
     size_t minutes = totalSecs / 60 < 100 ? totalSecs / 60 : 59;
     size_t secs = totalSecs % 60;
@@ -107,6 +107,7 @@ void setCellTextColor(char* text)
     Sheet.cell->color = HexToColor(text);
 }
 
+// TODO: Revist this function to deal with this silly dummy text
 // Filters string to be converted into time / Outputs "mm:ss" or "m:ss"
 char *filterCellText(char* text)
 {
@@ -115,15 +116,15 @@ char *filterCellText(char* text)
     static char* static_text_veto = "Veto";
     static char* static_text_dnf = "DNF";
 
-    char* dummy = malloc(strlen(static_dummy));
-    char* text_veto = malloc(strlen(static_text_veto));
-    char* text_dnf = malloc(strlen(static_text_dnf));
+    char* dummy = strCreate(strlen(static_dummy));
+    char* text_veto = strCreate(strlen(static_text_veto + 1));
+    char* text_dnf = strCreate(strlen(static_text_dnf + 1));
 
     sprintf(dummy, "%s", static_dummy);
     sprintf(text_veto, "%s", static_text_veto);
     sprintf(text_dnf, "%s", static_text_dnf);
 
-    char* filtered = malloc(5);
+    char* filtered = strCreate(5);
 
     int special = CompareSpecialText(text);
     if (special == TEXT_VETO) {
@@ -323,7 +324,7 @@ size_t xToCursorIndex(float inputX)
     charX += (UI.cellWidth / 2) - (span / 2);
     
     size_t index = 0;
-    char* tmp = malloc(2);
+    char* tmp = strCreate(2);
     memset(tmp, 0, 2);
     for (size_t i = 0; text[i] != '\0'; i++) {
         if (inputX >= charX) {
@@ -346,7 +347,7 @@ size_t crToIndex(Vector2 cr)
 
 char* ColorToHexText(Color color)
 {
-    char* colorText = malloc(8);
+    char* colorText = strCreate(8);
     snprintf(colorText + 0, 2, "#");
     snprintf(colorText + 1, 3, "%02x", color.r);
     snprintf(colorText + 3, 3, "%02x", color.g);
@@ -356,9 +357,9 @@ char* ColorToHexText(Color color)
 
 Color HexToColor(char* text)
 {
-    char* r = malloc(2);
-    char* g = malloc(2);
-    char* b = malloc(2);
+    char* r = strCreate(2);
+    char* g = strCreate(2);
+    char* b = strCreate(2);
     strncpy(r, text + 1, 2);
     strncpy(g, text + 3, 2);
     strncpy(b, text + 5, 2);
@@ -382,7 +383,7 @@ void chrswap(char* ptr1, char* ptr2)
 char* i_toStr(int num)
 {
     // TODO: make more portable or just use itoa in place of this
-    char* str = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    char* str = strCreate(CELL_TEXT_LENGTH);
     sprintf(str, "%d", num);
     return str;
 }

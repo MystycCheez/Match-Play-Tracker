@@ -99,8 +99,8 @@ void setGameText()
 void initSheetText()
 {
     setGameText();
-    char *s1 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
-    char *s2 = malloc(sizeof(char) * CELL_TEXT_LENGTH);
+    char *s1 = strCreate(CELL_TEXT_LENGTH);
+    char *s2 = strCreate(CELL_TEXT_LENGTH);
     sprintf(s1, "%zu", Sheet.players.s1);
     sprintf(s2, "%zu", Sheet.players.s2);
     placeString(&Sheet.cellList[0].gapStr, "Stage", CELL_TEXT_LENGTH);
@@ -137,8 +137,7 @@ void initSheet()
     Sheet.index = 0;
     Sheet.cell = &Sheet.cellList[Sheet.index];
     Sheet.players = (Players){"Player 1", "Player 2", 0, 0};
-    Sheet.level_win = malloc(1);
-    Sheet.level_win[0] = 0;
+    Sheet.level_win = strCreate(1); // Is there a better way to handle this?
 }
 
 void setBorderPositions()

@@ -116,6 +116,9 @@ extern void* debug_malloc(size_t size, const char *file, int line, const char *f
 extern void debug_free(void* p);
 extern void checkUnfreed();
 
+// mem.c
+char* strCreate(size_t len);
+
 #define ACTION(a,b,c) void b();
     ACTION_LIST
 #undef ACTION

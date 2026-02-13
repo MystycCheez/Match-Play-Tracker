@@ -77,14 +77,14 @@ void DrawTextHighlight()
     char* cellText = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH);
 
     size_t selectionLen = Sheet.selection.end - Sheet.selection.start;
-    char *selectedText = malloc(selectionLen + 1);
+    char* selectedText = strCreate(selectionLen + 1);
     snprintf(selectedText, selectionLen + 1, "%s", cellText + Sheet.selection.start);
     snprintf(selectedText + selectionLen, 1, "%s", "\0");
 
     float selectionSpan = MeasureTextEx(UI.font, selectedText, UI.fontSize, 1).x;
     float cellTextSpan = MeasureTextEx(UI.font, cellText, UI.fontSize, 1).x;
 
-    char* prefix = malloc(Sheet.selection.start + 1);
+    char* prefix = strCreate(Sheet.selection.start + 1);
     memset(prefix, 0, Sheet.selection.start + 1);
     snprintf(prefix, Sheet.selection.start + 1, "%s", cellText);
     float offset = MeasureTextEx(UI.font, prefix, UI.fontSize, 1).x;
