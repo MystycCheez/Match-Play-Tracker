@@ -14,14 +14,16 @@ void initGlobals()
 
 void initWindow()
 {
-    SetConfigFlags(FLAG_WINDOW_UNDECORATED);
-    InitWindow(0, 0, "Match Play Tracker");
+    SetConfigFlags(FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_HIDDEN);
+    InitWindow(1, 1, "Match Play Tracker");
     Window.Icon = LoadImage("resources/logo-transparent.png");
     Window.IconTexture = LoadTextureFromImage(Window.Icon);
     SetTextureFilter(Window.IconTexture, TEXTURE_FILTER_BILINEAR);
     SetWindowIcon(Window.Icon);
 
     Window.scaleDPI = GetWindowScaleDPI();
+
+    printf("DPI: %f, %f\n", Window.scaleDPI.x, Window.scaleDPI.y);
 
     UI.cellWidth = BASE_CELL_WIDTH * Window.scaleDPI.x;
     UI.cellHeight = BASE_CELL_HEIGHT * Window.scaleDPI.y;
@@ -33,16 +35,15 @@ void initWindow()
 
     Window.expand = false;
 
-    int currentMonitor = GetCurrentMonitor();
-    int monitorCount = 0;
     int monitorWorkareaX = 0;
     int monitorWorkareaY = 0;
     int monitorWorkareaWidth = 0;
     int monitorWorkareaHeight = 0;
 
-    GLFWmonitor** monitors = glfwGetMonitors(&monitorCount);
+    GLFWmonitor *primaryMonitor = glfwGetPrimaryMonitor();
+    
     glfwGetMonitorWorkarea(
-        monitors[currentMonitor], 
+        primaryMonitor, 
         &monitorWorkareaX, 
         &monitorWorkareaY,
         &monitorWorkareaWidth,
@@ -54,6 +55,8 @@ void initWindow()
         (monitorWorkareaWidth / 2) - (Window.Width / 2), 
         (monitorWorkareaHeight / 2) - (Window.Height / 2)
     );
+
+    ClearWindowState(FLAG_WINDOW_HIDDEN);
     
     TitleBar.Image = LoadImage("resources/title-bar.png");
     TitleBar.Texture = LoadTextureFromImage(TitleBar.Image);
@@ -68,7 +71,7 @@ void initWindow()
 
 void initButtons()
 {
-    UI.buttons = malloc(sizeof(Button) * 2);
+    UI.buttons = malloc(sizeof(Button) * BTN_COUNT);
     for (size_t i = 0; i < 2; i++) {
         UI.buttons[i].size.x = BASE_BUTTON_SIZE;
         UI.buttons[i].size.y = BASE_BUTTON_SIZE;

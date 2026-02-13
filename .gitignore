@@ -8,3 +8,5 @@
 release/
 .vscode
 *.dll
+compile
+build/tracker
