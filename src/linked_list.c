@@ -1,18 +1,27 @@
+// Linked List for debugging malloc
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
 
-#include "linked_list.h"
+typedef struct Node {
+    void* data;
+    const char *file;
+    int line;
+    const char *func;
+    struct Node* next;
+    struct Node* prev;
+} Node;
 
-extern Node* MNode;
+Node* MNode;
 
 // Create new Node for a doubly linked list
 Node* NewNode(void* data, Node* next, Node* prev, const char *file, int line, const char *func)
 {
     Node* node = malloc(sizeof(Node));
     if (node == NULL) {
-        printf("Error! Could not allocate memory!\n");
+        fprintf(stderr, "Error! Could not allocate memory!\n");
         exit(EXIT_FAILURE);
     }
     node->data = data;
@@ -67,9 +76,9 @@ void debug_free(void* p)
         MNode = current->next;
     } else if (current->next == current) flag = true;
     if (current->next == NULL || current->prev == NULL) {
-        printf("next: %p, prev: %p\n", current->next, current->prev);
-        printf("How did you get here?\n");
-        exit(1);
+        fprintf(stderr, "next: %p, prev: %p\n", current->next, current->prev);
+        fprintf(stderr, "How did you get here?\n");
+        assert(false);
     } 
 
     #undef free

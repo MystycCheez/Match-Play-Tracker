@@ -11,6 +11,5 @@ Cursor_Elements Cursor;
 MouseState Mouse;
 KeyboardState KeyData;
 Sheet_Info Sheet;
-Node* MNode;
 
 #endif

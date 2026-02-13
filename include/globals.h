@@ -11,6 +11,5 @@ extern Cursor_Elements Cursor;
 extern MouseState Mouse;
 extern KeyboardState KeyData;
 extern Sheet_Info Sheet;
-extern Node* MNode;
 
 #endif

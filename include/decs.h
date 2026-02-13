@@ -111,11 +111,10 @@ void KeyHandler();
 void CursorHandler();
 
 // linked_list.c
-void initLinkedList(void* data, const char *file, int line, const char *func);
-void* debug_malloc(size_t size, const char *file, int line, const char *func);
-void debug_free(void* p);
-void checkUnfreed();
-Node* NewNode(void* data, Node* next, Node* prev, const char *file, int line, const char *func);
+extern void initLinkedList(void* data, const char *file, int line, const char *func);
+extern void* debug_malloc(size_t size, const char *file, int line, const char *func);
+extern void debug_free(void* p);
+extern void checkUnfreed();
 
 #define ACTION(a,b,c) void b();
     ACTION_LIST

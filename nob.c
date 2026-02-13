@@ -20,7 +20,7 @@ int main(int argc, char** argv)
         "-O3",
         "-o",
         BUILD_DIR"tracker", 
-        SRC_DIR"*.c", 
+        SRC_DIR, 
         "-std=c99", 
         "-Wall", 
         "-Wextra", 
@@ -29,6 +29,7 @@ int main(int argc, char** argv)
         #endif
         "-lraylib", 
         "-lglfw3", 
+        "-lm", 
         "-I"INCLUDE_DIR
     );
     if (!nob_cmd_run_sync_and_reset(&cmd)) return 1;
