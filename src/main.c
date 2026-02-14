@@ -1,4 +1,10 @@
-#include "headers.h"
+#include "raylib.h"
+
+#include "decs.h"
+#include "globals.h"
+
+#define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
+#define free(X) debug_free(X)
 
 int main()
 {

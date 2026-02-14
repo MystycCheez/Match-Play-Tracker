@@ -1,6 +1,13 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
+#include <stddef.h>
+
+#include "raylib.h"
+
+#include "enums.h"
+#include "defines.h"
+
 // 4 components: x1, y1, x2, y2
 typedef struct Line {
     float x1;

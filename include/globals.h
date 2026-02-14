@@ -1,15 +1,13 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include "headers.h"
-
-extern Globals GVARS;
-extern UI_Elements UI;
-extern Window_Elements Window;
-extern TitleBar_Elements TitleBar;
-extern Cursor_Elements Cursor;
-extern MouseState Mouse;
-extern KeyboardState KeyData;
-extern Sheet_Info Sheet;
+extern struct Globals GVARS;
+extern struct UI_Elements UI;
+extern struct Window_Elements Window;
+extern struct TitleBar_Elements TitleBar;
+extern struct Cursor_Elements Cursor;
+extern struct MouseState Mouse;
+extern struct KeyboardState KeyData;
+extern struct Sheet_Info Sheet;
 
 #endif

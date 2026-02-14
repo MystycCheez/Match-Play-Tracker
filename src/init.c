@@ -52,8 +52,8 @@ void initWindow()
 
     SetWindowSize(Window.Width, Window.Height);
     SetWindowPosition(
-        (monitorWorkareaWidth / 2) - (Window.Width / 2), 
-        (monitorWorkareaHeight / 2) - (Window.Height / 2)
+        (int)(monitorWorkareaWidth / 2) - (Window.Width / 2), 
+        (int)(monitorWorkareaHeight / 2) - (Window.Height / 2)
     );
 
     ClearWindowState(FLAG_WINDOW_HIDDEN);
@@ -76,11 +76,11 @@ void initButtons()
         UI.buttons[i].size.x = BASE_BUTTON_SIZE;
         UI.buttons[i].size.y = BASE_BUTTON_SIZE;
     }
-    UI.buttons[BTN_EXIT].pos = (Vector2){Window.Width - BASE_BUTTON_SIZE - (BASE_BUTTON_SIZE / 2), (UI.topBarHeight / 2) - 13};
+    UI.buttons[BTN_EXIT].pos = (Vector2){Window.Width - BASE_BUTTON_SIZE - (int)(BASE_BUTTON_SIZE / 2), (int)(UI.topBarHeight / 2) - 13};
     UI.buttons[BTN_EXIT].texture = LoadTextureFromImage(LoadImage("resources/x.png"));
     UI.buttons[BTN_EXIT].state = STATE_BTN_UNHIGHLIGHTED;
     SetTextureFilter(UI.buttons[BTN_EXIT].texture, TEXTURE_FILTER_BILINEAR);
-    UI.buttons[BTN_MINIMIZE].pos = (Vector2){Window.Width - (BASE_BUTTON_SIZE * 3), (UI.topBarHeight / 2) - 13};
+    UI.buttons[BTN_MINIMIZE].pos = (Vector2){Window.Width - (BASE_BUTTON_SIZE * 3), (int)(UI.topBarHeight / 2) - 13};
     UI.buttons[BTN_MINIMIZE].texture = LoadTextureFromImage(LoadImage("resources/minimize.png"));
     UI.buttons[BTN_MINIMIZE].state = STATE_BTN_UNHIGHLIGHTED;
     SetTextureFilter(UI.buttons[BTN_MINIMIZE].texture, TEXTURE_FILTER_BILINEAR);

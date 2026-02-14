@@ -1,7 +1,14 @@
-#ifndef DECS_H
-#define DECS_H
+// #include "headers.h"
 
-#include "headers.h"
+#include "raylib.h"
+
+#include "key.h"
+
+#include "defines.h"
+#include "enums.h"
+
+#include "actions.h"
+#include "structs.h"
 
 // init.c
 void initGlobals();
@@ -122,5 +129,3 @@ char* strCreate(size_t len);
 #define ACTION(a,b,c) void b();
     ACTION_LIST
 #undef ACTION
-
-#endif

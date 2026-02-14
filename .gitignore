@@ -11,3 +11,4 @@ release/
 compile
 build/tracker
 nob
+.clangd

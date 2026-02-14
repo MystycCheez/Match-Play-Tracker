@@ -52,7 +52,7 @@ Vector2 GetCellPos(size_t index)
 {
     Vector2 pos;
     pos.x = UI.cellWidth * (index % 3);
-    pos.y = (UI.cellHeight * (index / 3)) + UI.topBarHeight;
+    pos.y = (UI.cellHeight * (size_t)(index / 3)) + UI.topBarHeight; 
     return pos;
 }
 
@@ -291,7 +291,7 @@ Vector2 indexToXY(size_t index)
 {
     Vector2 xy = {0};
     xy.x = (index % COLUMNS) * UI.cellWidth;
-    xy.y = (index / COLUMNS) * UI.cellHeight + UI.topBarHeight;
+    xy.y = (size_t)(index / COLUMNS) * UI.cellHeight + UI.topBarHeight;
     return xy;
 }
 
@@ -300,7 +300,7 @@ Vector2 indexToCR(size_t index)
 {
     Vector2 cr = {0};
     cr.x = index % COLUMNS;
-    cr.y = index / COLUMNS;
+    cr.y = (size_t)(index / COLUMNS);
     return cr;
 }
 
