@@ -3,7 +3,14 @@
 
 // #define GAP_DEBUG
 
-#include "headers.h"
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+
+#include "structs.h"
+#include "functions.h"
+#include "globals.h"
+#include "gap_buffer.h"
 
 GapBuffer initGapStr(size_t len)
 {

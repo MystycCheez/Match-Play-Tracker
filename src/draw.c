@@ -1,7 +1,17 @@
 #ifndef DRAW_C
 #define DRAW_C
 
-#include "headers.h"
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+
+#include "raylib.h"
+
+#include "globals.h"
+#include "structs.h"
+#include "functions.h"
+#include "gap_buffer.h"
 
 void DrawSelectionBorders()
 {

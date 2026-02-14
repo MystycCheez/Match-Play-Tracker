@@ -46,7 +46,8 @@ typedef enum Action {
         ACTION_COUNT
 } Action;
 
-extern Action ActionTable[3][KEY_COMBO_COUNT];
-extern void (*Action_Function[ACTION_COUNT])();
+#define ACTION(a,b,c) void b();
+    ACTION_LIST
+#undef ACTION
 
 #endif

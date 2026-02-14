@@ -1,14 +1,25 @@
-#include "raylib.h"
+#ifndef MAIN_C
+#define MAIN_C
 
-#include "decs.h"
+#include "raylib.h"
+// #include "SDL3/SDL.h"
+
+#include "init.h"
+#include "io.h"
 #include "globals.h"
+#include "structs.h"
+#include "handler.h"
+#include "get.h"
+#include "functions.h"
+#include "draw.h"
+#include "linked_list.h"
 
 #define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
 #define free(X) debug_free(X)
 
 int main()
 {
-    SetTraceLogLevel(LOG_NONE);
+    // SetTraceLogLevel(LOG_NONE);
     
     initWindow();
     initGlobals();
@@ -33,6 +44,7 @@ int main()
     // const int RefreshRate = 10;
     SetTargetFPS(RefreshRate);
     
+    printf("test\n");
     while (!GVARS.shouldExit && !WindowShouldClose())
     {
         CellInputHandler();
@@ -98,3 +110,5 @@ int main()
     
     return 0;
 }
+
+#endif

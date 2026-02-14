@@ -1,7 +1,20 @@
 #ifndef IO_C
 #define IO_C
 
-#include "headers.h"
+#include <stdio.h>
+#include <string.h>
+
+#include "raylib.h"
+
+#include "globals.h"
+#include "structs.h"
+#include "functions.h"
+#include "gap_buffer.h"
+#include "get.h"
+
+#include "linked_list.h"
+#define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
+#define free(X) debug_free(X)
 
 void loadFont()
 {
@@ -60,6 +73,8 @@ char** loadLevelText(int game)
 
     fclose(file_ptr);
     return levelText;
+
+    TraceLog(LOG_DEBUG, "loadLevelText complete");
 }
 
 // Loads dnf/veto variations

@@ -50,4 +50,7 @@ typedef enum Modifier {
     MODIFIER_KEY_COUNT
 } Modifier;
 
+#define KEY_COMBO_COUNT (KEY_COUNT * (MODIFIER_KEY_COUNT + 1))
+#define UNUSED_KEY_COMBO GetKeyComboIndex(K_ESCAPE, M_CTRL_SHIFT)
+
 #endif

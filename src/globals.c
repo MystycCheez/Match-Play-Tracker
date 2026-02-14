@@ -1,7 +1,7 @@
 #ifndef GLOBALS_C
 #define GLOBALS_C
 
-#include "headers.h"
+#include "structs.h"
 
 Globals GVARS;
 UI_Elements UI;

@@ -1,7 +1,19 @@
 #ifndef ACTIONS_C
 #define ACTIONS_C
 
-#include "headers.h"
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "globals.h"
+#include "structs.h"
+#include "gap_buffer.h"
+#include "get.h"
+#include "io.h"
+#include "functions.h"
+#include "handler.h"
+#include "init.h"
+#include "actions.h"
 
 void A_DoNothing()
 {

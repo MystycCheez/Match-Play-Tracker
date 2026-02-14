@@ -1,7 +1,17 @@
 #ifndef HANDLER_C
 #define HANDLER_C
 
-#include "headers.h"
+#include <stdbool.h>
+#include <string.h>
+#include <stdio.h>
+
+#include "globals.h"
+#include "structs.h"
+#include "functions.h"
+#include "gap_buffer.h"
+#include "get.h"
+#include "handler.h"
+#include "actions.h"
 
 // TODO: Add save reminder dialog
 void ExitHandler()

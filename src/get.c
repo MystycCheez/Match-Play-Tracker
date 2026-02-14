@@ -1,7 +1,17 @@
 #ifndef GET_C
 #define GET_C
 
-#include "headers.h"
+#include <assert.h>
+#include <stdio.h>
+
+#include "raylib.h"
+
+#include "structs.h"
+#include "globals.h"
+#include "functions.h"
+#include "key.h"
+#include "get.h"
+#include "actions.h"
 
 Color getStateColor(Button_State state)
 {

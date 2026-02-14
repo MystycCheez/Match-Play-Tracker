@@ -1,7 +1,24 @@
 #ifndef INIT_C
 #define INIT_C
 
-#include "headers.h"
+#include <stdio.h>
+
+#include "GLFW/glfw3.h"
+
+#include "globals.h"
+#include "raylib.h"
+#include "structs.h"
+#include "enums.h"
+#include "actions.h"
+#include "io.h"
+#include "functions.h"
+#include "gap_buffer.h"
+#include "key.h"
+#include "get.h"
+
+#include "linked_list.h"
+#define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
+#define free(X) debug_free(X)
 
 void initGlobals()
 {
@@ -10,6 +27,8 @@ void initGlobals()
     GVARS.game = LEVELS_GE;
     GVARS.scope = SCOPE_SHEET;
     GVARS.shouldExit = false;
+
+    TraceLog(LOG_INFO, "INIT: initGlobals complete");
 }
 
 void initWindow()
@@ -67,6 +86,8 @@ void initWindow()
     UnloadImage(TitleBar.Image);
 
     SetExitKey(KEY_NULL);
+
+    TraceLog(LOG_INFO, "INIT: initWindow complete");
 }
 
 void initButtons()
@@ -84,6 +105,8 @@ void initButtons()
     UI.buttons[BTN_MINIMIZE].texture = LoadTextureFromImage(LoadImage("resources/minimize.png"));
     UI.buttons[BTN_MINIMIZE].state = STATE_BTN_UNHIGHLIGHTED;
     SetTextureFilter(UI.buttons[BTN_MINIMIZE].texture, TEXTURE_FILTER_BILINEAR);
+
+    TraceLog(LOG_INFO, "INIT: initButtons complete");
 }
 
 void setGameText()
@@ -94,6 +117,8 @@ void setGameText()
         free(levelText[i]);
     }
     free(levelText);
+
+    TraceLog(LOG_DEBUG, "setGameText complete");
 }
 
 void initSheetText()
@@ -111,6 +136,8 @@ void initSheetText()
     placeString(&Sheet.cellList[CELL_COUNT - 1].gapStr, s2, CELL_TEXT_LENGTH);
     free(s1);
     free(s2);
+
+    TraceLog(LOG_INFO, "INIT: initSheetText complete");
 }
 
 void initSheet()
@@ -138,6 +165,8 @@ void initSheet()
     Sheet.cell = &Sheet.cellList[Sheet.index];
     Sheet.players = (Players){"Player 1", "Player 2", 0, 0};
     Sheet.level_win = strCreate(1); // Is there a better way to handle this?
+
+    TraceLog(LOG_INFO, "INIT: initSheet complete");
 }
 
 void setBorderPositions()
@@ -230,6 +259,8 @@ void initActionTable()
 
     // Placeholder for dummy action
     ActionTable[SCOPE_SHEET][UNUSED_KEY_COMBO] = A_DONOTHING;
+
+    TraceLog(LOG_INFO, "INIT: initActionTable complete");
 }
 
 #endif

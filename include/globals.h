@@ -10,4 +10,9 @@ extern struct MouseState Mouse;
 extern struct KeyboardState KeyData;
 extern struct Sheet_Info Sheet;
 
+#include "actions.h"
+#include "key.h"
+extern Action ActionTable[3][KEY_COMBO_COUNT];
+extern void (*Action_Function[ACTION_COUNT])();
+
 #endif

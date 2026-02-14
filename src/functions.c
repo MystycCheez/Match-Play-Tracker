@@ -1,7 +1,20 @@
 #ifndef FUNCTIONS_C
 #define FUNCTIONS_C
 
-#include "headers.h"
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+#include <math.h>
+
+#include "defines.h"
+#include "gap_buffer.h"
+#include "globals.h"
+#include "handler.h"
+#include "functions.h"
+
+#include "linked_list.h"
+#define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
+#define free(X) debug_free(X)
 
 void ClearTimes()
 {
@@ -425,6 +438,13 @@ void CleanUp()
 void SetVetoColor(Cell* cell)
 {
     cell->color = GVARS.vetoFlag ? COLOR_LEVEL : WHITE;
+}
+
+char* strCreate(size_t len)
+{
+    char* str = malloc(len);
+    memset(str, 0, len);
+    return str;
 }
 
 #endif
