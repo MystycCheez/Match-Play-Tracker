@@ -3,10 +3,10 @@
 
 #include <stdio.h>
 
+#include "raylib.h"
 #include "GLFW/glfw3.h"
 
 #include "globals.h"
-#include "raylib.h"
 #include "structs.h"
 #include "enums.h"
 #include "actions.h"

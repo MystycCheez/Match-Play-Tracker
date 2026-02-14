@@ -2,7 +2,6 @@
 #define MAIN_C
 
 #include "raylib.h"
-// #include "SDL3/SDL.h"
 
 #include "init.h"
 #include "io.h"
