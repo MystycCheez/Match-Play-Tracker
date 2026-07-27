@@ -52,18 +52,18 @@ typedef struct KeyboardState {
     bool alt;
 } KeyboardState;
 
-// 3 components: str, cStart, cEnd
+// 4 components: str, strLen, gapStart, gapEnd
 typedef struct GapBuffer {
     char* str;
-    size_t cStart;
-    size_t cEnd;
+    size_t strLen;
+    size_t gapStart;
+    size_t gapEnd;
 } GapBuffer;
 
-// start, end, exists
+// len, start
 typedef struct Selection {
+    size_t len;
     size_t start;
-    size_t end;
-    bool exists;
 } Selection;
 
 // 5 components: gapStr, color, highlight, alignment, selectable

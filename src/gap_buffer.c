@@ -12,13 +12,16 @@
 #include "globals.h"
 #include "gap_buffer.h"
 
-GapBuffer initGapStr(size_t len)
+GapBuffer InitGapStr(size_t len)
 {
-    GapBuffer gapStr = {0};
-    gapStr.str = strCreate(len + 1);
-    memset(gapStr.str, 0, len + 1);
-    gapStr.cStart = 0;
-    gapStr.cEnd = len - 1;
+    GapBuffer gapStr;
+
+    gapStr.strLen = len;
+    gapStr.str = malloc(sizeof(char) * len);
+    memset(gapStr.str, 0, len);
+
+    gapStr.gapStart = 0;
+    gapStr.gapEnd = 0;
     return gapStr;
 }
 
