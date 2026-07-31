@@ -25,7 +25,7 @@ void DrawCursor()
     if (Sheet.index == 0) return;
     Vector2 pos = {0};
     pos = GetCellPos(Sheet.index);
-    char* text = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH);
+    char* text = gapStrToStr(Sheet.cell->gapStr);
     float span = MeasureTextEx(UI.font, text, UI.fontSize, 1).x;
     float offset = MeasureTextEx(UI.font, Sheet.cell->gapStr.str, UI.fontSize, 1).x;
     pos.x += (UI.cellWidth / 2) - (span / 2) + offset + 1;
@@ -37,7 +37,7 @@ void DrawCursor()
 
 void DrawTextCentered(Vector2 pos, Cell cell)
 {
-    char* text = gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH);
+    char* text = gapStrToStr(cell.gapStr);
     Vector2 size = MeasureTextEx(UI.font, text, UI.fontSize, 1);
 
     pos.x = round(pos.x + (UI.cellWidth / 2) - (size.x / 2));
@@ -50,7 +50,7 @@ void DrawTextCentered(Vector2 pos, Cell cell)
 
 void DrawTextLeftAligned(Vector2 pos, Cell cell)
 {
-    char* text = gapStrToStr(cell.gapStr, CELL_TEXT_LENGTH);
+    char* text = gapStrToStr(cell.gapStr);
     Vector2 size = MeasureTextEx(UI.font, text, UI.fontSize, 1);
 
     pos.x = round(pos.x + UI.fontSize / 2);
@@ -84,12 +84,11 @@ void DrawTextHighlight()
     Vector2 pos = {0};
     pos = GetCellPos(Sheet.index);
 
-    char* cellText = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH);
+    char* cellText = gapStrToStr(Sheet.cell->gapStr);
 
-    size_t selectionLen = Sheet.selection.end - Sheet.selection.start;
-    char* selectedText = strCreate(selectionLen + 1);
-    snprintf(selectedText, selectionLen + 1, "%s", cellText + Sheet.selection.start);
-    snprintf(selectedText + selectionLen, 1, "%s", "\0");
+    char* selectedText = strCreate(Sheet.selection.len + 1);
+    snprintf(selectedText, Sheet.selection.len + 1, "%s", cellText + Sheet.selection.start);
+    snprintf(selectedText + Sheet.selection.len, 1, "%s", "\0");
 
     float selectionSpan = MeasureTextEx(UI.font, selectedText, UI.fontSize, 1).x;
     float cellTextSpan = MeasureTextEx(UI.font, cellText, UI.fontSize, 1).x;

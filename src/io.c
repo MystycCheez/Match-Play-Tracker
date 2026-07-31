@@ -35,8 +35,8 @@ bool loadTimes()
     }
 
     ClearTimes();
-    OverwriteStr(&Sheet.cellList[1].gapStr, "", 0, CELL_TEXT_LENGTH);
-    OverwriteStr(&Sheet.cellList[2].gapStr, "", 0, CELL_TEXT_LENGTH);
+    OverwriteStr(&Sheet.cellList[1].gapStr, "", 0);
+    OverwriteStr(&Sheet.cellList[2].gapStr, "", 0);
 
     int c = 0;
     
@@ -117,7 +117,7 @@ void saveTimes()
     for (size_t i = 1; i < CELL_COUNT - 3; i++) {
         if ((i % 3 == 2) || (i % 3 == 1)) {
             if (strlen(Sheet.cellList[i].gapStr.str) > 0) {
-                char* cellText = gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH);
+                char* cellText = gapStrToStr(Sheet.cellList[i].gapStr);
                 fprintf(file_ptr, "%s\n", cellText);
                 free (cellText);
             } else {
@@ -145,7 +145,7 @@ void ExportToBBCode()
 
     for (size_t i = 0; i < CELL_COUNT; i++) {
         colorText[i] = strCreate(10);
-        cellText[i] = gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH);
+        cellText[i] = gapStrToStr(Sheet.cellList[i].gapStr);
         if (i < 3) {
             free(colorText[i]);
             colorText[i] = ColorToHexText(Sheet.cellList[i].color);
@@ -158,7 +158,7 @@ void ExportToBBCode()
                 sprintf(colorText[i], "white");
             }
             if (GVARS.vetoFlag) {
-                char* cellText = gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH);
+                char* cellText = gapStrToStr(Sheet.cellList[i].gapStr);
                 if (CompareSpecialText(cellText) == TEXT_VETO) {
                     free(colorText[i]);
                     colorText[i] = ColorToHexText(COLOR_LEVEL);

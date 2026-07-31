@@ -113,7 +113,7 @@ void setGameText()
 {
     char** levelText = loadLevelText(GVARS.game);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
-        OverwriteStr(&Sheet.cellList[(i * 3) + 3].gapStr, levelText[i], 0, CELL_TEXT_LENGTH);
+        OverwriteStr(&Sheet.cellList[(i * 3) + 3].gapStr, levelText[i], 0);
         free(levelText[i]);
     }
     free(levelText);
@@ -128,12 +128,12 @@ void initSheetText()
     char *s2 = strCreate(CELL_TEXT_LENGTH);
     sprintf(s1, "%zu", Sheet.players.s1);
     sprintf(s2, "%zu", Sheet.players.s2);
-    placeString(&Sheet.cellList[0].gapStr, "Stage", CELL_TEXT_LENGTH);
-    placeString(&Sheet.cellList[CELL_COUNT - 3].gapStr, "Points", CELL_TEXT_LENGTH);
-    placeString(&Sheet.cellList[1].gapStr, Sheet.players.p1, CELL_TEXT_LENGTH);
-    placeString(&Sheet.cellList[2].gapStr, Sheet.players.p2, CELL_TEXT_LENGTH);
-    placeString(&Sheet.cellList[CELL_COUNT - 2].gapStr, s1, CELL_TEXT_LENGTH);
-    placeString(&Sheet.cellList[CELL_COUNT - 1].gapStr, s2, CELL_TEXT_LENGTH);
+    placeString(&Sheet.cellList[0].gapStr, "Stage");
+    placeString(&Sheet.cellList[CELL_COUNT - 3].gapStr, "Points");
+    placeString(&Sheet.cellList[1].gapStr, Sheet.players.p1);
+    placeString(&Sheet.cellList[2].gapStr, Sheet.players.p2);
+    placeString(&Sheet.cellList[CELL_COUNT - 2].gapStr, s1);
+    placeString(&Sheet.cellList[CELL_COUNT - 1].gapStr, s2);
     free(s1);
     free(s2);
 

@@ -64,9 +64,8 @@ void MouseSheetHandler()
             GVARS.scope = SCOPE_CELL;
         } else {
             GVARS.scope = SCOPE_SHEET;
-            Deselect();
             if ((Sheet.index % 3 != 0) && (Sheet.index > 3)) {
-                char* cellText = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH);
+                char* cellText = gapStrToStr(Sheet.cell->gapStr);
                 if (strlen(cellText) > 0) {
                     CellOverwriteHandler();
                     UpdateScores();
@@ -183,7 +182,7 @@ void EnterNavigationHandler()
 
 void CellOverwriteHandler()
 {
-    char* cellText = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH);
+    char* cellText = gapStrToStr(Sheet.cell->gapStr);
     if (cellText[0] == '\0') {
         free(cellText);
         return;
@@ -193,7 +192,7 @@ void CellOverwriteHandler()
     }
     if (Sheet.index > 2 && Sheet.index < CELL_COUNT - 3) {
         char *filteredText = filterCellText(Sheet.cell->gapStr.str);
-        OverwriteStr(&Sheet.cell->gapStr, filteredText, 0, CELL_TEXT_LENGTH);
+        OverwriteStr(&Sheet.cell->gapStr, filteredText, 0);
         free(filteredText);
     }
     free (cellText);
@@ -208,14 +207,13 @@ void CellInputHandler()
     while ((key_char = GetCharPressed()) > 0) {
         if ((key_char >= 32) && (key_char <= 125)) {
             if (GVARS.scope == SCOPE_CELL) {
-                if (Sheet.selection.exists) {
+                if (Sheet.selection.len > 0) {
                     DeleteSelection(&Sheet.cell->gapStr);
                     placeChar(&Sheet.cell->gapStr, key_char);
-                    Deselect();
                 } else placeChar(&Sheet.cell->gapStr, key_char);
             } else {
                 GVARS.scope = SCOPE_CELL;
-                OverwriteStr(&Sheet.cell->gapStr, "\0", 0, CELL_TEXT_LENGTH);
+                OverwriteStr(&Sheet.cell->gapStr, "\0", 0);
                 CellOverwriteHandler();
                 UpdateScores();
                 placeChar(&Sheet.cell->gapStr, key_char);

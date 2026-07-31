@@ -81,7 +81,7 @@ int main()
         for (size_t i = 0; i < COLUMNS + ROWS; i++) 
             DrawLine(UI.borders[i].x1, UI.borders[i].y1, UI.borders[i].x2, UI.borders[i].y2, BORDER_COLOR);
         // Draw text highlighting
-        if (GVARS.scope == SCOPE_CELL && Sheet.selection.exists) {
+        if (GVARS.scope == SCOPE_CELL && (Sheet.selection.len > 0)) {
             DrawTextHighlight();
         }
         // Draw Text :)

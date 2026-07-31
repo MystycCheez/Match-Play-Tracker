@@ -42,20 +42,18 @@ void A_SelectAllAtCursorTowardsDir()
 {
     bool dir = getMoveDir();
 
-    if (Sheet.selection.exists) {
+    if (Sheet.selection.len > 0) {
         if (dir == DIR_RIGHT) {
-            if (Sheet.selection.end < gapStrLen(Sheet.cell->gapStr)) {
+            if (Sheet.selection.len < gapStrLen(Sheet.cell->gapStr)) {
                 goto select;
             } else {
-                MoveCursorToIndex(&Sheet.cell->gapStr, Sheet.selection.end);
-                Deselect();
+                MoveCursorToIndex(&Sheet.cell->gapStr, Sheet.selection.len);
             }
         } else if (dir == DIR_LEFT) {
-            if (Sheet.selection.end > Sheet.cell->gapStr.cStart) {
+            if (Sheet.selection.len > Sheet.cell->gapStr.gapStart) {
                 goto select;
             } else {
                 MoveCursorToIndex(&Sheet.cell->gapStr, Sheet.selection.start);
-                Deselect();
             }
         }
     } else {
@@ -85,7 +83,7 @@ void A_MoveCursorToStart()
 
 void A_MoveCursorToEnd()
 {
-    char* text = gapStrToStr(Sheet.cell->gapStr, CELL_TEXT_LENGTH);
+    char* text = gapStrToStr(Sheet.cell->gapStr);
     MoveCursorToIndex(&Sheet.cell->gapStr, strlen(text));
     Deselect();
     free(text);
@@ -121,10 +119,10 @@ void A_ClearTimes()
 
 void A_Deselect_Or_Undo_Backout()
 {
-    if (Sheet.selection.exists) {
+    if (Sheet.selection.len > 0) {
         Deselect();
     } else {
-        OverwriteStr(&Sheet.cell->gapStr, "\0", 0, CELL_TEXT_LENGTH);
+        OverwriteStr(&Sheet.cell->gapStr, "\0", 0);
         GVARS.scope = SCOPE_SHEET;
     }
 }
@@ -179,27 +177,27 @@ void A_Cut_All()
 void A_Paste()
 {
     DeleteSelection(&Sheet.cell->gapStr);
-    placeString(&Sheet.cell->gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
+    placeString(&Sheet.cell->gapStr, GetClipboardText());
     Deselect();
 }
 
 void A_PasteIntoCell()
 {
     A_DeleteCellText();
-    placeString(&Sheet.cell->gapStr, GetClipboardText(), CELL_TEXT_LENGTH);
+    placeString(&Sheet.cell->gapStr, GetClipboardText());
     GVARS.scope = SCOPE_CELL;
 }
 
 void A_DeleteCellText()
 {
-    OverwriteStr(&Sheet.cell->gapStr, "\0", 0, CELL_TEXT_LENGTH);
+    OverwriteStr(&Sheet.cell->gapStr, "\0", 0);
     CellOverwriteHandler();
     UpdateScores();
 }
 
 void A_DeleteCellTextAndEnterInto()
 {
-    OverwriteStr(&Sheet.cell->gapStr, "\0", 0, CELL_TEXT_LENGTH);
+    OverwriteStr(&Sheet.cell->gapStr, "\0", 0);
     CellOverwriteHandler();
     UpdateScores();
     GVARS.scope = SCOPE_CELL;
@@ -213,7 +211,7 @@ void A_DeleteSelection()
 
 void A_DeleteChar()
 {
-    if (Sheet.selection.exists) A_DeleteSelection();
+    if (Sheet.selection.len > 0) A_DeleteSelection();
     deleteCharAtCursor(&Sheet.cell->gapStr);
 }
 
@@ -251,7 +249,7 @@ void A_NavigateDown()
 
 void A_Delete()
 {
-    if (Sheet.selection.exists) {
+    if (Sheet.selection.len > 0) {
         A_DeleteSelection();
     } else A_DeleteChar();
 }
@@ -262,7 +260,7 @@ void A_SwapVetoColor()
     for (size_t i = 4; i < LEVEL_COUNT * 2; i++) {
         if (!(i % 3 == 0)) {
             for (size_t n = 0; n < 3; n++) {
-                char* cellText = gapStrToStr(Sheet.cellList[i].gapStr, CELL_TEXT_LENGTH);
+                char* cellText = gapStrToStr(Sheet.cellList[i].gapStr);
                 if (CompareSpecialText(cellText) == TEXT_VETO) {
                     SetVetoColor(&Sheet.cellList[i]);
                 }
