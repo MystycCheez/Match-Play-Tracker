@@ -55,7 +55,7 @@ typedef struct KeyboardState {
 // 4 components: str, strLen, gapStart, gapEnd
 typedef struct GapBuffer {
     char* str;
-    size_t strLen;
+    size_t len;
     size_t gapStart;
     size_t gapEnd;
 } GapBuffer;
