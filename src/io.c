@@ -9,12 +9,12 @@
 #include "globals.h"
 #include "structs.h"
 #include "functions.h"
-#include "gap_buffer.h"
+#include "text.h"
 #include "get.h"
 
 #include "linked_list.h"
-#define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
-#define free(X) debug_free(X)
+// #define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
+// #define free(X) debug_free(X)
 
 void loadFont()
 {
@@ -35,8 +35,8 @@ bool loadTimes()
     }
 
     ClearTimes();
-    OverwriteStr(&Sheet.cellList[1].gapStr, "", 0);
-    OverwriteStr(&Sheet.cellList[2].gapStr, "", 0);
+    SetText(&Sheet.cellList[1].Text, "");
+    SetText(&Sheet.cellList[2].Text, "");
 
     int c = 0;
     
@@ -45,7 +45,7 @@ bool loadTimes()
             while (c != EOF) {
                 c = fgetc(file_ptr);
                 if (c == '\n') break;
-                placeChar(&Sheet.cellList[i].gapStr, (char)c);
+                AppendChar(&Sheet.cellList[i].Text, c);
             }
         }
     }
@@ -116,10 +116,8 @@ void saveTimes()
 
     for (size_t i = 1; i < CELL_COUNT - 3; i++) {
         if ((i % 3 == 2) || (i % 3 == 1)) {
-            if (strlen(Sheet.cellList[i].gapStr.str) > 0) {
-                char* cellText = gapStrToStr(Sheet.cellList[i].gapStr);
-                fprintf(file_ptr, "%s\n", cellText);
-                free (cellText);
+            if (strlen(Sheet.cellList[i].Text.str) > 0) {
+                fprintf(file_ptr, "%s\n", Sheet.cellList[i].Text.str);
             } else {
                 fprintf(file_ptr, "\n");
             }
@@ -145,7 +143,7 @@ void ExportToBBCode()
 
     for (size_t i = 0; i < CELL_COUNT; i++) {
         colorText[i] = strCreate(10);
-        cellText[i] = gapStrToStr(Sheet.cellList[i].gapStr);
+        cellText[i] = Sheet.cellList[i].Text.str;
         if (i < 3) {
             free(colorText[i]);
             colorText[i] = ColorToHexText(Sheet.cellList[i].color);
@@ -158,12 +156,11 @@ void ExportToBBCode()
                 sprintf(colorText[i], "white");
             }
             if (GVARS.vetoFlag) {
-                char* cellText = gapStrToStr(Sheet.cellList[i].gapStr);
+                char* cellText = Sheet.cellList[i].Text.str;
                 if (CompareSpecialText(cellText) == TEXT_VETO) {
                     free(colorText[i]);
                     colorText[i] = ColorToHexText(COLOR_LEVEL);
                 }
-                free(cellText);
             }
         }
     }
@@ -217,13 +214,13 @@ void ExportToBBCode()
         "Caverns\n"
         "Cradle"
     );
-    if (strlen(Sheet.cellList[CELL_COUNT - 8].gapStr.str) > 0) {
+    if (strlen(Sheet.cellList[CELL_COUNT - 8].Text.str) > 0) {
         fprintf(out_bb,
             "\n"
             "Aztec"
         );
     }
-    if (strlen(Sheet.cellList[CELL_COUNT - 5].gapStr.str) > 0) {
+    if (strlen(Sheet.cellList[CELL_COUNT - 5].Text.str) > 0) {
         fprintf(out_bb,
             "\n"
             "Egypt"
@@ -291,7 +288,6 @@ void ExportToBBCode()
 
     for (size_t i = 0; i < CELL_COUNT; i++) {
         free(colorText[i]);
-        free(cellText[i]);
     }
 }
 

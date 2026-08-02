@@ -47,9 +47,9 @@ void initLinkedList(void* data, const char *file, int line, const char *func)
 
 void* debug_malloc(size_t size, const char *file, int line, const char *func)
 {
-    #undef malloc
+    // #undef malloc
     void *p = malloc(size);
-    #define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
+    // #define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
     
     if (MNode == NULL) {
         initLinkedList(p, file, line, func);
@@ -59,6 +59,7 @@ void* debug_malloc(size_t size, const char *file, int line, const char *func)
         MNode->next = NewNode(p, MNode->next, MNode, file, line, func);
     }
     MNode = MNode->next;
+    printf("%s:%d, %s\n", file, line, func);
     return p;
 }
 
@@ -67,8 +68,13 @@ void debug_free(void* p)
     bool flag = false;
 
     Node* current = MNode;
+    Node* start = current;
     while (current->data != p) {
         current = current->next;
+        if (current == start) {
+            fprintf(stderr, "p not found!\n");
+            exit(EXIT_FAILURE);
+        }
     }
     if (current->next != current) {
         current->next->prev = current->prev;

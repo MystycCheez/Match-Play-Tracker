@@ -13,8 +13,8 @@
 #include "draw.h"
 #include "linked_list.h"
 
-#define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
-#define free(X) debug_free(X)
+// #define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
+// #define free(X) debug_free(X)
 
 int main()
 {
@@ -81,9 +81,8 @@ int main()
         for (size_t i = 0; i < COLUMNS + ROWS; i++) 
             DrawLine(UI.borders[i].x1, UI.borders[i].y1, UI.borders[i].x2, UI.borders[i].y2, BORDER_COLOR);
         // Draw text highlighting
-        if (GVARS.scope == SCOPE_CELL && (Sheet.selection.len > 0)) {
-            DrawTextHighlight();
-        }
+        // TODO: Implement
+
         // Draw Text :)
         for (size_t i = 0; i < CELL_COUNT; i++) {
             DrawTextAligned(Sheet.cellList[i], i);

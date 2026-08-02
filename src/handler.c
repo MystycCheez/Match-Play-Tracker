@@ -159,22 +159,22 @@ void EnterNavigationHandler()
         return;
     }
     if (Sheet.index == CELL_COUNT - 5) {
-        if (getOppositeCell().gapStr.str[0] != 0) {
+        if (getOppositeCell().Text.str[0] != 0) {
             unselectCells();
         } else updateSheetIndex(getOppositeCellIndex());
         return;
     } else if (Sheet.index == CELL_COUNT - 4) {
-        if (getOppositeCell().gapStr.str[0] != 0) {
+        if (getOppositeCell().Text.str[0] != 0) {
             unselectCells();
         } else updateSheetIndex(getOppositeCellIndex());
         return;
     } 
     if (Sheet.index % 3 == 2) {
-        if (getOppositeCell().gapStr.str[0] == 0) {
+        if (getOppositeCell().Text.str[0] == 0) {
             updateSheetIndex(getOppositeCellIndex());
         } else updateSheetIndex(Sheet.index + 2);
     } else if (Sheet.index % 3 == 1) {
-        if (getOppositeCell().gapStr.str[0] == 0) {
+        if (getOppositeCell().Text.str[0] == 0) {
             updateSheetIndex(getOppositeCellIndex());
         } else updateSheetIndex(Sheet.index + 3);
     }
@@ -191,10 +191,11 @@ void CellOverwriteHandler()
         setCellTextColor(cellText);
     }
     if (Sheet.index > 2 && Sheet.index < CELL_COUNT - 3) {
-        char *filteredText = filterCellText(Sheet.cell->gapStr.str);
+        char *filteredText = filterCellText(Sheet.cell->Text.str);
         OverwriteStr(&Sheet.cell->gapStr, filteredText, 0);
         free(filteredText);
     }
+    printf("CellOverwriteHandler\n");
     free (cellText);
 }
 
@@ -205,6 +206,7 @@ void CellInputHandler()
     char key_char = 0;
 
     while ((key_char = GetCharPressed()) > 0) {
+        // printf("%c\n", key_char);
         if ((key_char >= 32) && (key_char <= 125)) {
             if (GVARS.scope == SCOPE_CELL) {
                 if (Sheet.selection.len > 0) {
@@ -219,6 +221,7 @@ void CellInputHandler()
                 placeChar(&Sheet.cell->gapStr, key_char);
             }
         }
+        printf("%s\n", gapStrToStr(Sheet.cell->gapStr));
     }
 }
 

@@ -17,8 +17,8 @@
 #include "get.h"
 
 #include "linked_list.h"
-#define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
-#define free(X) debug_free(X)
+// #define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
+// #define free(X) debug_free(X)
 
 void initGlobals()
 {
@@ -145,7 +145,7 @@ void initSheet()
     Sheet.cellList = malloc(sizeof(Cell) * CELL_COUNT);
 
     for (size_t i = 0; i < CELL_COUNT; i++) {
-        Sheet.cellList[i].gapStr = initGapStr(CELL_TEXT_LENGTH);
+        Sheet.cellList[i].gapStr = InitGapStr(CELL_TEXT_LENGTH);
         Sheet.cellList[i].alignment = ALIGN_CENTER;
         Sheet.cellList[i].color = WHITE;
         Sheet.cellList[i].highlight = TRANSPARENT;

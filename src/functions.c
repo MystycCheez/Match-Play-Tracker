@@ -7,25 +7,26 @@
 #include <math.h>
 
 #include "defines.h"
-#include "gap_buffer.h"
 #include "globals.h"
 #include "handler.h"
 #include "functions.h"
+#include "text.h"
 
 #include "linked_list.h"
-#define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
-#define free(X) debug_free(X)
+// #define malloc(X) debug_malloc(X, __FILE__, __LINE__, __FUNCTION__)
+// #define free(X) debug_free(X)
 
 void ClearTimes()
 {
     for (size_t i = 1; i < CELL_COUNT - 3; i++) {
         if ((i % 3 == 2) || (i % 3 == 1)) {
-            OverwriteStr(&Sheet.cellList[i].gapStr, "\0", 0);
+            SetText(&Sheet.cellList[i].Text, "\0");
+
             CellOverwriteHandler();
         }
     }
-    OverwriteStr(&Sheet.cellList[1].gapStr, Sheet.players.p1, 0);
-    OverwriteStr(&Sheet.cellList[2].gapStr, Sheet.players.p2, 0);
+    SetText(&Sheet.cellList[1].Text, Sheet.players.p1);
+    SetText(&Sheet.cellList[2].Text, Sheet.players.p2);
 }
 
 // Returns TEXT_VETO or TEXT_DNF if found
@@ -219,15 +220,15 @@ Int2 CompareTimes(size_t row)
     size_t cellL = crToIndex((Vector2){1, (float)row});
     size_t cellR = crToIndex((Vector2){2, (float)row});
 
-    Text_Type specialL = CompareSpecialText(Sheet.cellList[cellL].gapStr.str);
-    Text_Type specialR = CompareSpecialText(Sheet.cellList[cellR].gapStr.str);
+    Text_Type specialL = CompareSpecialText(Sheet.cellList[cellL].Text.str);
+    Text_Type specialR = CompareSpecialText(Sheet.cellList[cellR].Text.str);
 
     size_t timeL = -1;
     size_t timeR = -1;
-    if (specialL == -1) timeL = timeToSecs(Sheet.cellList[cellL].gapStr.str);
-    if (specialR == -1) timeR = timeToSecs(Sheet.cellList[cellR].gapStr.str);
+    if (specialL == -1) timeL = timeToSecs(Sheet.cellList[cellL].Text.str);
+    if (specialR == -1) timeR = timeToSecs(Sheet.cellList[cellR].Text.str);
 
-    if (Sheet.cellList[cellL].gapStr.str[0] == 0 || Sheet.cellList[cellR].gapStr.str[0] == 0 || specialL == TEXT_VETO || specialR == TEXT_VETO) {
+    if (Sheet.cellList[cellL].Text.str[0] == 0 || Sheet.cellList[cellR].Text.str[0] == 0 || specialL == TEXT_VETO || specialR == TEXT_VETO) {
         Sheet.cellList[cellL].highlight = TRANSPARENT;
         Sheet.cellList[cellR].highlight = TRANSPARENT;
         return (Int2){-1, -1}; // Indicates Veto
@@ -258,38 +259,34 @@ void UpdateScores()
 {
     size_t tieCounter = 0;
     bool win_set = false;
-    OverwriteStr(&Sheet.cellList[CELL_COUNT - 2].gapStr, "0", 0);
-    OverwriteStr(&Sheet.cellList[CELL_COUNT - 1].gapStr, "0", 0);
+    SetText(&Sheet.cellList[CELL_COUNT - 2].Text, "0");
+    SetText(&Sheet.cellList[CELL_COUNT - 1].Text, "0");
     Int2 *wins = malloc(sizeof(Int2) * LEVEL_COUNT);
     for (size_t i = 0; i < LEVEL_COUNT; i++) {
         wins[i] = CompareTimes(i + 1);
         if (wins[i].a == 0 && wins[i].b == 0) {
             tieCounter++;
         }
-        char* scoreAtieBreak = i_toStr(wins[i].a + atoi(Sheet.cellList[CELL_COUNT - 2].gapStr.str) + tieCounter);
-        char* scoreBtieBreak = i_toStr(wins[i].b + atoi(Sheet.cellList[CELL_COUNT - 1].gapStr.str) + tieCounter);
-        char* scoreA = i_toStr(wins[i].a + atoi(Sheet.cellList[CELL_COUNT - 2].gapStr.str));
-        char* scoreB = i_toStr(wins[i].b + atoi(Sheet.cellList[CELL_COUNT - 1].gapStr.str));
+        char* scoreAtieBreak = i_toStr(wins[i].a + atoi(Sheet.cellList[CELL_COUNT - 2].Text.str) + tieCounter);
+        char* scoreBtieBreak = i_toStr(wins[i].b + atoi(Sheet.cellList[CELL_COUNT - 1].Text.str) + tieCounter);
+        char* scoreA = i_toStr(wins[i].a + atoi(Sheet.cellList[CELL_COUNT - 2].Text.str));
+        char* scoreB = i_toStr(wins[i].b + atoi(Sheet.cellList[CELL_COUNT - 1].Text.str));
         if (wins[i].a > 0 && tieCounter > 0) {
-            OverwriteStr(&Sheet.cellList[CELL_COUNT - 2].gapStr, scoreAtieBreak, 0);
+            SetText(&Sheet.cellList[CELL_COUNT - 2].Text, scoreAtieBreak);
             tieCounter = 0;
         } else if (wins[i].b > 0 && tieCounter > 0) {
-            OverwriteStr(&Sheet.cellList[CELL_COUNT - 1].gapStr, scoreBtieBreak, 0);
+            SetText(&Sheet.cellList[CELL_COUNT - 1].Text, scoreBtieBreak);
             tieCounter = 0;
         } else if (wins[i].a > 0 || wins[i].b > 0) {
-            OverwriteStr(&Sheet.cellList[CELL_COUNT - 2].gapStr, scoreA, 0);
-            OverwriteStr(&Sheet.cellList[CELL_COUNT - 1].gapStr, scoreB, 0);
+            SetText(&Sheet.cellList[CELL_COUNT - 2].Text, scoreA);
+            SetText(&Sheet.cellList[CELL_COUNT - 1].Text, scoreB);
         }
         if (!win_set) {
-            char* a = gapStrToStr(Sheet.cellList[CELL_COUNT - 2].gapStr);
-            char* b = gapStrToStr(Sheet.cellList[CELL_COUNT - 1].gapStr);
-            if ((atoi(b) >= 9) || (atoi(a) >= 9)) {
+            if ((atoi(Sheet.cellList[CELL_COUNT - 1].Text.str) >= 9) || (atoi(Sheet.cellList[CELL_COUNT - 2].Text.str) >= 9)) {
                 free(Sheet.level_win);
-                Sheet.level_win = gapStrToStr(Sheet.cellList[crToIndex((Vector2){0, i + 1})].gapStr);
+                Sheet.level_win = Sheet.cellList[crToIndex((Vector2){0, i + 1})].Text.str;
                 win_set = true;
             }
-            free(a);
-            free(b);
         }
         free(scoreA);
         free(scoreB);
@@ -332,22 +329,20 @@ size_t xyToIndex(Vector2 xy)
 size_t xToCursorIndex(float inputX)
 {
     float charX = GetCellPos(Sheet.index).x;
-    char* text = gapStrToStr(Sheet.cell->gapStr);
-    float span = MeasureTextEx(UI.font, text, UI.fontSize, 1).x;
+    float span = MeasureTextEx(UI.font, Sheet.cell->Text.str, UI.fontSize, 1).x;
     charX += (UI.cellWidth / 2) - (span / 2);
     
     size_t index = 0;
     char* tmp = strCreate(2);
     memset(tmp, 0, 2);
-    for (size_t i = 0; text[i] != '\0'; i++) {
+    for (size_t i = 0; Sheet.cell->Text.str[i] != '\0'; i++) {
         if (inputX >= charX) {
             index = i;
         }
-        sprintf(tmp, "%c", text[i]);
+        sprintf(tmp, "%c", Sheet.cell->Text.str[i]);
         charX += MeasureTextEx(UI.font, tmp, UI.fontSize, 1).x;
     }
     
-    free(text);
     free(tmp);
     return index;
 }
@@ -424,7 +419,7 @@ void CleanUp()
         UnloadTexture(UI.buttons[i].texture);
     }
     for (size_t i = 0; i < CELL_COUNT; i++) {
-        free(Sheet.cellList[i].gapStr.str);
+        free(Sheet.cellList[i].Text.str);
     }
     free(UI.buttons);
     free(Sheet.level_win);

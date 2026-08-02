@@ -52,23 +52,16 @@ typedef struct KeyboardState {
     bool alt;
 } KeyboardState;
 
-// 4 components: str, strLen, gapStart, gapEnd
-typedef struct GapBuffer {
-    char* str;
+typedef struct TextStruct {
+    char str[CELL_TEXT_LENGTH];
     size_t len;
-    size_t gapStart;
-    size_t gapEnd;
-} GapBuffer;
-
-// len, start
-typedef struct Selection {
-    size_t len;
-    size_t start;
-} Selection;
+    size_t cursor;
+    size_t anchor;
+} TextStruct;
 
 // 5 components: gapStr, color, highlight, alignment, selectable
 typedef struct Cell {
-    GapBuffer gapStr;
+    TextStruct Text;
     Alignment alignment : 2;
     Color color;
     Color highlight;
@@ -110,7 +103,6 @@ typedef struct Sheet_Info {
     Cell* cellList;
     Cell* cell;
     size_t index;
-    Selection selection; // No need for more than one selection at a time
     Players players;
     char* level_win;
 } Sheet_Info;

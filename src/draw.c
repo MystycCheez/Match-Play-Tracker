@@ -11,7 +11,7 @@
 #include "globals.h"
 #include "structs.h"
 #include "functions.h"
-#include "gap_buffer.h"
+
 
 void DrawSelectionBorders()
 {
@@ -25,40 +25,31 @@ void DrawCursor()
     if (Sheet.index == 0) return;
     Vector2 pos = {0};
     pos = GetCellPos(Sheet.index);
-    char* text = gapStrToStr(Sheet.cell->gapStr);
-    float span = MeasureTextEx(UI.font, text, UI.fontSize, 1).x;
-    float offset = MeasureTextEx(UI.font, Sheet.cell->gapStr.str, UI.fontSize, 1).x;
+    float span = MeasureTextEx(UI.font, Sheet.cell->Text.str, UI.fontSize, 1).x;
+    float offset = MeasureTextEx(UI.font, Sheet.cell->Text.str, UI.fontSize, 1).x;
     pos.x += (UI.cellWidth / 2) - (span / 2) + offset + 1;
     pos.y += 3;
     DrawLineEx(pos, (Vector2){pos.x, pos.y + UI.cellHeight - 5}, 1.0, LIGHTGRAY);
-
-    free(text);
 }
 
 void DrawTextCentered(Vector2 pos, Cell cell)
 {
-    char* text = gapStrToStr(cell.gapStr);
-    Vector2 size = MeasureTextEx(UI.font, text, UI.fontSize, 1);
+    Vector2 size = MeasureTextEx(UI.font, cell.Text.str, UI.fontSize, 1);
 
     pos.x = round(pos.x + (UI.cellWidth / 2) - (size.x / 2));
     pos.y = round(pos.y + (UI.cellHeight / 2) - (size.y / 2));
 
-    DrawTextEx(UI.font, text, pos, UI.fontSize, 1, cell.color);
-
-    free(text);
+    DrawTextEx(UI.font, cell.Text.str, pos, UI.fontSize, 1, cell.color);
 }
 
 void DrawTextLeftAligned(Vector2 pos, Cell cell)
 {
-    char* text = gapStrToStr(cell.gapStr);
-    Vector2 size = MeasureTextEx(UI.font, text, UI.fontSize, 1);
+    Vector2 size = MeasureTextEx(UI.font, cell.Text.str, UI.fontSize, 1);
 
     pos.x = round(pos.x + UI.fontSize / 2);
     pos.y = round(pos.y + (UI.cellHeight / 2) - (size.y / 2));
 
-    DrawTextEx(UI.font, text, pos, UI.fontSize, 1, cell.color);
-
-    free(text);
+    DrawTextEx(UI.font, cell.Text.str, pos, UI.fontSize, 1, cell.color);
 }
 
 void DrawTextAligned(Cell cell, size_t cellIndex)
@@ -79,30 +70,28 @@ void DrawTextAligned(Cell cell, size_t cellIndex)
     }
 }
 
+// TODO: Figure out Selection
 void DrawTextHighlight()
 {
     Vector2 pos = {0};
     pos = GetCellPos(Sheet.index);
 
-    char* cellText = gapStrToStr(Sheet.cell->gapStr);
-
     char* selectedText = strCreate(Sheet.selection.len + 1);
-    snprintf(selectedText, Sheet.selection.len + 1, "%s", cellText + Sheet.selection.start);
+    snprintf(selectedText, Sheet.selection.len + 1, "%s", Sheet.cell->Text.str + Sheet.selection.start);
     snprintf(selectedText + Sheet.selection.len, 1, "%s", "\0");
 
     float selectionSpan = MeasureTextEx(UI.font, selectedText, UI.fontSize, 1).x;
-    float cellTextSpan = MeasureTextEx(UI.font, cellText, UI.fontSize, 1).x;
+    float cellTextSpan = MeasureTextEx(UI.font, Sheet.cell->Text.str, UI.fontSize, 1).x;
 
     char* prefix = strCreate(Sheet.selection.start + 1);
     memset(prefix, 0, Sheet.selection.start + 1);
-    snprintf(prefix, Sheet.selection.start + 1, "%s", cellText);
+    snprintf(prefix, Sheet.selection.start + 1, "%s", Sheet.cell->Text.str);
     float offset = MeasureTextEx(UI.font, prefix, UI.fontSize, 1).x;
 
     pos.x += (UI.cellWidth / 2) - (cellTextSpan / 2) + offset;
     pos.y += 1;
     DrawRectangleRec((Rectangle){pos.x, pos.y, selectionSpan + 2, UI.cellHeight - 2}, COLOR_HIGHLIGHT);
 
-    free(cellText);
     free(selectedText);
     free(prefix);
 }
