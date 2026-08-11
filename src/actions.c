@@ -7,7 +7,8 @@
 
 #include "globals.h"
 #include "structs.h"
-#include "gap_buffer.h"
+// #include "gap_buffer.h"
+#include "text.h"
 #include "get.h"
 #include "io.h"
 #include "functions.h"
@@ -28,6 +29,7 @@ void A_ScopeDecrease()
 void A_SelectChar()
 {
     SelectChar(&Sheet.cell->gapStr, getMoveDir());
+    
 }
 
 void A_SelectAll()

@@ -3,6 +3,8 @@
 
 #include <string.h>
 
+#include <SDL3/SDL_clipboard.h>
+
 #include "structs.h"
 
 void SetText(TextStruct* Text, char* str)
@@ -18,6 +20,11 @@ void AppendChar(TextStruct* Text, char c)
             return;
         }
     }
+}
+
+void CopyText(char* text)
+{
+    SDL_SetClipboardText(text);
 }
 
 #endif

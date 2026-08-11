@@ -68,6 +68,11 @@ typedef struct Cell {
     bool selectable;
 } Cell;
 
+typedef struct Sheet {
+    Cell* cells;
+    size_t activeCell;
+} Sheet;
+
 // 4 components: p1, p2, s1, s2
 typedef struct Players {
     char* p1;

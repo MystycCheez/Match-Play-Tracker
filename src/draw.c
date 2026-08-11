@@ -71,29 +71,34 @@ void DrawTextAligned(Cell cell, size_t cellIndex)
 }
 
 // TODO: Figure out Selection
+// void DrawTextHighlight()
+// {
+//     Vector2 pos = {0};
+//     pos = GetCellPos(Sheet.index);
+
+//     char* selectedText = strCreate(Sheet.selection.len + 1);
+//     snprintf(selectedText, Sheet.selection.len + 1, "%s", Sheet.cell->Text.str + Sheet.selection.start);
+//     snprintf(selectedText + Sheet.selection.len, 1, "%s", "\0");
+
+//     float selectionSpan = MeasureTextEx(UI.font, selectedText, UI.fontSize, 1).x;
+//     float cellTextSpan = MeasureTextEx(UI.font, Sheet.cell->Text.str, UI.fontSize, 1).x;
+
+//     char* prefix = strCreate(Sheet.selection.start + 1);
+//     memset(prefix, 0, Sheet.selection.start + 1);
+//     snprintf(prefix, Sheet.selection.start + 1, "%s", Sheet.cell->Text.str);
+//     float offset = MeasureTextEx(UI.font, prefix, UI.fontSize, 1).x;
+
+//     pos.x += (UI.cellWidth / 2) - (cellTextSpan / 2) + offset;
+//     pos.y += 1;
+//     DrawRectangleRec((Rectangle){pos.x, pos.y, selectionSpan + 2, UI.cellHeight - 2}, COLOR_HIGHLIGHT);
+
+//     free(selectedText);
+//     free(prefix);
+// }
+
 void DrawTextHighlight()
 {
-    Vector2 pos = {0};
-    pos = GetCellPos(Sheet.index);
 
-    char* selectedText = strCreate(Sheet.selection.len + 1);
-    snprintf(selectedText, Sheet.selection.len + 1, "%s", Sheet.cell->Text.str + Sheet.selection.start);
-    snprintf(selectedText + Sheet.selection.len, 1, "%s", "\0");
-
-    float selectionSpan = MeasureTextEx(UI.font, selectedText, UI.fontSize, 1).x;
-    float cellTextSpan = MeasureTextEx(UI.font, Sheet.cell->Text.str, UI.fontSize, 1).x;
-
-    char* prefix = strCreate(Sheet.selection.start + 1);
-    memset(prefix, 0, Sheet.selection.start + 1);
-    snprintf(prefix, Sheet.selection.start + 1, "%s", Sheet.cell->Text.str);
-    float offset = MeasureTextEx(UI.font, prefix, UI.fontSize, 1).x;
-
-    pos.x += (UI.cellWidth / 2) - (cellTextSpan / 2) + offset;
-    pos.y += 1;
-    DrawRectangleRec((Rectangle){pos.x, pos.y, selectionSpan + 2, UI.cellHeight - 2}, COLOR_HIGHLIGHT);
-
-    free(selectedText);
-    free(prefix);
 }
 
 #endif
