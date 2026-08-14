@@ -70,7 +70,8 @@ typedef struct Cell {
 
 typedef struct Sheet {
     Cell* cells;
-    size_t activeCell;
+    Cell* activeCell;
+    size_t activeCellIndex;
 } Sheet;
 
 // 4 components: p1, p2, s1, s2

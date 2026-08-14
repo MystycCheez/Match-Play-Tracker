@@ -67,28 +67,52 @@ void A_ScopeDecrease(aoiData* Data)
     if (scope > 0) SetBindings(Data, {"Scope", scope -= 1});
 }
 
-// void A_SelectChar(aoiData* Data);
-// void A_SelectAll();
+void A_SelectChar(aoiData* Data)
+{
+    Sheet* sheet = GetUserData(Data, "Sheet");
+    TextStruct* Text = &sheet->cells[sheet->activeCellIndex].Text;
+
+    int* dir = GetUserData(Data, "MoveDir");
+
+    SelectChar(Text, *dir);
+}
+
+void A_SelectAll(aoiData* Data)
+{
+    Sheet* sheet = GetUserData(Data, "Sheet");
+    TextStruct* Text = &sheet->cells[sheet->activeCellIndex].Text;
+
+    SelectAll(Text);
+}
+
+
 // void A_SelectAllAtCursorTowardsDir();
 
 void A_MoveCursor(aoiData* Data)
 {
-    TextStruct* Text = GetUserData(Data, "Text");
+    Sheet* sheet = GetUserData(Data, "Sheet");
+    TextStruct* Text = &sheet->cells[sheet->activeCellIndex].Text;
+
     int* dir = GetUserData(Data, "MoveDir");
-    Text->cursor += *dir;
+
+    MoveCursor(Text, *dir);
 }
 
 // void A_MoveCursorByToken();
 
 void A_MoveCursorToStart(aoiData* Data)
 {
-    TextStruct* Text = GetUserData(Data, "Text");
+    Sheet* sheet = GetUserData(Data, "Sheet");
+    TextStruct* Text = &sheet->cells[sheet->activeCellIndex].Text;
+
     Text->cursor = 0;
 }
 
 void A_MoveCursorToEnd(aoiData* Data)
 {
-    TextStruct* Text = GetUserData(Data, "Text");
+    Sheet* sheet = GetUserData(Data, "Sheet");
+    TextStruct* Text = &sheet->cells[sheet->activeCellIndex].Text;
+
     Text->cursor = Text->len - 1;
 }
 
@@ -126,14 +150,16 @@ void A_ClearTimes(aoiData* Data)
 
 void A_Deselect(aoiData* Data)
 {
-    TextStruct* Text = GetUserData(Data, "Text");
+    Sheet* sheet = GetUserData(Data, "Sheet");
+    TextStruct* Text = &sheet->cells[sheet->activeCellIndex].Text;
+
     Text->anchor = -1;
 }
 
 void A_Overwrite_UpdateScore(aoiData* Data)
 {
     Sheet* sheet = GetUserData(Data, "Sheet");
-    if (sheet->activeCell % 3 == 0) {
+    if (sheet->activeCellIndex % 3 == 0) {
 
     } else {
         CellOverwriteHandler();
@@ -142,7 +168,7 @@ void A_Overwrite_UpdateScore(aoiData* Data)
     A_Deselect(Data);
     A_NavigateToNextCell(Data);
     A_ScopeDecrease(Data);
-    if (sheet->activeCell == 0) {
+    if (sheet->activeCellIndex == 0) {
         SetBindings(Data, {"Scope", SCOPE_OVERVIEW});
     } else SetBindings(Data, {"Scope", SCOPE_SHEET});
 }
@@ -157,7 +183,7 @@ void A_NavigateToNextCell(aoiData* Data)
 
 void A_Copy_All(aoiData* Data)
 {
-    Cell* cell = GetUserData(Data, "ActiveCell");
+    Cell* cell = GetUserData(Data, "activeCellIndex");
     if (!cell) return;
     SDL_SetClipboardText(cell->Text.str);
 }
@@ -168,7 +194,9 @@ void A_Copy_All(aoiData* Data)
 
 void A_PasteIntoCell(aoiData* Data)
 {
-    TextStruct* Text = GetUserData(Data, "Text");
+    Sheet* sheet = GetUserData(Data, "Sheet");
+    TextStruct* Text = &sheet->cells[sheet->activeCellIndex].Text;
+
     SetText(Text, SDL_GetClipboardText());
 
     SetBindings(Data, {"Scope", SCOPE_CELL});
@@ -184,10 +212,10 @@ void A_NavigateLeft(aoiData* Data)
     Sheet* sheet = GetUserData(Data, "Sheet");
 
     bool conditions = 
-    (sheet->cells[sheet->activeCell - 1].selectable == true) && 
-    (sheet->activeCell % 3 >= 1);
+    (sheet->cells[sheet->activeCellIndex - 1].selectable == true) && 
+    (sheet->activeCellIndex % 3 >= 1);
 
-    if (conditions) updateSheetIndex(sheet->activeCell - 1);
+    if (conditions) updateSheetIndex(sheet->activeCellIndex - 1);
 }
 
 void A_NavigateRight(aoiData* Data)
@@ -195,10 +223,10 @@ void A_NavigateRight(aoiData* Data)
     Sheet* sheet = GetUserData(Data, "Sheet");
 
     bool conditions = 
-    (sheet->cells[sheet->activeCell + 1].selectable == true) && 
-    (sheet->activeCell % 3 <= 1);
+    (sheet->cells[sheet->activeCellIndex + 1].selectable == true) && 
+    (sheet->activeCellIndex % 3 <= 1);
 
-    if (conditions) updateSheetIndex(sheet->activeCell + 1);
+    if (conditions) updateSheetIndex(sheet->activeCellIndex + 1);
 }
 
 void A_NavigateUp(aoiData* Data)
@@ -206,10 +234,10 @@ void A_NavigateUp(aoiData* Data)
     Sheet* sheet = GetUserData(Data, "Sheet");
 
     bool conditions = 
-    (sheet->cells[sheet->activeCell - 3].selectable == true) && 
-    (sheet->activeCell % 3 >= 1);
+    (sheet->cells[sheet->activeCellIndex - 3].selectable == true) && 
+    (sheet->activeCellIndex % 3 >= 1);
 
-    if (conditions) updateSheetIndex(sheet->activeCell - 3);
+    if (conditions) updateSheetIndex(sheet->activeCellIndex - 3);
 }
 
 void A_NavigateDown(aoiData* Data)
@@ -217,10 +245,10 @@ void A_NavigateDown(aoiData* Data)
     Sheet* sheet = GetUserData(Data, "Sheet");
 
     bool conditions = 
-    (sheet->cells[sheet->activeCell + 3].selectable == true) && 
-    (sheet->activeCell % 3 <= CELL_COUNT - 6);
+    (sheet->cells[sheet->activeCellIndex + 3].selectable == true) && 
+    (sheet->activeCellIndex % 3 <= CELL_COUNT - 6);
 
-    if (conditions) updateSheetIndex(sheet->activeCell + 3);
+    if (conditions) updateSheetIndex(sheet->activeCellIndex + 3);
 }
 
 void A_SwapVetoColor(aoiData* Data);
@@ -229,10 +257,10 @@ void A_ResetTextColor(aoiData* Data)
 {
     Sheet* sheet = GetUserData(Data, "Sheet");
 
-    if (sheet->activeCell % 3 == 0) {
-        sheet->cells[sheet->activeCell].color = COLOR_LEVEL;
+    if (sheet->activeCellIndex % 3 == 0) {
+        sheet->cells[sheet->activeCellIndex].color = COLOR_LEVEL;
     } else {
-        sheet->cells[sheet->activeCell].color = WHITE;
+        sheet->cells[sheet->activeCellIndex].color = WHITE;
     }
 }
 

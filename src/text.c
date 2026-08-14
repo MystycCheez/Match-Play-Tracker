@@ -22,6 +22,43 @@ void AppendChar(TextStruct* Text, char c)
     }
 }
 
+// Returns true if movement occured
+bool MoveCursor(TextStruct* Text, int moveDir)
+{
+    bool conditions = 
+    (Text->cursor + moveDir >= 0) ||
+    (Text->cursor + moveDir < Text->len);
+    if (conditions) {
+        Text->cursor += moveDir;
+        Text->anchor += moveDir;
+        return true;
+    }
+    return false;
+}
+
+// Returns true if movement occured
+bool SelectChar(TextStruct* Text, int moveDir)
+{
+    bool conditions = 
+    (Text->cursor + moveDir >= 0) ||
+    (Text->cursor + moveDir < Text->len);
+    if (conditions) {
+        Text->cursor += moveDir;
+        return true;
+    }
+    return false;
+}
+
+void SelectAll(TextStruct* Text)
+{
+    Text->cursor = 0;
+    Text->anchor = 0;
+
+    while (Text->cursor > Text->len) {
+        Text->cursor++;
+    }
+}
+
 void CopyText(char* text)
 {
     SDL_SetClipboardText(text);

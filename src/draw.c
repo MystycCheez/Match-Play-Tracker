@@ -6,6 +6,8 @@
 #include <string.h>
 #include <math.h>
 
+#include <aoi/aoi.h>
+
 #include "raylib.h"
 
 #include "globals.h"
@@ -13,53 +15,63 @@
 #include "functions.h"
 
 
-void DrawSelectionBorders()
+void DrawSelectionBorders(aoiData* Data)
 {
-    if (Sheet.index == 0) return;
-    Vector2 cellOrigin = indexToXY(Sheet.index);
-    DrawRectangleLinesEx((Rectangle){cellOrigin.x, cellOrigin.y + 1, UI.cellWidth - 1, UI.cellHeight - 1}, 2.0, RAYWHITE);
+    Sheet* sheet = GetUserData(Data, "Sheet");
+    UI_Elements* UI = GetUserData(Data, "UI");
+
+    if (sheet->activeCellIndex == 0) return;
+    Vector2 cellOrigin = indexToXY(sheet->activeCellIndex);
+    DrawRectangleLinesEx((Rectangle){cellOrigin.x, cellOrigin.y + 1, UI->cellWidth - 1, UI->cellHeight - 1}, 2.0, RAYWHITE);
 }
 
-void DrawCursor()
+void DrawCursor(aoiData* Data)
 {
-    if (Sheet.index == 0) return;
+    Sheet* sheet = GetUserData(Data, "Sheet");
+    UI_Elements* UI = GetUserData(Data, "UI");
+
+    if (sheet->activeCellIndex == 0) return;
     Vector2 pos = {0};
-    pos = GetCellPos(Sheet.index);
-    float span = MeasureTextEx(UI.font, Sheet.cell->Text.str, UI.fontSize, 1).x;
-    float offset = MeasureTextEx(UI.font, Sheet.cell->Text.str, UI.fontSize, 1).x;
-    pos.x += (UI.cellWidth / 2) - (span / 2) + offset + 1;
+    pos = GetCellPos(sheet->activeCellIndex);
+    float span = MeasureTextEx(UI->font, sheet->activeCell->Text.str, UI->fontSize, 1).x;
+    float offset = MeasureTextEx(UI->font, sheet->activeCell->Text.str, UI->fontSize, 1).x;
+    pos.x += (UI->cellWidth / 2) - (span / 2) + offset + 1;
     pos.y += 3;
-    DrawLineEx(pos, (Vector2){pos.x, pos.y + UI.cellHeight - 5}, 1.0, LIGHTGRAY);
+    DrawLineEx(pos, (Vector2){pos.x, pos.y + UI->cellHeight - 5}, 1.0, LIGHTGRAY);
 }
 
-void DrawTextCentered(Vector2 pos, Cell cell)
+void DrawTextCentered(aoiData* Data, Vector2 pos, Cell cell)
 {
-    Vector2 size = MeasureTextEx(UI.font, cell.Text.str, UI.fontSize, 1);
+    UI_Elements* UI = GetUserData(Data, "UI");
 
-    pos.x = round(pos.x + (UI.cellWidth / 2) - (size.x / 2));
-    pos.y = round(pos.y + (UI.cellHeight / 2) - (size.y / 2));
+    Vector2 size = MeasureTextEx(UI->font, cell.Text.str, UI->fontSize, 1);
 
-    DrawTextEx(UI.font, cell.Text.str, pos, UI.fontSize, 1, cell.color);
+    pos.x = round(pos.x + (UI->cellWidth / 2) - (size.x / 2));
+    pos.y = round(pos.y + (UI->cellHeight / 2) - (size.y / 2));
+
+    DrawTextEx(UI->font, cell.Text.str, pos, UI->fontSize, 1, cell.color);
 }
 
-void DrawTextLeftAligned(Vector2 pos, Cell cell)
+void DrawTextLeftAligned(aoiData* Data, Vector2 pos, Cell cell)
 {
-    Vector2 size = MeasureTextEx(UI.font, cell.Text.str, UI.fontSize, 1);
+    UI_Elements* UI = GetUserData(Data, "UI");
 
-    pos.x = round(pos.x + UI.fontSize / 2);
-    pos.y = round(pos.y + (UI.cellHeight / 2) - (size.y / 2));
+    Vector2 size = MeasureTextEx(UI->font, cell.Text.str, UI->fontSize, 1);
 
-    DrawTextEx(UI.font, cell.Text.str, pos, UI.fontSize, 1, cell.color);
+    pos.x = round(pos.x + UI->fontSize / 2);
+    pos.y = round(pos.y + (UI->cellHeight / 2) - (size.y / 2));
+
+    DrawTextEx(UI->font, cell.Text.str, pos, UI->fontSize, 1, cell.color);
 }
 
-void DrawTextAligned(Cell cell, size_t cellIndex)
+void DrawTextAligned(aoiData* Data, Cell cell, size_t cellIndex)
 {
     switch (cell.alignment) {
     case ALIGN_LEFT:
-        DrawTextLeftAligned(GetCellPos(cellIndex), cell);
+        DrawTextLeftAligned(Data, GetCellPos(cellIndex), cell);
         break;
     case ALIGN_CENTER:
-        DrawTextCentered(GetCellPos(cellIndex), cell);
+        DrawTextCentered(Data, GetCellPos(cellIndex), cell);
         break;
     case ALIGN_RIGHT:
         assert(!"TODO: ALIGN_RIGHT");
